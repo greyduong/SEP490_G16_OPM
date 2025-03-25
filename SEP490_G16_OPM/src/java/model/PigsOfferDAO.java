@@ -98,7 +98,7 @@ public class PigsOfferDAO extends DBContext {
                 offer.setStartDate(rs.getDate("StartDate"));
                 offer.setEndDate(rs.getDate("EndDate"));
                 offer.setStatus(rs.getString("Status"));
-                offer.setCreatedAt(rs.getTimestamp("CreatedAt"));             
+                offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
             }
             rs.close();
             stm.close();
@@ -106,6 +106,33 @@ public class PigsOfferDAO extends DBContext {
             e.printStackTrace();
         }
         return offer;
+    }
+
+    //create offer
+    public boolean createPigsOffer(PigsOffer offer) {
+        String sql = "INSERT INTO PigsOffer (SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status, CreatedAt) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, offer.getSellerID());
+            stm.setInt(2, offer.getFarmID());
+            stm.setInt(3, offer.getCategoryID());
+            stm.setString(4, offer.getName());
+            stm.setString(5, offer.getPigBreed());
+            stm.setInt(6, offer.getQuantity());
+            stm.setInt(7, offer.getMinQuantity());
+            stm.setDouble(8, offer.getMinDeposit());
+            stm.setDouble(9, offer.getRetailPrice());
+            stm.setDouble(10, offer.getTotalOfferPrice());
+            stm.setString(11, offer.getDescription());
+            stm.setString(12, offer.getImageURL());
+            stm.setDate(13, offer.getStartDate());
+            stm.setDate(14, offer.getEndDate());
+            stm.setString(15, offer.getStatus());
+            return stm.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static void main(String[] args) {
