@@ -7,14 +7,24 @@ package controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Paths;
+import java.sql.Date;
+import model.PigsOffer;
+import model.PigsOfferDAO;
 
 /**
  *
  * @author duong
  */
+
+// xử lý file upload qua form có enctype="multipart/form-data"
+@MultipartConfig
 public class CreatePigsOfferController extends HttpServlet {
 
     /**
@@ -34,7 +44,7 @@ public class CreatePigsOfferController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet CreatePigsOfferController</title>");            
+            out.println("<title>Servlet CreatePigsOfferController</title>");
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet CreatePigsOfferController at " + request.getContextPath() + "</h1>");
@@ -69,7 +79,53 @@ public class CreatePigsOfferController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        PigsOffer offer = new PigsOffer();
+        offer.setSellerID(1); // Hardcode hoặc lấy theo session user
+        offer.setFarmID(1);
+        offer.setCategoryID(1);
+        offer.setName(request.getParameter("name"));
+        offer.setPigBreed(request.getParameter("pigBreed"));
+        offer.setQuantity(Integer.parseInt(request.getParameter("quantity")));
+        offer.setMinQuantity(Integer.parseInt(request.getParameter("minQuantity")));
+        offer.setMinDeposit(Double.parseDouble(request.getParameter("minDeposit")));
+        offer.setRetailPrice(Double.parseDouble(request.getParameter("retailPrice")));
+        offer.setTotalOfferPrice(Double.parseDouble(request.getParameter("totalOfferPrice")));
+        offer.setDescription(request.getParameter("description"));
+
+        // Xử lý upload ảnh
+        String uploadPath = getServletContext().getRealPath("/img/pigs");
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        Part filePart = request.getPart("imageFile");
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String filePath = uploadPath + File.separator + fileName;
+        filePart.write(filePath);
+
+        // Lưu đường dẫn ảnh vào DB
+        offer.setImageURL("img/pigs/" + fileName);
+
+        // Xử lý ngày
+        try {
+            offer.setStartDate(Date.valueOf(request.getParameter("startDate")));
+            offer.setEndDate(Date.valueOf(request.getParameter("endDate")));
+        } catch (IllegalArgumentException e) {
+            response.getWriter().println("Ngày không đúng định dạng yyyy-MM-dd");
+            return;
+        }
+
+        offer.setStatus("Active");
+
+        PigsOfferDAO dao = new PigsOfferDAO();
+        boolean check = dao.createPigsOffer(offer);
+        if (check) {
+            response.sendRedirect("homepage.jsp");
+        } else {
+            response.getWriter().print("Create Failed!");
+        }
+
     }
 
     /**
