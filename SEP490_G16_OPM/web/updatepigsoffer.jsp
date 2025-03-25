@@ -227,78 +227,65 @@
         </section>
         <!-- Breadcrumb Section End -->
 
-        <!-- Product Details Section Begin -->
+        <!-- Update Pigs Offer Section Begin -->
         <section class="product-details spad">
             <div class="container">
-                <div class="row">
-                    <!-- Image Section -->
-                    <div class="col-lg-6 col-md-6">
-                        <div class="product__details__pic">
-                            <img class="product__details__pic__item--large" 
-                                 src="ImageServlet?folder=pigs&file=${offer.imageURL}" 
-                                 alt="${offer.name}" 
-                                 style="max-width: 100%; height: auto; border-radius: 10px;">
-                        </div>
-                    </div>
+                <h2 class="text-center mb-5">Update Pigs Offer</h2>
+                <form action="UpdatePigsOffer" method="post" enctype="multipart/form-data">
+                    <!-- Hidden OfferID để update -->
+                    <input type="hidden" name="offerId" value="${offer.offerID}">
 
-                    <!-- Offer Information Section -->
-                    <div class="col-lg-6 col-md-6">
-                        <div class="product__details__text" style="line-height: 1.6;">
-                            <div class="product__details__text">
-                                <h3 style="color: #28a745; margin-bottom: 16px;">${offer.name}</h3>
-
-                                <p style="margin-bottom: 8px;"><strong>Breed:</strong> ${offer.pigBreed}</p>
-                                <p style="margin-bottom: 8px;"><strong>Farm:</strong> Trang Trại 1</p>
-                                <p style="margin-bottom: 8px;"><strong>Available Quantity:</strong> ${offer.quantity} pigs</p>
-                                <p style="margin-bottom: 8px;"><strong>Minimum Order:</strong> ${offer.minQuantity} pigs</p>
-
-                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                                    <h4 style="color: #d43f3a; margin-bottom: 10px;">Price Details</h4>
-                                    <p style="margin-bottom: 8px;"><strong>Per Pig:</strong> <fmt:formatNumber value="${offer.retailPrice}" type="number" groupingUsed="true"/> đ</p>
-                                    <p style="margin-bottom: 8px;"><strong>Total Offer:</strong> <fmt:formatNumber value="${offer.totalOfferPrice}" type="number" groupingUsed="true"/> đ</p>
-                                    <p style="margin-bottom: 8px;"><strong>Minimum Deposit:</strong> <fmt:formatNumber value="${offer.minDeposit}" type="number" groupingUsed="true"/> đ</p>
-                                </div>
-
-                                <p style="margin-top: 15px; margin-bottom: 8px;"><strong>Start Date:</strong> <fmt:formatDate value="${offer.startDate}" pattern="dd/MM/yyyy"/></p>
-                                <p style="margin-bottom: 8px;"><strong>End Date:</strong> <fmt:formatDate value="${offer.endDate}" pattern="dd/MM/yyyy"/></p>
-                            </div>
-
-                            <div class="my-3">
-                                <h5>Description</h5>
-                                <p>${offer.description}</p>
-                            </div>
-
-                            <div class="mt-4">
-                                <a href="#" class="primary-btn">Buy Now</a>
-                                <a href="#" class="btn btn-outline-secondary ml-3">Add to Cart</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Other Offers Section -->
-                <div class="mt-5">
-                    <h4 class="mb-4">Other Offers</h4>
                     <div class="row">
-                        <c:forEach var="o" items="${otherOffers}">
-                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                <div class="product__item shadow-sm rounded">
-                                    <div class="product__item__pic set-bg" data-setbg="ImageServlet?folder=pigs&file=${o.imageURL}" style="height:200px; border-radius:10px;"></div>
-                                    <div class="product__item__text p-3" style="line-height: 1.6;">
-                                        <h6><a href="PigsOfferDetails?offerId=${o.offerID}">${o.name}</a></h6>
-                                        <p>Farm: Trang Trại ${o.farmID}</p>
-                                        <p>Price: <fmt:formatNumber value="${o.retailPrice}" type="number" groupingUsed="true"/> đ / pig</p>
-                                        <p>Quantity: ${o.quantity} pigs</p>
-                                        <p>Due: <fmt:formatDate value="${o.endDate}" pattern="dd/MM/yyyy"/></p>
-                                    </div>
-                                </div>
+                        <div class="col-lg-6">
+                            <label>Name</label>
+                            <input type="text" name="name" class="form-control" value="${offer.name}" required>
+
+                            <label>Pig Breed</label>
+                            <input type="text" name="pigBreed" class="form-control" value="${offer.pigBreed}" required>
+
+                            <label>Quantity</label>
+                            <input type="number" name="quantity" class="form-control" value="${offer.quantity}" required>
+
+                            <label>Minimum Quantity</label>
+                            <input type="number" name="minQuantity" class="form-control" value="${offer.minQuantity}" required>
+
+                            <label>Retail Price (VND)</label>
+                            <input type="text" name="retailPrice" class="form-control" value="${offer.retailPrice}" required>
+
+                            <label>Total Offer Price (VND)</label>
+                            <input type="text" name="totalOfferPrice" class="form-control" value="${offer.totalOfferPrice}" required>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label>Minimum Deposit (VND)</label>
+                            <input type="text" name="minDeposit" class="form-control" value="${offer.minDeposit}" required>
+
+                            <label>Start Date</label>
+                            <input type="date" name="startDate" class="form-control" value="${offer.startDate}" required>
+
+                            <label>End Date</label>
+                            <input type="date" name="endDate" class="form-control" value="${offer.endDate}" required>
+
+                            <label>Description</label>
+                            <textarea name="description" class="form-control" rows="4" required>${offer.description}</textarea>
+
+                            <label>Current Image</label><br>
+                            <img src="ImageServlet?folder=pigs&file=${offer.imageURL}" alt="Current Image" style="max-width: 300px; height: auto; border:1px solid #ccc;"><br><br>
+
+                            <label>Upload New Image (optional)</label>
+                            <input type="file" name="imageFile" class="form-control">
+
+                            <div class="mt-4 text-center">
+                                <button type="submit" class="btn btn-primary">Update Offer</button>
+                                <a href="offerList.jsp" class="btn btn-secondary">Cancel</a>
                             </div>
-                        </c:forEach>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         </section>
-        <!-- Product Details Section End -->
+        <!-- Update Pigs Offer Section End -->
+
 
         <!-- Footer Section Begin -->
         <footer class="footer spad">

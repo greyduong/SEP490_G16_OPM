@@ -4,6 +4,7 @@
  */
 package controller;
 
+import static config.UploadConfig.PIGS_UPLOAD_PATH;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.Part;
 import java.io.File;
 import java.nio.file.Paths;
 import java.sql.Date;
+import java.util.UUID;
 import model.PigsOffer;
 import model.PigsOfferDAO;
 
@@ -22,7 +24,6 @@ import model.PigsOfferDAO;
  *
  * @author duong
  */
-
 // xử lý file upload qua form có enctype="multipart/form-data"
 @MultipartConfig
 public class CreatePigsOfferController extends HttpServlet {
@@ -93,19 +94,28 @@ public class CreatePigsOfferController extends HttpServlet {
         offer.setDescription(request.getParameter("description"));
 
         // Xử lý upload ảnh
-        String uploadPath = getServletContext().getRealPath("/img/pigs");
+        String uploadPath = PIGS_UPLOAD_PATH;
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
         Part filePart = request.getPart("imageFile");
-        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-        String filePath = uploadPath + File.separator + fileName;
-        filePart.write(filePath);
+        String fileName = null;
+        if (filePart != null && filePart.getSize() > 0) {
+            // Lấy tên file an toàn
+            fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
 
-        // Lưu đường dẫn ảnh vào DB
-        offer.setImageURL("img/pigs/" + fileName);
+            fileName = UUID.randomUUID() + "_" + fileName;
+            String filePath = uploadPath + File.separator + fileName;
+            filePart.write(filePath);
+
+            // Chỉ lưu tên file vào DB
+            offer.setImageURL(fileName);
+        } else {
+            // Nếu không upload ảnh thì lưu null hoặc giá trị mặc định
+            offer.setImageURL(null);
+        }
 
         // Xử lý ngày
         try {

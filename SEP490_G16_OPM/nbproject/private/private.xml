@@ -2,6 +2,16 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/web/pigsofferdetails.jsp</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/src/java/model/PigsOfferDAO.java</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/web/homepage.jsp</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/src/java/controller/CreatePigsOfferController.java</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/src/java/model/PigsOffer.java</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/src/java/controller/UpdatePigsOfferController.java</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/web/updatepigsoffer.jsp</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/src/java/config/UploadConfig.java</file>
+            <file>file:/C:/Users/duong/Desktop/SEP490_G16_OPM/SEP490_G16_OPM/src/java/controller/ImageServlet.java</file>
+        </group>
     </open-files>
 </project-private>
