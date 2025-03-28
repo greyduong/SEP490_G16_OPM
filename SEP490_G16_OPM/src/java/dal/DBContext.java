@@ -6,43 +6,24 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-/**
- *
- * @author FPT University - PRJ30X
- */
 public class DBContext {
 
     protected Connection connection;
+    private final String user = "sa";
+    private final String password = "123";
+    private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
+    private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
     public DBContext() {
-        //@Students: You are allowed to edit user, pass, url variables to fit 
-        //your system configuration
-        //You can also add more methods for Database Interaction tasks. 
-        //But we recommend you to do it in another class
-        // For example : StudentDBContext extends DBContext , 
-        //where StudentDBContext is located in dal package, 
         try {
-            String user = "sa";
-            String pass = "123";
-            String url = "jdbc:sqlserver://GREY:1433;databaseName=OPM";
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            connection = DriverManager.getConnection(url, user, pass);
+            Class.forName(className);
+            connection = DriverManager.getConnection(connectUrl, user, password);
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-//    public static void main(String[] args) {
-//        DBContext db = new DBContext();
-//        if (db.connection != null) {
-//            System.out.println("✅ Connection successful!");
-//        } else {
-//            System.out.println("❌ Connection failed!");
-//        }
-//    }
-
+    
+    public Connection getConnection() {
+        return this.connection;
+    }
 }
