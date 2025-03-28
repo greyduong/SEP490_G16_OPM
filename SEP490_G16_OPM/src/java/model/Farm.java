@@ -1,49 +1,51 @@
 package model;
 
 import model.constant.FarmStatus;
+import java.sql.Timestamp;
 
 public class Farm {
 
-    private long id;
-    private User owner;
-    private String name;
-    private String address;
+    private int farmID;
+    private int sellerID;
+    private String farmName;
+    private String location;
     private String description;
     private FarmStatus status;
+    private Timestamp createdAt;
 
     public Farm() {
     }
 
-    public long getId() {
-        return id;
+    public int getFarmID() {
+        return farmID;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setFarmID(int farmID) {
+        this.farmID = farmID;
     }
 
-    public User getOwner() {
-        return owner;
+    public int getSellerID() {
+        return sellerID;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setSellerID(int sellerID) {
+        this.sellerID = sellerID;
     }
 
-    public String getName() {
-        return name;
+    public String getFarmName() {
+        return farmName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFarmName(String farmName) {
+        this.farmName = farmName;
     }
 
-    public String getAddress() {
-        return address;
+    public String getLocation() {
+        return location;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getDescription() {
@@ -60,5 +62,13 @@ public class Farm {
 
     public void setStatus(FarmStatus status) {
         this.status = status;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }
