@@ -3,7 +3,13 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Pagination data class
+ *
+ * @param <T> item data type
+ */
 public class Page<T> {
+
     private int pageNumber = 1;
     private int pageSize = 10;
     private List<T> data = new ArrayList<>();
@@ -31,5 +37,4 @@ public class Page<T> {
     public void setData(List data) {
         this.data = data;
     }
-    
 }
