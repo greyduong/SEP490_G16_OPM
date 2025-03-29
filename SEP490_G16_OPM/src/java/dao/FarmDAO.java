@@ -8,8 +8,8 @@ import model.Page;
 public class FarmDAO extends DBContext {
 
     public Page<Farm> getAllFarm(int pageNumber, int pageSize) {
-        String selectQuery = "SELECT * FROM Farm ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        String countQuery = "SELECT COUT(*) FROM Farm";
+        String selectQuery = "SELECT * FROM Farm WHERE Status = 'Active' ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String countQuery = "SELECT COUNT(*) FROM Farm WHERE Status = 'Active'";
         Page<Farm> page = new Page<>();
         if (pageNumber < 1) {
             pageNumber = 1;
@@ -38,5 +38,12 @@ public class FarmDAO extends DBContext {
     
     public void updateFarm(Farm farm) {
         update(Farm.class, farm);
+    }
+    
+    public void deleteFarm(int id) {
+        Farm farm = new Farm();
+        farm.setFarmID(id);
+        farm.setStatus("Inactive");
+        updateFarm(farm);
     }
 }
