@@ -68,7 +68,7 @@ public class Farm {
         this.status = status;
     }
 
-    public String getStatus(String status) {
+    public String getStatus() {
         return this.status;
     }
 
