@@ -5,8 +5,8 @@ import java.sql.Timestamp;
 
 public class Farm {
 
-    private int farmID;
-    private int sellerID;
+    private Integer farmID;
+    private Integer sellerID;
     private String farmName;
     private String location;
     private String description;
@@ -71,4 +71,21 @@ public class Farm {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+
+    @Override
+    public String toString() {
+        return """
+               Farm {
+               \tFarmID = %s
+               \tSellerID = %s
+               \tFarmName = %s
+               \tLocation = %s
+               \tDescription = %s
+               \tStatus = %s
+               \tCreatedAt = %s
+               }
+               """.formatted(farmID, sellerID, farmName, location, description, status == null ? "null" : status.name(), createdAt == null ? "null" : createdAt.toString());
+    }
+    
+    
 }
