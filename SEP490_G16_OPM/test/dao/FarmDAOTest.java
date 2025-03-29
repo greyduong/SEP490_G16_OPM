@@ -50,4 +50,11 @@ public class FarmDAOTest {
         assert deleted.getStatus().equals("Inactive");
         System.out.println(deleted);
     }
+    
+    @Test
+    public void testSearchFarm() {
+        FarmDAO dao = new FarmDAO();
+        Page<Farm> page = dao.searchFarm("Example", 1, 5);
+        page.getData().forEach(System.out::println);
+    }
 }
