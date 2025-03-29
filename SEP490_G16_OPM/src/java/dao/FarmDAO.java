@@ -1,19 +1,15 @@
-package dal;
+package dao;
 
+import dal.DBContext;
 import java.util.List;
 import model.Farm;
 import model.Page;
 
 public class FarmDAO extends DBContext {
 
-    /**
-     * Fetch farms data
-     * @param pageNumber page number (default 1)
-     * @param pageSize page size (default 10)
-     * @return {@link Page}
-     */
     public Page<Farm> getAllFarm(int pageNumber, int pageSize) {
-        String query = "SELECT * FROM Farm ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String selectQuery = "SELECT * FROM Farm ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String countQuery = "SELECT COUT(*) FROM Farm";
         Page<Farm> page = new Page<>();
         if (pageNumber < 1) {
             pageNumber = 1;
@@ -22,7 +18,10 @@ public class FarmDAO extends DBContext {
             pageSize = 10;
         }
         int offset = (pageNumber - 1) * pageSize;
-        List<Farm> data = fetchAll(Farm.class, query, offset, pageSize);
+        List<Farm> data = fetchAll(Farm.class, selectQuery, offset, pageSize);
+        int totalRows = count(countQuery);
+        int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
+        page.setTotalPage(totalPages);
         if (data == null) return null;
         page.setData(data);
         return page;
@@ -31,5 +30,13 @@ public class FarmDAO extends DBContext {
     public Farm getFarm(int farmId) {
         String query = "SELECT * FROM Farm WHERE FarmID = ?";
         return fetchOne(Farm.class, query, farmId);
+    }
+    
+    public int createFarm(Farm farm) {
+        return insert(Farm.class, farm);
+    }
+    
+    public void updateFarm(Farm farm) {
+        update(Farm.class, farm);
     }
 }

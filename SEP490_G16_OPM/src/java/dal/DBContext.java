@@ -1,5 +1,6 @@
 package dal;
 
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -11,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import util.ClassConvertor;
+import java.util.stream.Collectors;
+import util.DatabaseMapper;
 
 public class DBContext {
 
@@ -43,8 +45,8 @@ public class DBContext {
         return pstm;
     }
 
-    public PreparedStatement prepareStatementReturnId(String query, String id, Object... params) throws SQLException {
-        PreparedStatement pstm = connection.prepareStatement(query, new String[]{id});
+    public PreparedStatement prepareStatementReturnKeys(String query, Object... params) throws SQLException {
+        PreparedStatement pstm = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
         int index = 1;
         for (Object param : params) {
             pstm.setObject(index++, param);
@@ -54,7 +56,7 @@ public class DBContext {
 
     public <T> List<T> fetchAll(Class<T> clazz, String query, Object... params) {
         List<T> result = new ArrayList<>();
-        ClassConvertor<T> convertor = new ClassConvertor<>(clazz);
+        DatabaseMapper<T> convertor = new DatabaseMapper<>(clazz);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             while (rs.next()) {
                 T item = convertor.fromResultSet(rs);
@@ -68,7 +70,7 @@ public class DBContext {
     }
 
     public <T> T fetchOne(Class<T> clazz, String query, Object... params) {
-        ClassConvertor<T> convertor = new ClassConvertor<>(clazz);
+        DatabaseMapper<T> convertor = new DatabaseMapper<>(clazz);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             if (rs.next()) {
                 T item = convertor.fromResultSet(rs);
@@ -80,26 +82,28 @@ public class DBContext {
             throw new RuntimeException(ex.getMessage());
         }
     }
+    
+    public int count(String query, Object... params) {
+        try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            throw new SQLException("No result");
+        } catch (SQLException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
 
-    /**
-     * Thêm data và trả về ID của row vừa tạo
-     * @param <T> 
-     * @param clazz
-     * @param table Tên bảng
-     * @param id tên cột của id (ví dụ: FarmID)
-     * @param data Farm object chứa data cần tạo
-     * @param columns Tên các cột
-     * @return 
-     */
-    public <T> int insert(Class<T> clazz, String table, String id, T data, String... columns) {
-        ClassConvertor<T> convertor = new ClassConvertor<>(clazz);
-        Map<String, Object> nonNullFields = convertor.getNotNullFields(data);
-        List<String> nonNullColumns = Arrays.asList(columns).stream().filter(col -> nonNullFields.containsKey(col.toLowerCase())).toList();
-        List<Object> nonNullValues = nonNullColumns.stream().map(col -> nonNullFields.get(col.toLowerCase())).toList();
-        String query = "INSERT INTO %s ".formatted(table);
-        query += "(" + String.join(", ", nonNullColumns) + ")";
-        query += " VALUES (" + String.join(", ", "?".repeat(nonNullColumns.size()).split("")) + ")";
-        try (PreparedStatement pstm = prepareStatementReturnId(query, id, nonNullValues.toArray())) {
+    public <T> int insert(Class<T> clazz, T data) {
+        DatabaseMapper<T> mapper = new DatabaseMapper<>(clazz);
+        Map<String, Object> fields = mapper.getFields(data);
+        List<String> columns = fields.keySet().stream().toList();
+        List<Object> values = columns.stream().map(col -> fields.get(col)).toList();
+        String query = "INSERT INTO %s ".formatted(mapper.getTableName());
+        query += "(" + String.join(", ", columns) + ")";
+        query += " VALUES (" + String.join(", ", "?".repeat(columns.size()).split("")) + ")";
+        try (PreparedStatement pstm = prepareStatementReturnKeys(query, values.toArray())) {
             int rows = pstm.executeUpdate();
             if (rows == 0) {
                 throw new SQLException("Insert failed");
@@ -109,6 +113,31 @@ public class DBContext {
                 return generatedKey.getInt(1);
             } else {
                 throw new SQLException("Insert failed");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    
+    public <T> void update(Class<T> clazz, T data) {
+        DatabaseMapper<T> mapper = new DatabaseMapper<>(clazz);
+        Map<String, Object> fields = mapper.getFields(data);
+        String primaryKey = mapper.getPrimaryKey();
+        int id = mapper.getPrimaryKey(data);
+        List<String> columns = fields.keySet().stream().filter(col -> !col.equals(primaryKey)).toList();
+        List<Object> values = columns.stream().map(col -> fields.get(col)).toList();
+        String query = "UPDATE %s".formatted(mapper.getTableName());
+        query += " SET " + String.join(", ", columns.stream().map(col -> "%s = ?".formatted(col)).toList());
+        query += " WHERE %s = ? ".formatted(mapper.getPrimaryKey());
+        List<Object> params = new ArrayList<>();
+        params.addAll(values);
+        params.add(id);
+        Logger.getLogger(DBContext.class.getName()).info(query);
+        try (PreparedStatement pstm = prepareStatement(query, params.toArray())) {
+            int rows = pstm.executeUpdate();
+            if (rows == 0) {
+                throw new SQLException("Update failed");
             }
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);

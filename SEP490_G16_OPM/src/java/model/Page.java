@@ -12,6 +12,7 @@ public class Page<T> {
 
     private int pageNumber = 1;
     private int pageSize = 10;
+    private int totalPage;
     private List<T> data = new ArrayList<>();
 
     public int getPageNumber() {
@@ -37,4 +38,13 @@ public class Page<T> {
     public void setData(List data) {
         this.data = data;
     }
+
+    public int getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(int totalPage) {
+        this.totalPage = totalPage;
+    }
+
 }

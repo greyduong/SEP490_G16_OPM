@@ -1,16 +1,16 @@
 package model;
 
-import model.constant.FarmStatus;
 import java.sql.Timestamp;
 
+@Table("Farm")
 public class Farm {
-
+    @PrimaryKey
     private Integer farmID;
     private Integer sellerID;
     private String farmName;
     private String location;
     private String description;
-    private FarmStatus status;
+    private String status;
     private Timestamp createdAt;
 
     public Farm() {
@@ -56,20 +56,20 @@ public class Farm {
         this.description = description;
     }
 
-    public FarmStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FarmStatus status) {
-        this.status = status;
-    }
-
     public Timestamp getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus(String status) {
+        return this.status;
     }
 
     @Override
@@ -84,8 +84,6 @@ public class Farm {
                \tStatus = %s
                \tCreatedAt = %s
                }
-               """.formatted(farmID, sellerID, farmName, location, description, status == null ? "null" : status.name(), createdAt == null ? "null" : createdAt.toString());
+               """.formatted(farmID, sellerID, farmName, location, description, status, createdAt == null ? "null" : createdAt.toString());
     }
-    
-    
 }

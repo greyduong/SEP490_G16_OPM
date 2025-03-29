@@ -1,5 +1,6 @@
 package dal;
 
+import dao.FarmDAO;
 import model.Farm;
 import model.Page;
 import org.junit.Test;

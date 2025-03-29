@@ -16,25 +16,29 @@
         <body>
         <jsp:include page="../component/header.jsp"></jsp:include>
             <section class="container">
-                <div class="row row-cols-3">
+                <div class="row row-cols-3 py-2">
                 <c:forEach items="${farms.getData()}" var="farm">
                     <div class="col">
-                        <div>
+                        <div class="flex flex-col gap-2">
                             <div>
                                 <img src="img/blog/blog-1.jpg" alt="">
                             </div>
-                            <div>
-                                <h5 class="fw-bold">${farm.getFarmName()}</h5>
-                                <div>${farm.getLocation()}</div>
+                            <div class="flex flex-col gap-2">
+                                <div>
+                                    <h5 class="!font-bold">${farm.getFarmName()}</h5>
+                                    <div>${farm.getLocation()}</div>
+                                </div>
                                 <div>${farm.getDescription()}</div>
                             </div>
                         </div>
                     </div>
                 </c:forEach>
             </div>
-                <div class="d-flex" style="gap: .3rem;">
-                    <a>Previous</a>
-                    <a>Next</a>
+                <div class="d-flex justify-content-center">
+                    <div class="d-flex" style="gap: .3rem;">
+                        <a class="btn btn-secondary" href="?pageNumber=${previousPage}">Previous</a>
+                        <a class="btn btn-secondary" href="?pageNumber=${nextPage}">Next</a>
+                    </div>
                 </div>
         </section>
         <jsp:include page="../component/footer.jsp"></jsp:include>
