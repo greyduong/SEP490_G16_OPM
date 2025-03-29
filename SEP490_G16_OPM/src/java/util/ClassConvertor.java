@@ -28,6 +28,20 @@ public class ClassConvertor<T> {
             throw new RuntimeException(ex.getMessage());
         }
     }
+    
+    public Map<String, Object> getNotNullFields(T instance) {
+        Map<String, Object> result = new HashMap<>();
+        fields.forEach((key, field) -> {
+            try {
+                Object value = field.get(instance);
+                if (value == null) return;
+                result.put(key, value);
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
+                Logger.getLogger(ClassConvertor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        return result;
+    }
 
     public T fromResultSet(ResultSet rs) throws SQLException {
         try {
