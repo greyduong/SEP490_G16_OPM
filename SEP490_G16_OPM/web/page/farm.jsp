@@ -16,27 +16,13 @@
         <body>
         <jsp:include page="../component/header.jsp"></jsp:include>
             <section class="container">
-                <div class="row row-cols-3">
-                <c:forEach items="${farms.getData()}" var="farm">
-                    <div class="col">
-                        <div>
-                            <div>
-                                <img src="img/blog/blog-1.jpg" alt="">
-                            </div>
-                            <div>
-                                <h5 class="fw-bold">${farm.getFarmName()}</h5>
-                                <div>${farm.getLocation()}</div>
-                                <div>${farm.getDescription()}</div>
-                            </div>
-                        </div>
-                    </div>
-                </c:forEach>
-            </div>
-                <div class="d-flex" style="gap: .3rem;">
-                    <a>Previous</a>
-                    <a>Next</a>
+                <div>
+                    <div>ID = ${farm.getFarmID()}</div>
+                    <div>Name = ${farm.getFarmName()}</div>
+                    <div>Location = ${farm.getLocation()}</div>
+                    <div>Description = ${farm.getDescription()}</div>
                 </div>
-        </section>
+            </section>
         <jsp:include page="../component/footer.jsp"></jsp:include>
     </body>
 </html>

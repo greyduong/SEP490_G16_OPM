@@ -64,6 +64,8 @@ public class FarmDAO extends DBContext {
         int totalRows = count(countQuery, "%" + name + "%");
         int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
         page.setTotalPage(totalPages);
+        page.setPageNumber(pageNumber);
+        page.setPageSize(pageSize);
         if (data == null) {
             return null;
         }
