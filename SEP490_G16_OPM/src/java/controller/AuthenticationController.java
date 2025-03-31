@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.Validation;
 import dao.UserDAO;
 import model.User;
 import java.io.IOException;
@@ -67,17 +68,15 @@ public class AuthenticationController extends HttpServlet {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
-        UserDAO userDAO = new UserDAO();
-
-        // Validate input
-        if (username == null || username.isBlank() || password == null || password.isBlank()) {
-            request.setAttribute("msg", "Username or password cannot be empty.");
+        String errorMsg = Validation.validateLogin(username, password);
+        if (errorMsg != null) {
+            request.setAttribute("msg", errorMsg);
             request.setAttribute("username", username);
             request.getRequestDispatcher("login-register.jsp").forward(request, response);
             return;
         }
 
-        // Check credentials
+        UserDAO userDAO = new UserDAO();
         boolean isValidUser = userDAO.checkUser(username, password);
 
         if (isValidUser) {
@@ -87,26 +86,17 @@ public class AuthenticationController extends HttpServlet {
             session.setAttribute("successMsg", "Login successful!");
 
             int roleId = user.getRoleID();
-
             switch (roleId) {
-                case 1: // Admin
+                case 1 ->
                     response.sendRedirect("admin.jsp");
-                    break;
-                case 2: // Manager
+                case 2 ->
                     response.sendRedirect("manager.jsp");
-                    break;
-                case 3: // Staff
+                case 3 ->
                     response.sendRedirect("staff.jsp");
-                    break;
-                case 4: // Seller
+                case 4, 5 ->
                     response.sendRedirect("index.html");
-                    break;
-                case 5: // Dealer
+                default ->
                     response.sendRedirect("index.html");
-                    break;
-                default: // Unknown or future role
-                    response.sendRedirect("index.html");
-                    break;
             }
         } else {
             request.setAttribute("username", username);
@@ -126,11 +116,20 @@ public class AuthenticationController extends HttpServlet {
         String address = request.getParameter("address");
         String password = request.getParameter("password");
         String cfpassword = request.getParameter("cfpassword");
-        String role = request.getParameter("role"); // Capture selected role
+        String role = request.getParameter("role");
+
+        String errorMsg = Validation.validateRegister(fullname, username, password, cfpassword);
+        if (errorMsg != null) {
+            request.setAttribute("msg", errorMsg);
+            request.setAttribute("fullname", fullname);
+            request.setAttribute("username", username);
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("login-register.jsp").forward(request, response);
+            return;
+        }
 
         UserDAO userDAO = new UserDAO();
 
-        // Check if username exists
         if (userDAO.checkExistsUsername(username)) {
             request.setAttribute("msg", "Username already exists.");
             request.setAttribute("fullname", fullname);
@@ -139,16 +138,6 @@ public class AuthenticationController extends HttpServlet {
             return;
         }
 
-        // Check if passwords match
-        if (!password.equals(cfpassword)) {
-            request.setAttribute("msg", "Passwords do not match.");
-            request.setAttribute("fullname", fullname);
-            request.setAttribute("username", username);
-            request.getRequestDispatcher("login-register.jsp").forward(request, response);
-            return;
-        }
-
-        // Check if a role is selected
         if (role == null || role.equals("Choose Role")) {
             request.setAttribute("msg", "Please select a role.");
             request.setAttribute("fullname", fullname);
@@ -157,15 +146,8 @@ public class AuthenticationController extends HttpServlet {
             return;
         }
 
-        // Convert role to RoleID (assuming role 'Seller' corresponds to RoleID = 4 and 'Dealer' to RoleID = 5)
-        int roleID = 0;
-        if (role.equals("Seller")) {
-            roleID = 4;
-        } else if (role.equals("Dealer")) {
-            roleID = 5;
-        }
+        int roleID = role.equals("Seller") ? 4 : role.equals("Dealer") ? 5 : 0;
 
-        // Create new user object and set fields
         User newUser = new User();
         newUser.setFullName(fullname);
         newUser.setUsername(username);
@@ -173,11 +155,10 @@ public class AuthenticationController extends HttpServlet {
         newUser.setPhone(phone);
         newUser.setAddress(address);
         newUser.setPassword(password);
-        newUser.setRoleID(roleID);  // Set the role ID based on selected role
-        newUser.setWallet(0.0);      // Default wallet
+        newUser.setRoleID(roleID);
+        newUser.setWallet(0.0);
         newUser.setStatus("Active");
 
-        // Save to database
         boolean isAdded = userDAO.addNewUser(newUser);
 
         if (isAdded) {
