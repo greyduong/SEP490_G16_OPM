@@ -1,0 +1,62 @@
+package controller;
+
+import dao.FarmDAO;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Optional;
+import model.Farm;
+import model.Page;
+
+@WebServlet("/farm")
+public class FarmController extends HttpServlet {
+
+    public Optional<Integer> getIntParameter(HttpServletRequest req, String name) {
+        try {
+            return Optional.ofNullable(req.getParameter(name)).map(Integer::parseInt);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> getStringParameter(HttpServletRequest req, String name) {
+        return Optional.ofNullable(req.getParameter(name)).map(str -> str.isBlank() ? null : str);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Optional<Integer> id = getIntParameter(req, "id");
+        if (id.isPresent()) {
+            doGetFarmDetails(req, resp);
+            return;
+        }
+        doGetListFarm(req, resp);
+    }
+
+    private void doGetFarmDetails(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Integer id = getIntParameter(req, "id").get();
+        FarmDAO db = new FarmDAO();
+        Farm farm = db.getFarm(id);
+        req.setAttribute("farm", farm);
+        req.getRequestDispatcher("page/farm.jsp").forward(req, resp);
+    }
+
+    private void doGetListFarm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        FarmDAO db = new FarmDAO();
+        int pageNumber = getIntParameter(req, "pageNumber").orElse(1);
+        String search = getStringParameter(req, "search").orElse("");
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        Page<Farm> page = db.searchFarm(search, pageNumber, 3);
+        req.setAttribute("page", page);
+        int nextPage = pageNumber < page.getTotalPage() ? pageNumber + 1 : page.getTotalPage();
+        int prevPage = pageNumber > 1 ? pageNumber - 1 : 1;
+        req.setAttribute("nextPage", nextPage);
+        req.setAttribute("prevPage", prevPage);
+        req.getRequestDispatcher("page/farms.jsp").forward(req, resp);
+    }
+}
