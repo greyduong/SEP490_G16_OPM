@@ -16,7 +16,7 @@ public class DBContext {
     protected Connection connection;
     private final String user = "sa";
     private final String password = "123";
-    private final String connectUrl = "jdbc:sqlserver://DESKTOP-G5K8Q7S\\MSSQLSERVER01:1433;databaseName=OPM";
+    private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
     private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
     public DBContext() {
