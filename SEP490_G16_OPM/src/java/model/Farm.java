@@ -2,11 +2,10 @@ package model;
 
 import java.sql.Timestamp;
 
-@Table("Farm")
 public class Farm {
-    @PrimaryKey
     private Integer farmID;
     private Integer sellerID;
+    private User seller;
     private String farmName;
     private String location;
     private String description;
@@ -70,6 +69,14 @@ public class Farm {
 
     public String getStatus() {
         return this.status;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public void setSeller(User seller) {
+        this.seller = seller;
     }
 
     @Override
