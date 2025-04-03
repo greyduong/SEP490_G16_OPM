@@ -7,13 +7,9 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import util.DatabaseMapper;
 
 public class DBContext {
 
@@ -54,12 +50,11 @@ public class DBContext {
         return pstm;
     }
 
-    public <T> List<T> fetchAll(Class<T> clazz, String query, Object... params) {
+    public <T> List<T> fetchAll(Mapper<T> mapper, String query, Object... params) {
         List<T> result = new ArrayList<>();
-        DatabaseMapper<T> convertor = new DatabaseMapper<>(clazz);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             while (rs.next()) {
-                T item = convertor.fromResultSet(rs);
+                T item = mapper.fromResultSet(rs);
                 result.add(item);
             }
             return result;
@@ -69,11 +64,10 @@ public class DBContext {
         }
     }
 
-    public <T> T fetchOne(Class<T> clazz, String query, Object... params) {
-        DatabaseMapper<T> convertor = new DatabaseMapper<>(clazz);
+    public <T> T fetchOne(Mapper<T> mapper, String query, Object... params) {
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             if (rs.next()) {
-                T item = convertor.fromResultSet(rs);
+                T item = mapper.fromResultSet(rs);
                 return item;
             }
             return null;
@@ -95,24 +89,17 @@ public class DBContext {
         }
     }
 
-    public <T> int insert(Class<T> clazz, T data) {
-        DatabaseMapper<T> mapper = new DatabaseMapper<>(clazz);
-        Map<String, Object> fields = mapper.getFields(data);
-        List<String> columns = fields.keySet().stream().toList();
-        List<Object> values = columns.stream().map(col -> fields.get(col)).toList();
-        String query = "INSERT INTO %s ".formatted(mapper.getTableName());
-        query += "(" + String.join(", ", columns) + ")";
-        query += " VALUES (" + String.join(", ", "?".repeat(columns.size()).split("")) + ")";
-        try (PreparedStatement pstm = prepareStatementReturnKeys(query, values.toArray())) {
-            int rows = pstm.executeUpdate();
-            if (rows == 0) {
-                throw new SQLException("Insert failed");
+    public int insert(String query, Object... params) {
+        try (PreparedStatement pstm = prepareStatementReturnKeys(query, params)) {
+            int inserted = pstm.executeUpdate();
+            if (inserted == 0) {
+                throw new SQLException("No row inserted");
             }
             ResultSet generatedKey = pstm.getGeneratedKeys();
             if (generatedKey.next()) {
                 return generatedKey.getInt(1);
             } else {
-                throw new SQLException("Insert failed");
+                throw new SQLException("No key generated");
             }
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
@@ -120,25 +107,10 @@ public class DBContext {
         }
     }
     
-    public <T> void update(Class<T> clazz, T data) {
-        DatabaseMapper<T> mapper = new DatabaseMapper<>(clazz);
-        Map<String, Object> fields = mapper.getFields(data);
-        String primaryKey = mapper.getPrimaryKey();
-        int id = mapper.getPrimaryKey(data);
-        List<String> columns = fields.keySet().stream().filter(col -> !col.equals(primaryKey)).toList();
-        List<Object> values = columns.stream().map(col -> fields.get(col)).toList();
-        String query = "UPDATE %s".formatted(mapper.getTableName());
-        query += " SET " + String.join(", ", columns.stream().map(col -> "%s = ?".formatted(col)).toList());
-        query += " WHERE %s = ? ".formatted(mapper.getPrimaryKey());
-        List<Object> params = new ArrayList<>();
-        params.addAll(values);
-        params.add(id);
-        Logger.getLogger(DBContext.class.getName()).info(query);
-        try (PreparedStatement pstm = prepareStatement(query, params.toArray())) {
-            int rows = pstm.executeUpdate();
-            if (rows == 0) {
-                throw new SQLException("Update failed");
-            }
+    public void update(String query, Object... params) {
+        try (PreparedStatement pstm = prepareStatement(query, params)) {
+            int updated = pstm.executeUpdate();
+            if (updated == 0) throw new SQLException("No row updated");
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex.getMessage());
