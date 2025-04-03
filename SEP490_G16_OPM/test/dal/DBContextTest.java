@@ -1,73 +1,33 @@
 package dal;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import model.Farm;
 import org.junit.Test;
 
 public class DBContextTest {
 
     /**
-     * Test of getConnection method, of class DBContext.
+     * Test of getConnection method
      */
     @Test
     public void testGetConnection() {
-        System.out.println("getConnection");
-        DBContext instance = new DBContext();
-        assert instance.getConnection() != null;
+        DBContext db = new DBContext();
+        assert db.getConnection() != null;
     }
 
     /**
-     * Test of prepareStatement method, of class DBContext.
-     */
-    @Test
-    public void testPrepareStatement() throws Exception {
-        
-    }
-
-    /**
-     * Test of prepareStatementReturnKeys method, of class DBContext.
-     */
-    @Test
-    public void testPrepareStatementReturnKeys() throws Exception {
-        
-    }
-
-    /**
-     * Test of fetchAll method, of class DBContext.
+     * Test of fetchAll method
      */
     @Test
     public void testFetchAll() {
-        
+        DBContext db = new DBContext();
+        List<Farm> farms = db.fetchAll((rs) -> {
+            Farm farm = new Farm();
+            farm.setFarmName(rs.getString("FarmName"));
+            return farm;
+        }, "SELECT * FROM Farm");
+        assert !farms.isEmpty();
+        farms.forEach(System.out::println);
     }
-
-    /**
-     * Test of fetchOne method, of class DBContext.
-     */
-    @Test
-    public void testFetchOne() {
-        
-    }
-
-    /**
-     * Test of count method, of class DBContext.
-     */
-    @Test
-    public void testCount() {
-        
-    }
-
-    /**
-     * Test of insert method, of class DBContext.
-     */
-    @Test
-    public void testInsert() {
-        
-    }
-
-    /**
-     * Test of update method, of class DBContext.
-     */
-    @Test
-    public void testUpdate() {
-        
-    }
-    
 }
