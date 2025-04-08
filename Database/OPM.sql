@@ -93,10 +93,9 @@ CREATE TABLE PigsOffer (
 
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
-    DealerID INT FOREIGN KEY REFERENCES UserAccount(UserID),
+    UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     OfferID INT FOREIGN KEY REFERENCES PigsOffer(OfferID),
-    Quantity INT,
-    AddedAt DATETIME DEFAULT GETDATE()
+    Quantity INT
 );
 
 CREATE TABLE Payment (
@@ -140,9 +139,11 @@ CREATE TABLE Application (
     ApplicationID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     Content NVARCHAR(MAX),
-    Reply NVARCHAR(MAX),
+    Reply NVARCHAR(MAX) NULL,  -- Make Reply nullable to allow empty replies
     Status NVARCHAR(20) DEFAULT 'Pending',
-    SentAt DATETIME DEFAULT GETDATE()
+    SentAt DATETIME DEFAULT GETDATE(),
+    ProcessingDate DATETIME NULL,  -- Add ProcessingDate to track processing status
+    FilePath NVARCHAR(255) NULL    -- Add FilePath column to store file path
 );
 
 CREATE TABLE Rating (
@@ -185,10 +186,21 @@ INSERT INTO PigsOffer (
 ) VALUES
 (2, 1, 1, N'Combo Heo Lai', N'Heo Lai', 50, 5, 1500000, 3200000, 150000000, 
  N'Heo lai 3 máu, trọng lượng 90kg/con.', 
- N'https://example.com/images/heo-lai.jpg', 
+ N'bbbcca48-5015-4daa-abd8-3bab1ea702f8_pic1.jpg', 
  '2025-04-01', '2025-04-30'),
 
 (2, 1, 2, N'Combo Heo Móng Cái', N'Heo Móng Cái', 20, 2, 5000000, 5500000, 110000000, 
  N'Heo giống Móng Cái thuần chủng.', 
- N'https://example.com/images/heo-mong-cai.jpg', 
+ N'10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', 
  '2025-04-05', '2025-05-05');
+
+INSERT INTO Cart (UserID, OfferID, Quantity)
+VALUES
+(5, 1, 10),  
+(5, 2, 2);   
+
+INSERT INTO Application (UserID, Content, Status, SentAt, ProcessingDate, FilePath)
+VALUES
+(1, 'Request for approval of new farm', 'Pending', GETDATE(), NULL, 'request_farm_approval.pdf'),
+(2, 'Request for equipment purchase', 'Approved', GETDATE(), GETDATE(), 'equipment_purchase.pdf'),
+(3, 'Request for new supplier', 'Rejected', GETDATE(), GETDATE(), NULL);  -- No file provided

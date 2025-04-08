@@ -83,7 +83,11 @@ public class AuthenticationController extends HttpServlet {
             User user = userDAO.getUserByUsername(username);
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
+
+            session.setAttribute("username", username);
+
             
+ 
             session.setAttribute("successMsg", "Login successful!");
             
             int roleId = user.getRoleID();
@@ -95,7 +99,11 @@ public class AuthenticationController extends HttpServlet {
                 case 3 ->
                     response.sendRedirect("staff.jsp");
                 case 4, 5 ->
-                    response.sendRedirect("CreateApplication");
+
+                    response.sendRedirect("home");
+
+                    
+
                 default ->
                     response.sendRedirect("index.html");
             }
