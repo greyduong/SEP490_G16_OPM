@@ -16,7 +16,7 @@ public class DBContext {
     protected Connection connection;
     private final String user = "sa";
     private final String password = "123";
-    private final String connectUrl = "jdbc:sqlserver://DESKTOP-G5K8Q7S\\MSSQLSERVER01:1433;databaseName=OPM";
+    private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
     private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
     public DBContext() {
@@ -51,6 +51,7 @@ public class DBContext {
     }
 
     public <T> List<T> fetchAll(Mapper<T> mapper, String query, Object... params) {
+        System.out.println(query);
         List<T> result = new ArrayList<>();
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             while (rs.next()) {
@@ -65,6 +66,7 @@ public class DBContext {
     }
 
     public <T> T fetchOne(Mapper<T> mapper, String query, Object... params) {
+        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             if (rs.next()) {
                 T item = mapper.fromResultSet(rs);
@@ -78,6 +80,7 @@ public class DBContext {
     }
     
     public int count(String query, Object... params) {
+        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -90,6 +93,7 @@ public class DBContext {
     }
 
     public int insert(String query, Object... params) {
+        System.out.println(query);
         try (PreparedStatement pstm = prepareStatementReturnKeys(query, params)) {
             int inserted = pstm.executeUpdate();
             if (inserted == 0) {
@@ -108,9 +112,21 @@ public class DBContext {
     }
     
     public void update(String query, Object... params) {
+        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params)) {
             int updated = pstm.executeUpdate();
             if (updated == 0) throw new SQLException("No row updated");
+        } catch (SQLException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+    
+    public void delete(String query, Object... params) {
+        System.out.println(query);
+        try (PreparedStatement pstm = prepareStatement(query, params)) {
+            int deleted = pstm.executeUpdate();
+            if (deleted == 0) throw new SQLException("No row deleted");
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex.getMessage());

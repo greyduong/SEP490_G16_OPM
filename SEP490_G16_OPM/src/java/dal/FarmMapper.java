@@ -1,8 +1,10 @@
 package dal;
 
 import model.Farm;
+import model.User;
 
 public class FarmMapper {
+
     public static Mapper<Farm> toFarm() {
         return (rs) -> {
             Farm farm = new Farm();
@@ -13,6 +15,16 @@ public class FarmMapper {
             farm.setLocation(rs.getString("Location"));
             farm.setSellerID(rs.getInt("SellerID"));
             farm.setStatus(rs.getString("Status"));
+            return farm;
+        };
+    }
+
+    public static Mapper<Farm> toFarmWithSeller() {
+        return (rs) -> {
+            Farm farm = toFarm().fromResultSet(rs);
+            User seller = new User();
+            seller.setUsername(rs.getString("SellerName"));
+            farm.setSeller(seller);
             return farm;
         };
     }
