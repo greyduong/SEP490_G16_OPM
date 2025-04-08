@@ -204,3 +204,8 @@ VALUES
 
 
 
+INSERT INTO Application (UserID, Content, Status, SentAt, ProcessingDate, FilePath)
+VALUES
+(1, 'Request for approval of new farm', 'Pending', GETDATE(), NULL, 'request_farm_approval.pdf'),
+(2, 'Request for equipment purchase', 'Approved', GETDATE(), GETDATE(), 'equipment_purchase.pdf'),
+(3, 'Request for new supplier', 'Rejected', GETDATE(), GETDATE(), NULL);  -- No file provided
