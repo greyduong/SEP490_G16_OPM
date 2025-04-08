@@ -139,9 +139,11 @@ CREATE TABLE Application (
     ApplicationID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     Content NVARCHAR(MAX),
-    Reply NVARCHAR(MAX),
+    Reply NVARCHAR(MAX) NULL,  -- Make Reply nullable to allow empty replies
     Status NVARCHAR(20) DEFAULT 'Pending',
-    SentAt DATETIME DEFAULT GETDATE()
+    SentAt DATETIME DEFAULT GETDATE(),
+    ProcessingDate DATETIME NULL,  -- Add ProcessingDate to track processing status
+    FilePath NVARCHAR(255) NULL    -- Add FilePath column to store file path
 );
 
 CREATE TABLE Rating (
@@ -197,3 +199,8 @@ VALUES
 (5, 1, 10),  
 (5, 2, 2);   
 
+INSERT INTO Application (UserID, Content, Status, SentAt, ProcessingDate, FilePath)
+VALUES
+(1, 'Request for approval of new farm', 'Pending', GETDATE(), NULL, 'request_farm_approval.pdf'),
+(2, 'Request for equipment purchase', 'Approved', GETDATE(), GETDATE(), 'equipment_purchase.pdf'),
+(3, 'Request for new supplier', 'Rejected', GETDATE(), GETDATE(), NULL);  -- No file provided
