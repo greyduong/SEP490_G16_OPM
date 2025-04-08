@@ -16,11 +16,7 @@ public class DBContext {
     protected Connection connection;
     private final String user = "sa";
     private final String password = "123";
-<<<<<<< HEAD
     private final String connectUrl = "jdbc:sqlserver://GREY:1433;databaseName=OPM";
-=======
-    private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
->>>>>>> ffd260f160f55fca09be9fce59b8908e9226df09
     private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
     public DBContext() {
@@ -82,7 +78,7 @@ public class DBContext {
             throw new RuntimeException(ex.getMessage());
         }
     }
-    
+
     public int count(String query, Object... params) {
         System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
@@ -114,23 +110,27 @@ public class DBContext {
             throw new RuntimeException(ex.getMessage());
         }
     }
-    
+
     public void update(String query, Object... params) {
         System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params)) {
             int updated = pstm.executeUpdate();
-            if (updated == 0) throw new SQLException("No row updated");
+            if (updated == 0) {
+                throw new SQLException("No row updated");
+            }
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex.getMessage());
         }
     }
-    
+
     public void delete(String query, Object... params) {
         System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params)) {
             int deleted = pstm.executeUpdate();
-            if (deleted == 0) throw new SQLException("No row deleted");
+            if (deleted == 0) {
+                throw new SQLException("No row deleted");
+            }
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex.getMessage());
