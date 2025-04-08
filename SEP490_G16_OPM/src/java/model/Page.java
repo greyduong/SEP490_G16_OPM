@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Pagination data class
@@ -47,4 +48,27 @@ public class Page<T> {
         this.totalPage = totalPage;
     }
 
+    @Override
+    public String toString() {
+        return """
+               Page {
+               \tPageNumber = %s
+               \tPageSize = %s
+               \tTotalPage = %s
+               \tData = [
+               %s
+               \t]
+               }
+               """.formatted(
+                pageNumber,
+                pageSize,
+                totalPage,
+                data.stream().map(item -> {
+                    return List.of(item.toString().split("\n"))
+                            .stream()
+                            .map(line -> "\t\t" + line)
+                            .collect(Collectors.joining("\n"));
+                }).collect(Collectors.joining(",\n"))
+        );
+    }
 }
