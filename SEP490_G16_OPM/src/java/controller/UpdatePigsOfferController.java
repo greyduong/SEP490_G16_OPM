@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 import java.sql.Date;
 import java.util.UUID;
 import model.PigsOffer;
-import model.PigsOfferDAO;
+import dao.PigsOfferDAO;
 
 /**
  *

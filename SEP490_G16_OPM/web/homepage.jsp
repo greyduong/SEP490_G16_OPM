@@ -31,6 +31,28 @@
         <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
         <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
         <link rel="stylesheet" href="css/style.css" type="text/css">
+        <style>
+            .modal-dialog-centered-custom {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+
+            .modal-content {
+                width: 100%;
+                max-width: 350px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+            #addToCartModal .form-control,
+            #addToCartModal .btn {
+                font-size: 14px;
+            }
+        </style>
+
+
     </head>
 
     <body>
@@ -113,7 +135,14 @@
                         <div class="col-lg-6 col-md-6">
                             <div class="header__top__right">                               
                                 <div class="header__top__right__auth">
-                                    <a href="#"><i class="fa fa-user"></i> Login</a>
+                                    <c:if test="${empty sessionScope.user}">
+                                        <a href="login-register.jsp" class="nav-item nav-link">Login</a>
+                                    </c:if>
+
+                                    <c:if test="${not empty sessionScope.user}">
+                                        <span class="nav-item nav-link nav-link d-inline-block">Hello, ${sessionScope.user.fullName}</span>
+                                        <a href="logout" class="nav-item nav-link nav-link d-inline-block">Logout</a>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +166,7 @@
                                 <li><a href="#">Pages</a>
                                     <ul class="header__menu__dropdown">
                                         <li><a href="./shop-details.html">Shop Details</a></li>
-                                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
+                                        <li><a href="cart">Shoping Cart</a></li>
                                         <li><a href="./checkout.html">Check Out</a></li>
                                         <li><a href="./blog-details.html">Blog Details</a></li>
                                     </ul>
@@ -168,26 +197,7 @@
         <section class="hero">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-3">
-                        <div class="hero__categories">
-                            <div class="hero__categories__all">
-                                <i class="fa fa-bars"></i>
-                                <span>All departments</span>
-                            </div>
-                            <ul style="display: none;">
-                                <li><a href="#">Fresh Meat</a></li>
-                                <li><a href="#">Vegetables</a></li>
-                                <li><a href="#">Fruit & Nut Gifts</a></li>
-                                <li><a href="#">Fresh Berries</a></li>
-                                <li><a href="#">Ocean Foods</a></li>
-                                <li><a href="#">Butter & Eggs</a></li>
-                                <li><a href="#">Fastfood</a></li>
-                                <li><a href="#">Fresh Onion</a></li>
-                                <li><a href="#">Papayaya & Crisps</a></li>
-                                <li><a href="#">Oatmeal</a></li>
-                                <li><a href="#">Fresh Bananas</a></li>
-                            </ul>
-                        </div>
+                    <div class="col-lg-3">                       
                     </div>
                     <div class="col-lg-9">
                         <div class="hero__search">
@@ -270,9 +280,12 @@
                             <div class="featured__item">
                                 <div class="featured__item__pic set-bg" data-setbg="ImageServlet?folder=pigs&file=${o.imageURL}">
                                     <ul class="featured__item__pic__hover">
-                                        <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                        <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                        <li>
+                                            <a href="#" class="open-cart-modal" data-offer-id="${o.offerID}" data-max="${o.quantity}" data-min="${o.minQuantity}">
+                                                <i class="fa fa-shopping-cart"></i>
+                                            </a>
+
+                                        </li>
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
@@ -626,6 +639,26 @@
         </footer>
         <!-- Footer Section End -->
 
+        <!-- Modal Add to Cart -->
+        <div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered-custom" role="document">
+                <div class="modal-content p-4">
+                    <form action="AddToCartController" method="post" id="addToCartForm">
+                        <input type="hidden" name="offerId" id="modalOfferId" />
+
+                        <select name="mode" id="modeSelect" class="form-control mb-2">
+                            <option value="all" selected>Mua toàn bộ</option>
+                            <option value="custom">Chọn số lượng</option>
+                        </select>
+
+                        <input type="number" name="quantity" id="modalQuantity" class="form-control" style="display: none;" />
+
+                        <button type="submit" class="btn btn-success w-100 mt-3">Thêm vào giỏ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Js Plugins -->
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
@@ -635,6 +668,50 @@
         <script src="js/mixitup.min.js"></script>
         <script src="js/owl.carousel.min.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/bootstrap.min.js"></script> 
+
+        <script>
+                                        $(document).ready(function () {
+                                            let max = 0;
+                                            let min = 0;
+
+                                            $('.open-cart-modal').click(function (e) {
+                                                e.preventDefault();
+
+                                                const offerId = $(this).data('offer-id');
+                                                max = parseInt($(this).data('max'));
+                                                min = parseInt($(this).data('min'));
+
+                                                $('#modalOfferId').val(offerId);
+                                                $('#modeSelect').val('all');
+                                                $('#modalQuantity')
+                                                        .attr('min', min)
+                                                        .attr('max', max)
+                                                        .val(max)
+                                                        .prop('readonly', true)
+                                                        .show();
+
+                                                $('#addToCartModal').modal('show');
+                                            });
+
+                                            $('#modeSelect').on('change', function () {
+                                                const mode = $(this).val();
+                                                if (mode === 'custom') {
+                                                    $('#modalQuantity')
+                                                            .val(min)
+                                                            .prop('readonly', false)
+                                                            .attr('min', min)
+                                                            .attr('max', max)
+                                                            .show();
+                                                } else {
+                                                    $('#modalQuantity')
+                                                            .val(max)
+                                                            .prop('readonly', true)
+                                                            .show();
+                                                }
+                                            });
+                                        });
+        </script>
 
 
 

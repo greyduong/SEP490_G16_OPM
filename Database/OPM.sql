@@ -93,10 +93,9 @@ CREATE TABLE PigsOffer (
 
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
-    DealerID INT FOREIGN KEY REFERENCES UserAccount(UserID),
+    UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     OfferID INT FOREIGN KEY REFERENCES PigsOffer(OfferID),
-    Quantity INT,
-    AddedAt DATETIME DEFAULT GETDATE()
+    Quantity INT
 );
 
 CREATE TABLE Payment (
@@ -185,10 +184,16 @@ INSERT INTO PigsOffer (
 ) VALUES
 (2, 1, 1, N'Combo Heo Lai', N'Heo Lai', 50, 5, 1500000, 3200000, 150000000, 
  N'Heo lai 3 máu, trọng lượng 90kg/con.', 
- N'https://example.com/images/heo-lai.jpg', 
+ N'bbbcca48-5015-4daa-abd8-3bab1ea702f8_pic1.jpg', 
  '2025-04-01', '2025-04-30'),
 
 (2, 1, 2, N'Combo Heo Móng Cái', N'Heo Móng Cái', 20, 2, 5000000, 5500000, 110000000, 
  N'Heo giống Móng Cái thuần chủng.', 
- N'https://example.com/images/heo-mong-cai.jpg', 
+ N'10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', 
  '2025-04-05', '2025-05-05');
+
+INSERT INTO Cart (UserID, OfferID, Quantity)
+VALUES
+(5, 1, 10),  
+(5, 2, 2);   
+

@@ -1,3 +1,10 @@
+<%-- 
+    Document   : shoppingcart
+    Created on : Apr 3, 2025, 11:03:54 PM
+    Author     : duong
+--%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -102,7 +109,14 @@
                         <div class="col-lg-6 col-md-6">
                             <div class="header__top__right">                               
                                 <div class="header__top__right__auth">
-                                    <a href="#"><i class="fa fa-user"></i> Login</a>
+                                    <c:if test="${empty sessionScope.user}">
+                                        <a href="login-register.jsp" class="nav-item nav-link">Login</a>
+                                    </c:if>
+
+                                    <c:if test="${not empty sessionScope.user}">
+                                        <span class="nav-item nav-link nav-link d-inline-block">Hello, ${sessionScope.user.fullName}</span>
+                                        <a href="logout" class="nav-item nav-link nav-link d-inline-block">Logout</a>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -209,112 +223,58 @@
                                         <th>Price</th>
                                         <th>Quantity</th>
                                         <th>Total</th>
-                                        <th></th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td class="shoping__cart__item">
-                                            <img src="img/cart/cart-1.jpg" alt="">
-                                            <h5>Vegetable’s Package</h5>
-                                        </td>
-                                        <td class="shoping__cart__price">
-                                            $55.00
-                                        </td>
-                                        <td class="shoping__cart__quantity">
-                                            <div class="quantity">
-                                                <div class="pro-qty">
-                                                    <input type="text" value="1">
+                                    <c:forEach var="cart" items="${cartList}">
+                                        <tr>
+                                            <td class="shoping__cart__item">
+                                                <img src="ImageServlet?folder=pigs&file=${cart.pigsOffer.imageURL}" alt="" style="width: 100px; height: auto;">
+                                                <h5>${cart.pigsOffer.name}</h5>
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                $${cart.pigsOffer.retailPrice}
+                                            </td>
+                                            <td class="shoping__cart__quantity">
+                                                <div class="quantity">
+                                                    <div class="pro-qty">
+                                                        <input type="text" value="${cart.quantity}" readonly>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="shoping__cart__total">
-                                            $110.00
-                                        </td>
-                                        <td class="shoping__cart__item__close">
-                                            <span class="icon_close"></span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="shoping__cart__item">
-                                            <img src="img/cart/cart-2.jpg" alt="">
-                                            <h5>Fresh Garden Vegetable</h5>
-                                        </td>
-                                        <td class="shoping__cart__price">
-                                            $39.00
-                                        </td>
-                                        <td class="shoping__cart__quantity">
-                                            <div class="quantity">
-                                                <div class="pro-qty">
-                                                    <input type="text" value="1">
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="shoping__cart__total">
-                                            $39.99
-                                        </td>
-                                        <td class="shoping__cart__item__close">
-                                            <span class="icon_close"></span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="shoping__cart__item">
-                                            <img src="img/cart/cart-3.jpg" alt="">
-                                            <h5>Organic Bananas</h5>
-                                        </td>
-                                        <td class="shoping__cart__price">
-                                            $69.00
-                                        </td>
-                                        <td class="shoping__cart__quantity">
-                                            <div class="quantity">
-                                                <div class="pro-qty">
-                                                    <input type="text" value="1">
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="shoping__cart__total">
-                                            $69.99
-                                        </td>
-                                        <td class="shoping__cart__item__close">
-                                            <span class="icon_close"></span>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td class="shoping__cart__total">
+                                                $${cart.quantity * cart.pigsOffer.retailPrice}
+                                            </td>
+                                            <td class="shoping__cart__item__close text-center">
+                                                <!-- Xoá -->
+                                                <a href="remove-cart?id=${cart.cartID}" class="btn btn-sm btn-danger mb-2" title="Remove">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                                <!-- Checkout riêng -->
+                                                <form action="checkout" method="post">
+                                                    <input type="hidden" name="cartId" value="${cart.cartID}">
+                                                    <input type="hidden" name="offerId" value="${cart.pigsOffer.offerID}">
+                                                    <input type="hidden" name="quantity" value="${cart.quantity}">
+                                                    <button type="submit" class="btn btn-sm btn-success">Checkout</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="shoping__cart__btns">
-                            <a href="#" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
-                            <a href="#" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
-                                Upadate Cart</a>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="shoping__continue">
-                            <div class="shoping__discount">
-                                <h5>Discount Codes</h5>
-                                <form action="#">
-                                    <input type="text" placeholder="Enter your coupon code">
-                                    <button type="submit" class="site-btn">APPLY COUPON</button>
-                                </form>
+
+                            <!-- Phân trang -->
+                            <div class="shoping__cart__pagination text-center mt-4">
+                                <c:forEach begin="1" end="${totalPages}" var="i">
+                                    <a href="cart?page=${i}" class="${i == currentPage ? 'active' : ''}">${i}</a>
+                                </c:forEach>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="shoping__checkout">
-                            <h5>Cart Total</h5>
-                            <ul>
-                                <li>Subtotal <span>$454.98</span></li>
-                                <li>Total <span>$454.98</span></li>
-                            </ul>
-                            <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
-                        </div>
+
                     </div>
                 </div>
-            </div>
+            </div>              
         </section>
         <!-- Shoping Cart Section End -->
 
