@@ -1,15 +1,16 @@
 #!/bin/bash
 cd Database
 # build sql-server image
-podman build -t opm-sql .
+docker build -t opm-sql .
 cd ../SEP490_G16_OPM/
 # build tomcat image
-podman build -t opm-web .
+docker build -t opm-web .
 # stop containers
-podman ps -q -f "name=opm" | xargs -r podman kill
+docker ps -q | xargs -r docker kill
 # remove containers
-podman rm -f --filter "name=opm" || true
+docker rm $(docker ps -q -a) || true
 # run tomcat
-podman run -d --name opm-web -p 8080:8080 --network="host" opm-web
+docker run -d --name opm-web -p 8080:8080 --network="host" opm-web
 # run sql-server
-podman run -d --name opm-sql -p 1433:1433 --network="host" opm-sql
+docker run -d --name opm-sql -p 1433:1433 --network="host" opm-sql
+docker system prune -f
