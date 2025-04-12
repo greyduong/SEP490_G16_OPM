@@ -6,9 +6,9 @@ cd ../SEP490_G16_OPM/
 # build tomcat image
 docker build -t opm-web .
 # stop containers
-docker ps -q | xargs -r docker kill
+docker ps --filter "name=opm" -q | xargs -r docker kill || true
 # remove containers
-docker rm $(docker ps -q -a) || true
+docker rm $(docker ps --filter "name=opm" -q -a) || true
 # run tomcat
 docker run -d --name opm-web -p 8080:8080 --network="host" opm-web
 # run sql-server
