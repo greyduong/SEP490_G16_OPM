@@ -43,6 +43,7 @@ public class AuthenticationController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         processRequest(request, response);
     }
 
@@ -97,7 +98,7 @@ public class AuthenticationController extends HttpServlet {
                 case 2 ->
                     response.sendRedirect("manager.jsp");
                 case 3 ->
-                    response.sendRedirect("staff.jsp");
+                    response.sendRedirect("StaffViewApplication");
                 case 4, 5 ->
 
                     response.sendRedirect("home");

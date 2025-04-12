@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.CategoryDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import model.PigsOffer;
 import dao.PigsOfferDAO;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import model.Category;
 import model.User;
 
 /**
@@ -36,7 +39,9 @@ public class HomePageController extends HttpServlet {
 
         PigsOfferDAO dao = new PigsOfferDAO();
         ArrayList<PigsOffer> offerList = dao.getAllPigsOffers();
-
+        CategoryDAO cdao = new CategoryDAO();
+        List<Category> categoryList = cdao.getAllCategories();
+        request.setAttribute("categoryList", categoryList);
         request.setAttribute("offerList", offerList);
         request.getRequestDispatcher("homepage.jsp").forward(request, response);
     }
@@ -53,6 +58,7 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
     }
 

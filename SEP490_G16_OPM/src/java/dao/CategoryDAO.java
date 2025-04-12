@@ -118,6 +118,7 @@ public class CategoryDAO extends DBContext {
             stm.setString(2, category.getDescription());
             stm.setInt(3, category.getCategoryID());
             return stm.executeUpdate() > 0;
+            
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -159,21 +160,5 @@ public class CategoryDAO extends DBContext {
         }
     }
 
-    // Optional: main method to test
-    public static void main(String[] args) {
-        CategoryDAO dao = new CategoryDAO();
-        ArrayList<Category> list = dao.getAllCategories();
-
-        if (list.isEmpty()) {
-            System.out.println(" No categories found.");
-        } else {
-            System.out.println("✅ List of Categories:");
-            for (Category cat : list) {
-                System.out.println("ID: " + cat.getCategoryID());
-                System.out.println("Name: " + cat.getName());
-                System.out.println("Description: " + cat.getDescription());
-                System.out.println("-------------------------");
-            }
-        }
-    }
+    
 }

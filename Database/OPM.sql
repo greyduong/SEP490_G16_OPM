@@ -199,8 +199,11 @@ VALUES
 (5, 1, 10),  
 (5, 2, 2);   
 
-INSERT INTO Application (UserID, Content, Status, SentAt, ProcessingDate, FilePath)
+INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)
 VALUES
-(1, 'Request for approval of new farm', 'Pending', GETDATE(), NULL, 'request_farm_approval.pdf'),
-(2, 'Request for equipment purchase', 'Approved', GETDATE(), GETDATE(), 'equipment_purchase.pdf'),
-(3, 'Request for new supplier', 'Rejected', GETDATE(), GETDATE(), NULL);  -- No file provided
+(1, 'Request to expand farm capacity', 'Your request has been approved. You may proceed with the expansion.', 'Approved', GETDATE(), GETDATE(), 'expand_farm.pdf'),
+(2, 'Request to change supplier due to delay issues', 'Request denied. Please provide more documentation about the supplier’s delay.', 'Rejected', GETDATE(), GETDATE(), 'supplier_delay.pdf'),
+(3, 'Request for training course sponsorship', NULL, 'Approved', GETDATE(), GETDATE(), 'training_request.pdf'),
+(4, 'Request for additional feed stock', NULL, 'Rejected', GETDATE(), GETDATE(), NULL),
+(5, 'Request for marketing support', NULL, 'Pending', GETDATE(), NULL, 'marketing_support.pdf'),
+(6, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);

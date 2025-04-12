@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 import model.Application;
 
@@ -48,8 +49,9 @@ public class ApplicationController extends HttpServlet {
         }
     }
 
-    // Handle GET requests to show all applications
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         ApplicationDAO dao = new ApplicationDAO();
         List<Application> applications = dao.getAllApplications();
         request.setAttribute("applicationList", applications);
@@ -59,8 +61,34 @@ public class ApplicationController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            int applicationId = Integer.parseInt(request.getParameter("applicationId"));
+            String action = request.getParameter("action"); // approve or reject
+            String reply = request.getParameter("reply");
+
+            Application application = new Application();
+            application.setApplicationID(applicationId);
+            application.setStatus(action);
+            application.setReply(reply);
+            application.setProcessingDate(new Date());
+
+            ApplicationDAO dao = new ApplicationDAO();
+            boolean success = dao.updateApplication(application);
+
+            if (success) {
+                request.getSession().setAttribute("successMsg", "Application updated successfully.");
+            } else {
+                request.getSession().setAttribute("errorMsg", "Failed to update application.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.getSession().setAttribute("errorMsg", "Error occurred while processing the application.");
+        }
+
+        // Always redirect to refresh the list and avoid form re-submission
+        response.sendRedirect("application");
     }
+
 
     /**
      * Returns a short description of the servlet.

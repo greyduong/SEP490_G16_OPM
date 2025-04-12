@@ -42,15 +42,14 @@
                             <th>File</th>
                             <th>Status</th>
                             <th>Processing Date</th>
+                            <th>Reply</th> <!-- New column -->
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Loop through applications and display each in the table -->
                         <c:forEach var="application" items="${applicationList}">
                             <tr>
                                 <td>${application.content}</td>
                                 <td><fmt:formatDate value="${application.sentAt}" pattern="dd/MM/yyyy" /></td>
-                                <!-- Display the file associated with the application -->
                                 <td>
                                     <c:if test="${not empty application.file}">
                                         <a href="<c:url value='/application/${application.file}' />" target="_blank">${application.file}</a>
@@ -61,6 +60,16 @@
                                 </td>
                                 <td>${application.status}</td>
                                 <td><fmt:formatDate value="${application.processingDate}" pattern="dd/MM/yyyy" /></td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty application.reply}">
+                                            ${application.reply}
+                                        </c:when>
+                                        <c:otherwise>
+                                            No reply yet
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
                             </tr>
                         </c:forEach>
                         <!-- Display message when there are no applications -->
