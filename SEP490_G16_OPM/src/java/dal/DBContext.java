@@ -15,10 +15,8 @@ public class DBContext {
 
     protected Connection connection;
     private final String user = "sa";
-    private final String password = "123";
-
+    private final String password = "OnlinePigMarket@1";
     private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
-
     private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     
     public DBContext() {

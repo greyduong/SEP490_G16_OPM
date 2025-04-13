@@ -69,6 +69,89 @@ public class PigsOfferDAO extends DBContext {
 
     }
 
+    public ArrayList<PigsOffer> getPagedPigsOffers(int page, int pageSize) {
+        ArrayList<PigsOffer> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+
+        try {
+            String strSQL = "SELECT * FROM [OPM].[dbo].[PigsOffer] "
+                    + "ORDER BY CreatedAt DESC "
+                    + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            stm = connection.prepareStatement(strSQL);
+            stm.setInt(1, offset);
+            stm.setInt(2, pageSize);
+            rs = stm.executeQuery();
+
+            while (rs.next()) {
+                PigsOffer offer = new PigsOffer();
+                offer.setOfferID(rs.getInt("OfferID"));
+                offer.setSellerID(rs.getInt("SellerID"));
+                offer.setFarmID(rs.getInt("FarmID"));
+                offer.setCategoryID(rs.getInt("CategoryID"));
+                offer.setName(rs.getString("Name"));
+                offer.setPigBreed(rs.getString("PigBreed"));
+                offer.setQuantity(rs.getInt("Quantity"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
+                offer.setImageURL(rs.getString("ImageURL"));
+                offer.setStartDate(rs.getDate("StartDate"));
+                offer.setEndDate(rs.getDate("EndDate"));
+                offer.setStatus(rs.getString("Status"));
+                offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                list.add(offer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stm != null) {
+                    stm.close();
+                }
+                // ⚠️ KHÔNG ĐÓNG connection ở đây nếu còn dùng tiếp
+                // if (connection != null) connection.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
+    public int countAllOffers() {
+        int count = 0;
+        try {
+            String strSQL = "SELECT COUNT(*) FROM [OPM].[dbo].[PigsOffer]";
+            stm = connection.prepareStatement(strSQL);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stm != null) {
+                    stm.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return count;
+    }
+
     //get offer by Id
     public PigsOffer getOfferById(int id) {
         PigsOffer offer = null;

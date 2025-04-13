@@ -93,9 +93,10 @@ CREATE TABLE PigsOffer (
 
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
+    DealerID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     OfferID INT FOREIGN KEY REFERENCES PigsOffer(OfferID),
-    Quantity INT
+    Quantity INT,
+    AddedAt DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Payment (
@@ -175,29 +176,80 @@ INSERT INTO Farm (SellerID, FarmName, Location, Description)
 VALUES
 (2, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.');
 
-INSERT INTO Category (Name, Description)
-VALUES
+INSERT INTO Category (Name, Description) VALUES
 (N'Heo Thịt', N'Heo được nuôi để lấy thịt'),
-(N'Heo Giống', N'Heo dùng để nhân giống');
+(N'Heo Giống', N'Heo dùng để nhân giống'),
+(N'Heo Rừng', N'Heo có nguồn gốc tự nhiên, thịt săn chắc'),
+(N'Heo Siêu Nạc', N'Heo có tỷ lệ nạc cao, phù hợp nuôi công nghiệp'),
+(N'Heo Mẹ', N'Heo giống chuyên dùng để sinh sản'),
+(N'Heo Con', N'Heo nhỏ mới sinh, dành cho người nuôi giống'),
+(N'Heo Đặc Sản', N'Các giống heo địa phương, chất lượng cao');
+
+
 
 INSERT INTO PigsOffer (
-    SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit, 
+    SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit,
     RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate
 ) VALUES
-(2, 1, 1, N'Combo Heo Lai', N'Heo Lai', 50, 5, 1500000, 3200000, 150000000, 
- N'Heo lai 3 máu, trọng lượng 90kg/con.', 
- N'bbbcca48-5015-4daa-abd8-3bab1ea702f8_pic1.jpg', 
- '2025-04-01', '2025-04-30'),
+(2, 1, 1, N'Heo Thịt Truyền Thống', N'Heo Lai', 40, 4, 1500000, 3200000, 128000000, 
+ 'Heo thịt được nuôi theo phương pháp truyền thống.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-10', '2025-05-10'),
 
-(2, 1, 2, N'Combo Heo Móng Cái', N'Heo Móng Cái', 20, 2, 5000000, 5500000, 110000000, 
- N'Heo giống Móng Cái thuần chủng.', 
- N'10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', 
- '2025-04-05', '2025-05-05');
+(2, 1, 2, N'Heo Giống Móng Cái', N'Móng Cái', 30, 3, 2500000, 5000000, 150000000, 
+ 'Heo giống Móng Cái thuần chủng, dễ nuôi, sinh sản tốt.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-12', '2025-05-12'),
 
-INSERT INTO Cart (UserID, OfferID, Quantity)
-VALUES
-(5, 1, 10),  
-(5, 2, 2);   
+(2, 1, 3, N'Heo Rừng Lai F1', N'Heo Rừng Lai', 20, 2, 3000000, 6000000, 120000000, 
+ 'Heo rừng lai F1, chất lượng thịt thơm ngon.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-13', '2025-05-13'),
+
+(2, 1, 4, N'Heo Siêu Nạc Hòa Phát', N'Heo Siêu Nạc', 60, 6, 2000000, 4000000, 240000000, 
+ 'Heo siêu nạc tăng trưởng nhanh, tỉ lệ nạc cao.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-14', '2025-05-14'),
+
+(2, 1, 5, N'Heo Mẹ Landrace', N'Landrace', 15, 2, 3500000, 7000000, 105000000, 
+ 'Heo mẹ Landrace có khả năng sinh sản cao.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-15', '2025-05-15'),
+
+(2, 1, 6, N'Heo Con Siêu Nạc 2 Tuần Tuổi', N'Siêu Nạc', 50, 5, 1500000, 2000000, 100000000, 
+ 'Heo con 2 tuần tuổi, khỏe mạnh.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-16', '2025-05-16'),
+
+(2, 1, 7, N'Heo Đen Lạng Sơn', N'Heo Đen', 25, 3, 2500000, 4500000, 112500000, 
+ 'Heo đặc sản Lạng Sơn, thịt chắc ngọt.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-17', '2025-05-17'),
+
+(2, 1, 1, N'Heo Thịt Trắng Hòa Bình', N'Heo Trắng', 35, 4, 1800000, 3300000, 115500000, 
+ 'Heo nuôi tại trại hữu cơ Hòa Bình.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-18', '2025-05-18'),
+
+(2, 1, 2, N'Heo Giống Yorkshire', N'Yorkshire', 28, 3, 2700000, 5300000, 148400000, 
+ 'Heo giống Yorkshire, tăng trưởng tốt.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-19', '2025-05-19'),
+
+(2, 1, 3, N'Heo Rừng Lai Đen', N'Heo Rừng Đen', 22, 2, 2800000, 5800000, 127600000, 
+ 'Heo rừng đen chất lượng thịt cao.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-20', '2025-05-20'),
+
+(2, 1, 4, N'Heo Siêu Nạc CP', N'CP', 55, 6, 2100000, 4100000, 225500000, 
+ 'Heo siêu nạc do CP cung cấp giống.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-21', '2025-05-21'),
+
+(2, 1, 5, N'Heo Mẹ Yorkshire', N'Yorkshire', 18, 2, 3300000, 6800000, 122400000, 
+ 'Heo mẹ khỏe mạnh, khả năng đẻ nhiều.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-22', '2025-05-22'),
+
+(2, 1, 6, N'Heo Con 3 Tuần Tuổi', N'Heo Trắng', 45, 5, 1600000, 2200000, 99000000, 
+ 'Heo con đã tách mẹ, sẵn sàng xuất bán.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-23', '2025-05-23'),
+
+(2, 1, 7, N'Heo Đặc Sản Quảng Nam', N'Heo Mán', 30, 4, 2600000, 4600000, 138000000, 
+ 'Heo địa phương nuôi tại miền núi Quảng Nam.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-24', '2025-05-24'),
+
+(2, 1, 1, N'Heo Thịt Lai Lốc', N'Lai Lốc', 38, 5, 1750000, 3250000, 123500000, 
+ 'Heo lai lốc chất lượng cao.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-25', '2025-05-25'),
+
+(2, 1, 2, N'Heo Giống Duroc', N'Duroc', 26, 3, 2800000, 5400000, 140400000, 
+ 'Heo giống Duroc đực giống chuyên dùng lai tạo.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-26', '2025-05-26'),
+
+(2, 1, 3, N'Heo Rừng Lai Nọc', N'Heo Rừng Nọc', 12, 2, 3200000, 6200000, 74400000, 
+ 'Heo rừng nọc chất lượng tốt, giống khỏe.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-27', '2025-05-27'),
+
+(2, 1, 4, N'Heo Siêu Nạc Giống Thái', N'Giống Thái', 60, 6, 1950000, 3900000, 234000000, 
+ 'Heo siêu nạc giống Thái Lan.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-28', '2025-05-28'),
+
+(2, 1, 5, N'Heo Mẹ F1', N'Lai F1', 20, 2, 3400000, 6900000, 138000000, 
+ 'Heo mẹ lai F1, sinh sản tốt.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-29', '2025-05-29'),
+
+(2, 1, 6, N'Heo Con CP', N'CP', 48, 4, 1700000, 2300000, 110400000, 
+ 'Heo con CP, chất lượng ổn định.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-30', '2025-05-30');
 
 INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)
 VALUES
@@ -207,3 +259,4 @@ VALUES
 (4, 'Request for additional feed stock', NULL, 'Rejected', GETDATE(), GETDATE(), NULL),
 (5, 'Request for marketing support', NULL, 'Pending', GETDATE(), NULL, 'marketing_support.pdf'),
 (6, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);
+
