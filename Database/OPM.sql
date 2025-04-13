@@ -93,9 +93,10 @@ CREATE TABLE PigsOffer (
 
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
+    DealerID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     OfferID INT FOREIGN KEY REFERENCES PigsOffer(OfferID),
-    Quantity INT
+    Quantity INT,
+    AddedAt DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Payment (
@@ -190,6 +191,7 @@ INSERT INTO PigsOffer (
     SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit,
     RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate
 ) VALUES
+<<<<<<< HEAD
 (2, 1, 1, N'Heo Thịt Truyền Thống', N'Heo Lai', 40, 4, 1500000, 3200000, 128000000, 
  'Heo thịt được nuôi theo phương pháp truyền thống.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-10', '2025-05-10'),
 
@@ -250,11 +252,17 @@ INSERT INTO PigsOffer (
 (2, 1, 6, N'Heo Con CP', N'CP', 48, 4, 1700000, 2300000, 110400000, 
  'Heo con CP, chất lượng ổn định.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-30', '2025-05-30');
 
+=======
+(2, 1, 1, N'Combo Heo Lai', N'Heo Lai', 50, 5, 1500000, 3200000, 150000000, 
+ N'Heo lai 3 máu, trọng lượng 90kg/con.', 
+ N'https://example.com/images/heo-lai.jpg', 
+ '2025-04-01', '2025-04-30'),
 
-INSERT INTO Cart (UserID, OfferID, Quantity)
-VALUES
-(5, 1, 10),  
-(5, 2, 2);   
+(2, 1, 2, N'Combo Heo Móng Cái', N'Heo Móng Cái', 20, 2, 5000000, 5500000, 110000000, 
+ N'Heo giống Móng Cái thuần chủng.', 
+ N'https://example.com/images/heo-mong-cai.jpg', 
+ '2025-04-05', '2025-05-05');
+>>>>>>> b7d41752d945c92baad9dc9f5eca7a7e07cbaa07
 
 INSERT INTO Application (UserID, Content, Status, SentAt, ProcessingDate, FilePath)
 VALUES
