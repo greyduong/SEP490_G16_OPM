@@ -191,7 +191,6 @@ INSERT INTO PigsOffer (
     SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit,
     RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate
 ) VALUES
-<<<<<<< HEAD
 (2, 1, 1, N'Heo Thịt Truyền Thống', N'Heo Lai', 40, 4, 1500000, 3200000, 128000000, 
  'Heo thịt được nuôi theo phương pháp truyền thống.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-10', '2025-05-10'),
 
@@ -252,8 +251,12 @@ INSERT INTO PigsOffer (
 (2, 1, 6, N'Heo Con CP', N'CP', 48, 4, 1700000, 2300000, 110400000, 
  'Heo con CP, chất lượng ổn định.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-30', '2025-05-30');
 
-INSERT INTO Application (UserID, Content, Status, SentAt, ProcessingDate, FilePath)
+INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)
 VALUES
-(1, 'Request for approval of new farm', 'Pending', GETDATE(), NULL, 'request_farm_approval.pdf'),
-(2, 'Request for equipment purchase', 'Approved', GETDATE(), GETDATE(), 'equipment_purchase.pdf'),
-(3, 'Request for new supplier', 'Rejected', GETDATE(), GETDATE(), NULL);  -- No file provided
+(1, 'Request to expand farm capacity', 'Your request has been approved. You may proceed with the expansion.', 'Approved', GETDATE(), GETDATE(), 'expand_farm.pdf'),
+(2, 'Request to change supplier due to delay issues', 'Request denied. Please provide more documentation about the supplier’s delay.', 'Rejected', GETDATE(), GETDATE(), 'supplier_delay.pdf'),
+(3, 'Request for training course sponsorship', NULL, 'Approved', GETDATE(), GETDATE(), 'training_request.pdf'),
+(4, 'Request for additional feed stock', NULL, 'Rejected', GETDATE(), GETDATE(), NULL),
+(5, 'Request for marketing support', NULL, 'Pending', GETDATE(), NULL, 'marketing_support.pdf'),
+(6, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);
+

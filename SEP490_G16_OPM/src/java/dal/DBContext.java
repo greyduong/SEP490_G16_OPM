@@ -18,7 +18,7 @@ public class DBContext {
     private final String password = "OnlinePigMarket@1";
     private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
     private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-
+    
     public DBContext() {
         try {
             Class.forName(className);
@@ -26,6 +26,7 @@ public class DBContext {
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }
 
     public Connection getConnection() {

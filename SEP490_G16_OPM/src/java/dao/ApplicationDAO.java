@@ -28,6 +28,7 @@ public class ApplicationDAO extends DBContext {
                 application.setStatus(rs.getString("Status"));
                 application.setSentAt(rs.getTimestamp("SentAt"));
                 application.setProcessingDate(rs.getTimestamp("ProcessingDate"));
+                application.setFile(rs.getString("FilePath")); // ✅ ADD THIS
                 applications.add(application);
             }
         } catch (Exception e) {
@@ -39,9 +40,6 @@ public class ApplicationDAO extends DBContext {
                 }
                 if (stm != null) {
                     stm.close();
-                }
-                if (connection != null) {
-                    connection.close();
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -78,9 +76,7 @@ public class ApplicationDAO extends DBContext {
                 if (stm != null) {
                     stm.close();
                 }
-                if (connection != null) {
-                    connection.close();
-                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -108,9 +104,7 @@ public class ApplicationDAO extends DBContext {
                 if (stm != null) {
                     stm.close();
                 }
-                if (connection != null) {
-                    connection.close();
-                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -120,6 +114,7 @@ public class ApplicationDAO extends DBContext {
 
     // Update an application's status or reply
     public boolean updateApplication(Application application) {
+
         String query = "UPDATE Application SET Status = ?, Reply = ?, ProcessingDate = ?, FilePath = ? WHERE ApplicationID = ?";
         try {
             stm = connection.prepareStatement(query);
@@ -137,9 +132,7 @@ public class ApplicationDAO extends DBContext {
                 if (stm != null) {
                     stm.close();
                 }
-                if (connection != null) {
-                    connection.close();
-                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -162,9 +155,7 @@ public class ApplicationDAO extends DBContext {
                 if (stm != null) {
                     stm.close();
                 }
-                if (connection != null) {
-                    connection.close();
-                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -172,17 +163,4 @@ public class ApplicationDAO extends DBContext {
         return false;
     }
 
-//    public static void main(String[] args) {
-//        ApplicationDAO da = new ApplicationDAO();
-//
-//        List<Application> applications = da.getAllApplications();
-//        if (applications.isEmpty()) {
-//            System.out.println("No applications found.");
-//        } else {
-//            System.out.println("Applications retrieved: ");
-//            for (Application application : applications) {
-//                System.out.println(application); // This will use the toString() method of the Application class
-//            }
-//        }
-//    }
 }
