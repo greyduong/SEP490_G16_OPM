@@ -23,7 +23,8 @@ public class CartDAO extends DBContext {
         List<Cart> cartList = new ArrayList<>();
         String sql = "SELECT c.CartID, c.UserID, c.OfferID, c.Quantity, "
                 + "       u.FullName, u.Email, u.Phone, u.Address, u.Wallet, "
-                + "       p.OfferID AS P_OfferID, p.Name, p.PigBreed, p.RetailPrice, p.ImageURL "
+                + "       p.OfferID AS P_OfferID, p.Name, p.PigBreed, p.RetailPrice, "
+                + "       p.ImageURL, p.MinQuantity, p.Quantity AS OfferQuantity "
                 + "FROM Cart c "
                 + "JOIN UserAccount u ON c.UserID = u.UserID "
                 + "JOIN PigsOffer p ON c.OfferID = p.OfferID "
@@ -51,7 +52,7 @@ public class CartDAO extends DBContext {
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
                 user.setWallet(rs.getDouble("Wallet"));
-                cart.setUser(user); // hoặc setUser()
+                cart.setUser(user);
 
                 // Offer info
                 PigsOffer offer = new PigsOffer();
@@ -60,6 +61,8 @@ public class CartDAO extends DBContext {
                 offer.setPigBreed(rs.getString("PigBreed"));
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
                 offer.setImageURL(rs.getString("ImageURL"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setQuantity(rs.getInt("OfferQuantity"));
                 cart.setPigsOffer(offer);
 
                 cartList.add(cart);
@@ -127,6 +130,18 @@ public class CartDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean deleteCartById(int cartId) {
+        String sql = "DELETE FROM Cart WHERE CartID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

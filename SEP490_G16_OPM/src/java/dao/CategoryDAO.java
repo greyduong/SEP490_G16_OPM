@@ -1,10 +1,10 @@
 package dao;
 
 import dal.DBContext;
-import model.Category;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import model.Category;
 
 /**
  * DAO class for Category table operations
