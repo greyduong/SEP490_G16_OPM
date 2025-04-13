@@ -191,7 +191,6 @@ INSERT INTO PigsOffer (
     SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit,
     RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate
 ) VALUES
-<<<<<<< HEAD
 (2, 1, 1, N'Heo Thịt Truyền Thống', N'Heo Lai', 40, 4, 1500000, 3200000, 128000000, 
  'Heo thịt được nuôi theo phương pháp truyền thống.', '10e32b24-6c1a-47e0-a619-d6a50fa39902_pic2.jpg', '2025-04-10', '2025-05-10'),
 
