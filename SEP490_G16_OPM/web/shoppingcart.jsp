@@ -4,6 +4,7 @@
     Author     : duong
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="zxx">
@@ -28,6 +29,27 @@
         <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
         <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
         <link rel="stylesheet" href="css/style.css" type="text/css">
+        <style>
+            ..shoping__cart__quantity form {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .shoping__cart__quantity input {
+                height: 35px;
+                padding: 0;
+                font-size: 16px;
+            }
+
+            .shoping__cart__quantity .btn {
+                height: 35px;
+                width: 35px;
+                padding: 0;
+                font-size: 18px;
+            }
+
+        </style>
     </head>
 
     <body>
@@ -222,7 +244,7 @@
                                         <th class="shoping__product">Products</th>
                                         <th>Price</th>
                                         <th>Quantity</th>
-                                        <th>Total</th>
+                                        <th>Total(VND)</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -236,22 +258,30 @@
                                             <td class="shoping__cart__price">
                                                 $${cart.pigsOffer.retailPrice}
                                             </td>
-                                            <td class="shoping__cart__quantity">
-                                                <div class="quantity">
-                                                    <div class="pro-qty">
-                                                        <input type="text" value="${cart.quantity}" readonly>
-                                                    </div>
-                                                </div>
+                                            <td class="shoping__cart__quantity text-center">
+                                                <h6>${cart.quantity}</h6>
+
                                             </td>
                                             <td class="shoping__cart__total">
-                                                $${cart.quantity * cart.pigsOffer.retailPrice}
+                                                <fmt:formatNumber value="${cart.quantity * cart.pigsOffer.retailPrice}" type="number" groupingUsed="true" />
                                             </td>
                                             <td class="shoping__cart__item__close text-center">
-                                                <!-- Xoá -->
-                                                <a href="remove-cart?id=${cart.cartID}" class="btn btn-sm btn-danger mb-2" title="Remove">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
-                                                <!-- Checkout riêng -->
+                                                <div class="d-flex justify-content-center mb-2" style="gap: 6px;">
+                                                    <a href="#"
+                                                       class="btn btn-sm btn-warning open-update-modal"
+                                                       title="Cập nhật số lượng"
+                                                       data-cart-id="${cart.cartID}"
+                                                       data-quantity="${cart.quantity}"
+                                                       data-min="${cart.pigsOffer.minQuantity}"
+                                                       data-max="${cart.pigsOffer.quantity}"
+                                                       data-mode="${cart.quantity == cart.pigsOffer.quantity ? 'all' : 'custom'}">
+                                                        <i class="fa fa-pencil"></i>
+                                                    </a>
+                                                    <a href="remove-cart?id=${cart.cartID}" class="btn btn-sm btn-danger" title="Xoá">
+                                                        <i class="fa fa-trash"></i>
+                                                    </a>
+                                                </div>
+
                                                 <form action="checkout" method="post">
                                                     <input type="hidden" name="cartId" value="${cart.cartID}">
                                                     <input type="hidden" name="offerId" value="${cart.pigsOffer.offerID}">
@@ -346,6 +376,28 @@
         </footer>
         <!-- Footer Section End -->
 
+        <!-- Modal Cập nhật số lượng -->
+        <div class="modal fade" id="updateQuantityModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content p-4">
+                    <form action="update-cart" method="post" id="updateCartForm">
+                        <input type="hidden" name="cartId" id="modalCartId" />
+                        <input type="hidden" name="page" value="${currentPage}" />
+
+                        <select name="mode" id="updateModeSelect" class="form-control mb-2">
+                            <option value="all">Mua toàn bộ</option>
+                            <option value="custom">Chọn số lượng</option>
+                        </select>
+
+                        <input type="number" name="quantity" id="updateModalQuantity" class="form-control" />
+
+                        <button type="submit" class="btn btn-success w-100 mt-3">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
         <!-- Js Plugins -->
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
@@ -355,8 +407,49 @@
         <script src="js/mixitup.min.js"></script>
         <script src="js/owl.carousel.min.js"></script>
         <script src="js/main.js"></script>
+        <script>
+                                        $(document).ready(function () {
+                                            $('.open-update-modal').click(function (e) {
+                                                e.preventDefault();
+
+                                                const cartId = $(this).data('cart-id');
+                                                const quantity = parseInt($(this).data('quantity'));
+                                                const min = parseInt($(this).data('min'));
+                                                const max = parseInt($(this).data('max'));
+                                                const mode = $(this).data('mode');
+
+                                                $('#modalCartId').val(cartId);
+                                                $('#updateModalQuantity')
+                                                        .attr('min', min)
+                                                        .attr('max', max)
+                                                        .val(quantity)
+                                                        .show();
+
+                                                if (mode === 'custom') {
+                                                    $('#updateModeSelect').val('custom');
+                                                    $('#updateModalQuantity').prop('readonly', false);
+                                                } else {
+                                                    $('#updateModeSelect').val('all');
+                                                    $('#updateModalQuantity').val(max).prop('readonly', true);
+                                                }
+
+                                                $('#updateQuantityModal').modal('show');
+                                            });
 
 
+                                            $('#updateModeSelect').on('change', function () {
+                                                const mode = $(this).val();
+                                                const max = parseInt($('#updateModalQuantity').attr('max'));
+                                                const min = parseInt($('#updateModalQuantity').attr('min'));
+
+                                                if (mode === 'custom') {
+                                                    $('#updateModalQuantity').val(min).prop('readonly', false);
+                                                } else {
+                                                    $('#updateModalQuantity').val(max).prop('readonly', true);
+                                                }
+                                            });
+                                        });
+        </script>
     </body>
 
 </html>

@@ -4,25 +4,25 @@
  */
 package controller;
 
-import dao.CategoryDAO;
+import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import model.PigsOffer;
-import dao.PigsOfferDAO;
 import jakarta.servlet.http.HttpSession;
-import model.Category;
+import java.util.List;
+import model.Order;
 import model.User;
 
 /**
  *
- * @author dangtuong
+ * @author duong
  */
-public class HomePageController extends HttpServlet {
+@WebServlet(name = "ViewMyOrdersController", urlPatterns = {"/myorders"})
+public class ViewMyOrdersController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +41,10 @@ public class HomePageController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddToCartController</title>");
+            out.println("<title>Servlet ViewMyOrdersController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AddToCartController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ViewMyOrdersController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,32 +62,20 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int pageSize = 8;
-        int page = 1;
+        HttpSession session = request.getSession();
+        User currentUser = (User) session.getAttribute("user");
 
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
+        if (currentUser == null) {
+            response.sendRedirect("login-register.jsp");
+            return;
         }
 
-        CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> catgegoryList = categoryDAO.getAllCategories();
+        int userId = currentUser.getUserID();
+        OrderDAO orderDAO = new OrderDAO();
+        List<Order> myOrders = orderDAO.getOrdersByBuyerId(userId);
 
-        PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-        ArrayList<PigsOffer> offerList = pigsOfferDAO.getPagedPigsOffers(page, pageSize);
-        int totalOffers = pigsOfferDAO.countAllOffers();
-        int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
-
-        request.setAttribute("catgegoryList", catgegoryList);
-        request.setAttribute("offerList", offerList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        request.setAttribute("orderList", myOrders);
+        request.getRequestDispatcher("myorders.jsp").forward(request, response);
     }
 
     /**
