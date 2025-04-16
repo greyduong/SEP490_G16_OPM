@@ -1,6 +1,6 @@
 <%-- 
-    Document   : myorders.jsp
-    Created on : Apr 10, 2025, 7:40:30 PM
+    Document   : customerorderpage
+    Created on : Apr 16, 2025, 8:02:56 PM
     Author     : duong
 --%>
 
@@ -8,6 +8,27 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%-- Check if the user is logged in and has the Seller role --%>
+<c:if test="${empty sessionScope.user}">
+    <script>
+        window.location.href = "login-register.jsp"; // Redirect to login if not logged in
+    </script>
+</c:if>
+
+<c:if test="${sessionScope.user.roleID != 4}">
+    <script>
+        window.location.href = "home"; // Redirect if the user is not a Seller
+    </script>
+</c:if>
+
+<!-- Display error or success message -->
+<c:if test="${not empty msg}">
+    <div class="alert alert-info" role="alert">
+        ${msg}  <!-- This will display the message set in the controller -->
+    </div>
+</c:if>    
+
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -17,7 +38,7 @@
         <meta name="keywords" content="Ogani, unica, creative, html">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>My Order</title>
+        <title>Customer Order Page</title>
 
         <!-- Google Font -->
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
@@ -140,30 +161,18 @@
                     <div class="col-lg-6">
                         <nav class="header__menu">
                             <ul>
-                                <li class="active"><a href="./index.html">Home</a></li>
+                                <li class="active"><a href="home">Home</a></li>
                                 <li><a href="./shop-grid.html">Shop</a></li>
                                 <li><a href="#">Pages</a>
                                     <ul class="header__menu__dropdown">
-                                        <li><a href="./shop-details.html">Shop Details</a></li>
-                                        <li><a href="cart">Shoping Cart</a></li>
-                                        <li><a href="./checkout.html">Check Out</a></li>
-                                        <li><a href="myorders">My Orders</a></li>
+                                        <li><a href="CustomerOrderPageController">Customer Order</a></li>
+                                        <li><a href="OrdersRequestController">Customer Order Request</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="./blog.html">Blog</a></li>
-                                <li><a href="./contact.html">Contact</a></li>
                             </ul>
                         </nav>
                     </div>
-                    <div class="col-lg-3">
-                        <div class="header__cart">
-                            <ul>
-                                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
-                            </ul>
-                            <div class="header__cart__price">item: <span>$150.00</span></div>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="humberger__open">
                     <i class="fa fa-bars"></i>
@@ -172,53 +181,16 @@
         </header>
         <!-- Header Section End -->
 
-        <!-- Hero Section Begin -->
-        <section class="hero">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="hero__categories">
-                            <div class="hero__categories__all">
-                                <i class="fa fa-bars"></i>
-                                <span>All Categories</span>
-                            </div>
-                            <ul>
-                                <c:forEach var="c" items="${categoryList}">
-                                    <li><a href="category?cid=${c.id}">${c.name}</a></li>
-                                    </c:forEach>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-9">
-                        <div class="hero__search">
-                            <div class="hero__search__form">
-                                <form action="search">
-                                    <div class="hero__search__categories">
-                                        All Categories
-                                        <span class="arrow_carrot-down"></span>
-                                    </div>
-                                    <input type="text" name="keyword" placeholder="What do you need?">
-                                    <button type="submit" class="site-btn">SEARCH</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Hero Section End -->
-
         <!-- Breadcrumb Section Begin -->
         <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
                         <div class="breadcrumb__text">
-                            <h2>My Order</h2>
+                            <h2>Customer Order Page</h2>
                             <div class="breadcrumb__option">
                                 <a href="./index.html">Home</a>
-                                <span>My Order</span>
+                                <span>Customer Order Page</span>
                             </div>
                         </div>
                     </div>
@@ -227,7 +199,7 @@
         </section>
         <!-- Breadcrumb Section End -->
 
-        <!-- Featured Section Begin -->
+        <!-- Order List Section Begin -->
         <div class="container mt-5">
             <c:if test="${empty orderList}">
                 <p class="text-center">You have no orders yet.</p>
@@ -237,31 +209,40 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Order ID</th>
-                            <th>Seller</th>
+                            <th>Dealer</th>
                             <th>Offer</th>
                             <th>Quantity</th>
                             <th>Total Price (VND)</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="o" items="${orderList}">
                             <tr>
-                                <td> <a href="view-order-detail?id=${o.orderID}">${o.orderID}</a></td>
-                                <td>${o.seller.fullName}</td>
+                                <td><a href="CustomerOrderDetailController?id=${o.orderID}">${o.orderID}</a></td>
+                                <td>${o.dealer.fullName}</td>
                                 <td>${o.pigsOffer.name}</td>
                                 <td>${o.quantity}</td>
                                 <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
                                 <td>${o.status}</td>
                                 <td><fmt:formatDate value="${o.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                                <td>
+                                    <!-- Show Create Delivery Button if the order is either 'Deposited' or 'In Delivery' -->
+                                    <c:if test="${o.status == 'Deposited' || o.status == 'In Delivery'}">
+                                        <form action="createDelivery" method="post">
+                                            <button type="submit" name="orderID" value="${o.orderID}" class="btn btn-primary">Create Delivery</button>
+                                        </form>
+                                    </c:if>
+                                </td>
                             </tr>
                         </c:forEach>
                     </tbody>
                 </table>
             </c:if>
         </div>
-        <!-- Featured Section End -->
+        <!-- Order List Section End -->
 
         <!--         Footer Section Begin 
                 <footer class="footer spad">
@@ -345,4 +326,3 @@
     </body>
 
 </html>
-
