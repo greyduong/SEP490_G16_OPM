@@ -1,3 +1,3 @@
-#!/bin/bash
-/bin/bash configure-db.sh &
+#!/usr/bin/env bash
+./configure-db.sh &
 /opt/mssql/bin/sqlservr
