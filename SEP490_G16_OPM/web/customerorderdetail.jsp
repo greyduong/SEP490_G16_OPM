@@ -1,40 +1,51 @@
 <%-- 
-    Document   : myorders.jsp
-    Created on : Apr 10, 2025, 7:40:30 PM
+    Document   : customerorderdetail
+    Created on : Apr 16, 2025, 8:28:07 PM
     Author     : duong
 --%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%-- Check if the user is logged in and has the Seller role --%>
+<c:if test="${empty sessionScope.user}">
+    <script>
+        window.location.href = "login-register.jsp"; // Redirect to login if not logged in
+    </script>
+</c:if>
+
+<c:if test="${sessionScope.user.roleID != 4}">
+    <script>
+        window.location.href = "home"; // Redirect if the user is not a Seller
+    </script>
+</c:if>
+
+<!-- Display error or success message -->
+<c:if test="${not empty msg}">
+    <div class="alert alert-info" role="alert">
+        ${msg}  <!-- This will display the message set in the controller -->
+    </div>
+</c:if>
+
 <!DOCTYPE html>
 <html lang="zxx">
 
     <head>
         <meta charset="UTF-8">
-        <meta name="description" content="Ogani Template">
-        <meta name="keywords" content="Ogani, unica, creative, html">
+        <meta name="description" content="Customer Order Detail">
+        <meta name="keywords" content="Customer Order, Delivery, Order Info">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <title>My Order</title>
-
-        <!-- Google Font -->
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-
-        <!-- Css Styles -->
+        <title>Customer Order Detail</title>
+        <!-- Link to styles -->
         <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
         <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-        <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-        <link rel="stylesheet" href="css/nice-select.css" type="text/css">
-        <link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css">
-        <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
-        <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
         <link rel="stylesheet" href="css/style.css" type="text/css">
-
     </head>
 
     <body>
+
         <!-- Page Preloder -->
         <div id="preloder">
             <div class="loader"></div>
@@ -140,30 +151,18 @@
                     <div class="col-lg-6">
                         <nav class="header__menu">
                             <ul>
-                                <li class="active"><a href="./index.html">Home</a></li>
+                                <li class="active"><a href="home">Home</a></li>
                                 <li><a href="./shop-grid.html">Shop</a></li>
                                 <li><a href="#">Pages</a>
                                     <ul class="header__menu__dropdown">
-                                        <li><a href="./shop-details.html">Shop Details</a></li>
-                                        <li><a href="cart">Shoping Cart</a></li>
-                                        <li><a href="./checkout.html">Check Out</a></li>
-                                        <li><a href="myorders">My Orders</a></li>
+                                        <li><a href="CustomerOrderPageController">Customer Order</a></li>
+                                        <li><a href="OrdersRequestController">Customer Order Request</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="./blog.html">Blog</a></li>
-                                <li><a href="./contact.html">Contact</a></li>
                             </ul>
                         </nav>
                     </div>
-                    <div class="col-lg-3">
-                        <div class="header__cart">
-                            <ul>
-                                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
-                            </ul>
-                            <div class="header__cart__price">item: <span>$150.00</span></div>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="humberger__open">
                     <i class="fa fa-bars"></i>
@@ -172,96 +171,101 @@
         </header>
         <!-- Header Section End -->
 
-        <!-- Hero Section Begin -->
-        <section class="hero">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="hero__categories">
-                            <div class="hero__categories__all">
-                                <i class="fa fa-bars"></i>
-                                <span>All Categories</span>
-                            </div>
-                            <ul>
-                                <c:forEach var="c" items="${categoryList}">
-                                    <li><a href="category?cid=${c.id}">${c.name}</a></li>
-                                    </c:forEach>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-9">
-                        <div class="hero__search">
-                            <div class="hero__search__form">
-                                <form action="search">
-                                    <div class="hero__search__categories">
-                                        All Categories
-                                        <span class="arrow_carrot-down"></span>
-                                    </div>
-                                    <input type="text" name="keyword" placeholder="What do you need?">
-                                    <button type="submit" class="site-btn">SEARCH</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Hero Section End -->
-
-        <!-- Breadcrumb Section Begin -->
         <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
                         <div class="breadcrumb__text">
-                            <h2>My Order</h2>
+                            <h2>Customer Order Detail</h2>
                             <div class="breadcrumb__option">
-                                <a href="./index.html">Home</a>
-                                <span>My Order</span>
+                                <a href="home">Home</a>
+                                <span>Customer Order Detail</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- Breadcrumb Section End -->
 
-        <!-- Featured Section Begin -->
+        <!-- Order and Dealer Information Section -->
         <div class="container mt-5">
-            <c:if test="${empty orderList}">
-                <p class="text-center">You have no orders yet.</p>
-            </c:if>
-            <c:if test="${not empty orderList}">
-                <table class="table table-bordered text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Seller</th>
-                            <th>Offer</th>
-                            <th>Quantity</th>
-                            <th>Total Price (VND)</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="o" items="${orderList}">
+            <c:if test="${not empty order}">
+                <div class="row">
+                    <!-- Order Information Table (takes up 6 columns) -->
+                    <div class="col-md-4">
+                        <h3>Order Information</h3>
+                        <table class="table table-bordered">
                             <tr>
-                                <td> <a href="view-order-detail?id=${o.orderID}">${o.orderID}</a></td>
-                                <td>${o.seller.fullName}</td>
-                                <td>${o.pigsOffer.name}</td>
-                                <td>${o.quantity}</td>
-                                <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
-                                <td>${o.status}</td>
-                                <td><fmt:formatDate value="${o.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                                <th>Order ID</th>
+                                <td>${order.orderID}</td>
                             </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
+                            <tr>
+                                <th>Status</th>
+                                <td>${order.status}</td>
+                            </tr>
+                            <tr>
+                                <th>Dealer's Name</th>
+                                <td>${order.dealer.fullName}</td>
+                            </tr>
+                            <tr>
+                                <th>Offer</th>
+                                <td>${order.pigsOffer.name}</td>
+                            </tr>
+                            <tr>
+                                <th>Total Price (VND)</th>
+                                <td><fmt:formatNumber value="${order.totalPrice}" type="number" groupingUsed="true" /></td>
+                            </tr>
+                            <tr>
+                                <th>Quantity</th>
+                                <td>${order.quantity}</td>
+                            </tr>
+                            <tr>
+                                <th>Created At</th>
+                                <td><fmt:formatDate value="${order.createdAt}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Delivery Information Table (takes up 6 columns) -->
+                    <div class="col-md-7">
+                        <h3>Delivery Information</h3>
+                        <!-- Check if deliveryList is empty -->
+                        <c:if test="${empty deliveryList}">
+                            <p class="text-center">No deliveries found for this order.</p>
+                        </c:if>
+
+                        <c:if test="${not empty deliveryList}">
+                            <table class="table table-bordered text-center">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Delivery ID</th>
+                                        <th>Delivery Status</th>
+                                        <th>Recipient Name</th>
+                                        <th>Quantity</th>
+                                        <th>Total Price</th>
+                                        <th>Created At</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="d" items="${deliveryList}">
+                                        <tr>
+                                            <td>${d.deliveryID}</td>
+                                            <td>${d.deliveryStatus}</td>
+                                            <td>${d.recipientName}</td>
+                                            <td>${d.quantity}</td>
+                                            <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true" /></td>
+                                            <td><fmt:formatDate value="${d.createdAt}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
+                                            <td>${d.comments}</td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </c:if>
+                    </div>
+                </div>
             </c:if>
         </div>
-        <!-- Featured Section End -->
 
         <!--         Footer Section Begin 
                 <footer class="footer spad">
@@ -345,4 +349,3 @@
     </body>
 
 </html>
-
