@@ -257,7 +257,7 @@
                     <c:forEach var="o" items="${offerList}">
                         <div class="col-lg-3 col-md-4 col-sm-6 mix fresh-meat">
                             <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="ImageServlet?folder=pigs&file=${o.imageURL}">
+                                <div class="featured__item__pic set-bg" data-setbg="${o.imageURL}">
                                     <ul class="featured__item__pic__hover">
                                         <li>
                                             <a href="#" class="open-cart-modal" data-offer-id="${o.offerID}" data-max="${o.quantity}" data-min="${o.minQuantity}">

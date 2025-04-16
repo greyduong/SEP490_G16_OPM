@@ -258,8 +258,6 @@ VALUES
 (3, 4, 5, 'In Transit', 'Alice Johnson', 6, 24600000, 'Delivery in progress for confirmed order'),  -- OrderID 3
 (4, 4, 5, 'Pending', 'Bob Brown', 7, 24600000, 'Waiting for shipment approval'),    -- OrderID 4
 (5, 4, 5, 'Delivered', 'Charlie Wilson', 10, 24600000, 'Order has been delivered to the dealer');  -- OrderID 5
-
-
  
 INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)
 VALUES
