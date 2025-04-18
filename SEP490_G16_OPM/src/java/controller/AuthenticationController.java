@@ -98,8 +98,11 @@ public class AuthenticationController extends HttpServlet {
                 case 2 ->
                     response.sendRedirect("manager.jsp");
                 case 3 ->
-                    response.sendRedirect("StaffViewApplication");
-                case 4, 5 ->
+
+                    response.sendRedirect("staff.jsp");
+                case 4 -> 
+                    response.sendRedirect("sellerpage.jsp");
+                case 5 ->
 
                     response.sendRedirect("home");
 

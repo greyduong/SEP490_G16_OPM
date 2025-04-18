@@ -29,27 +29,7 @@
         <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
         <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
         <link rel="stylesheet" href="css/style.css" type="text/css">
-        <style>
-            .shoping__cart__quantity form {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
 
-            .shoping__cart__quantity input {
-                height: 35px;
-                padding: 0;
-                font-size: 16px;
-            }
-
-            .shoping__cart__quantity .btn {
-                height: 35px;
-                width: 35px;
-                padding: 0;
-                font-size: 18px;
-            }
-
-        </style>
     </head>
 
     <body>
@@ -416,16 +396,16 @@
                                                 const quantity = parseInt($(this).data('quantity'));
                                                 const min = parseInt($(this).data('min'));
                                                 const max = parseInt($(this).data('max'));
-                                                const mode = $(this).data('mode');
 
+                                                // Set cartId and quantity
                                                 $('#modalCartId').val(cartId);
                                                 $('#updateModalQuantity')
                                                         .attr('min', min)
                                                         .attr('max', max)
-                                                        .val(quantity)
-                                                        .show();
+                                                        .val(quantity);
 
-                                                if (mode === 'custom') {
+                                                // Dynamically set the selected value for the dropdown
+                                                if (quantity < max) {
                                                     $('#updateModeSelect').val('custom');
                                                     $('#updateModalQuantity').prop('readonly', false);
                                                 } else {
@@ -433,22 +413,24 @@
                                                     $('#updateModalQuantity').val(max).prop('readonly', true);
                                                 }
 
+                                                // Show the modal
                                                 $('#updateQuantityModal').modal('show');
                                             });
 
-
+                                            // Handle change in mode selection
                                             $('#updateModeSelect').on('change', function () {
                                                 const mode = $(this).val();
                                                 const max = parseInt($('#updateModalQuantity').attr('max'));
                                                 const min = parseInt($('#updateModalQuantity').attr('min'));
 
                                                 if (mode === 'custom') {
-                                                    $('#updateModalQuantity').val(min).prop('readonly', false);
+                                                    $('#updateModalQuantity').prop('readonly', false).val(min);
                                                 } else {
-                                                    $('#updateModalQuantity').val(max).prop('readonly', true);
+                                                    $('#updateModalQuantity').prop('readonly', true).val(max);
                                                 }
                                             });
                                         });
+
         </script>
     </body>
 

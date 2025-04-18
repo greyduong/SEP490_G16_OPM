@@ -1,4 +1,4 @@
-FROM netbeans as build
+FROM netbeans AS build
 WORKDIR /app
 COPY . /app
 RUN ant -propertyfile /opt/netbeans/build.properties dist
