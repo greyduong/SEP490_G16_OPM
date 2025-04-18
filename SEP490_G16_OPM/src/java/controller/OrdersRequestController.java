@@ -4,25 +4,25 @@
  */
 package controller;
 
-import dao.CategoryDAO;
+import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import model.PigsOffer;
-import dao.PigsOfferDAO;
 import jakarta.servlet.http.HttpSession;
-import model.Category;
+import java.util.List;
+import model.Order;
 import model.User;
 
 /**
  *
- * @author dangtuong
+ * @author duong
  */
-public class HomePageController extends HttpServlet {
+@WebServlet(name = "OrdersRequestController", urlPatterns = {"/OrdersRequestController"})
+public class OrdersRequestController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +41,10 @@ public class HomePageController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddToCartController</title>");
+            out.println("<title>Servlet OrdersRequestController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AddToCartController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet OrdersRequestController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,32 +62,34 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int pageSize = 8;
-        int page = 1;
+        // Check if the user is logged in
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
 
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
+        // If not logged in, redirect to the login page
+        if (user == null) {
+            response.sendRedirect("login-register.jsp");
+            return;
         }
 
-        CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> catgegoryList = categoryDAO.getAllCategories();
+        // Check if the user is a seller
+        if (user.getRoleID() != 4) {  // 4 corresponds to the Seller role
+            response.sendRedirect("home");  // Redirect to home if not a seller
+            return;
+        }
 
-        PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-        ArrayList<PigsOffer> offerList = pigsOfferDAO.getPagedPigsOffers(page, pageSize);
-        int totalOffers = pigsOfferDAO.countAllOffers();
-        int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
+        // Get the logged-in seller's ID
+        int sellerId = user.getUserID();
 
-        request.setAttribute("catgegoryList", catgegoryList);
-        request.setAttribute("offerList", offerList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
+        // Create an instance of OrderDAO and fetch the pending orders for the seller
+        OrderDAO orderDAO = new OrderDAO();
+        List<Order> pendingOrders = orderDAO.getPendingOrdersBySellerId(sellerId);
 
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        // Set the orders in the request scope to pass it to the JSP
+        request.setAttribute("orderList", pendingOrders);
+
+        // Forward to the order request page
+        request.getRequestDispatcher("orderrequestpage.jsp").forward(request, response);
     }
 
     /**

@@ -4,25 +4,33 @@
  */
 package controller;
 
-import dao.CategoryDAO;
+import model.Application;
+import dao.ApplicationDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import model.PigsOffer;
-import dao.PigsOfferDAO;
-import jakarta.servlet.http.HttpSession;
-import model.Category;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.Date;
 import model.User;
 
 /**
  *
- * @author dangtuong
+ * @author tuan
  */
-public class HomePageController extends HttpServlet {
+@WebServlet(name = "CreateApplication", urlPatterns = {"/CreateApplication"})
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
+)
+public class CreateApplication extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +49,10 @@ public class HomePageController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddToCartController</title>");
+            out.println("<title>Servlet CreateApplication</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AddToCartController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CreateApplication at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,32 +70,14 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int pageSize = 8;
-        int page = 1;
-
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
+        // Check if user is logged in
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            response.sendRedirect("login-register.jsp");
+            return;
         }
 
-        CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> catgegoryList = categoryDAO.getAllCategories();
-
-        PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-        ArrayList<PigsOffer> offerList = pigsOfferDAO.getPagedPigsOffers(page, pageSize);
-        int totalOffers = pigsOfferDAO.countAllOffers();
-        int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
-
-        request.setAttribute("catgegoryList", catgegoryList);
-        request.setAttribute("offerList", offerList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        request.getRequestDispatcher("createapplication.jsp").forward(request, response);
     }
 
     /**
@@ -101,7 +91,47 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        // Check if user is logged in
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            response.sendRedirect("login-register.jsp");
+            return;
+        }
+
+        int userID = user.getUserID(); // Now getting ID from user object
+
+        String content = request.getParameter("content");
+        String status = "Pending";
+        Date sentAt = new Date();
+        Date processingDate = null;
+        String filePath = null;
+
+        // Handle file upload
+        Part filePart = request.getPart("file");
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+
+        if (!fileName.isEmpty()) {
+            String uploadPath = getServletContext().getRealPath("") + File.separator + "img" + File.separator + "applications";
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            filePart.write(uploadPath + File.separator + fileName);
+            filePath = "img/applications/" + fileName;
+        }
+
+        Application newApp = new Application(userID, content, null, status, sentAt, processingDate, filePath);
+
+        ApplicationDAO dao = new ApplicationDAO();
+        boolean isCreated = dao.createApplication(newApp);
+
+        if (isCreated) {
+            request.getSession().setAttribute("success", "Application submitted successfully!");
+            response.sendRedirect("application");
+        } else {
+            response.sendRedirect("error.jsp");
+        }
     }
 
     /**

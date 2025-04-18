@@ -4,25 +4,27 @@
  */
 package controller;
 
-import dao.CategoryDAO;
+import dao.DeliveryDAO;
+import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import model.PigsOffer;
-import dao.PigsOfferDAO;
 import jakarta.servlet.http.HttpSession;
-import model.Category;
+import java.util.List;
+import model.Delivery;
+import model.Order;
 import model.User;
 
 /**
  *
- * @author dangtuong
+ * @author duong
  */
-public class HomePageController extends HttpServlet {
+@WebServlet(name = "CustomerOrderDetailController", urlPatterns = {"/CustomerOrderDetailController"})
+public class CustomerOrderDetailController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +43,10 @@ public class HomePageController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddToCartController</title>");
+            out.println("<title>Servlet CustomerOrderDetailController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AddToCartController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CustomerOrderDetailController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,32 +64,38 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int pageSize = 8;
-        int page = 1;
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
 
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
+        if (user == null || user.getRoleID() != 4) {
+            response.sendRedirect("home");  // Redirect if not a Seller
+            return;
         }
 
-        CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> catgegoryList = categoryDAO.getAllCategories();
+        String orderIdStr = request.getParameter("id");
+        if (orderIdStr != null) {
+            try {
+                int orderID = Integer.parseInt(orderIdStr);
 
-        PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-        ArrayList<PigsOffer> offerList = pigsOfferDAO.getPagedPigsOffers(page, pageSize);
-        int totalOffers = pigsOfferDAO.countAllOffers();
-        int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
+                // Fetch order and delivery details
+                OrderDAO orderDAO = new OrderDAO();
+                DeliveryDAO deliveryDAO = new DeliveryDAO();
 
-        request.setAttribute("catgegoryList", catgegoryList);
-        request.setAttribute("offerList", offerList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
+                Order order = orderDAO.getOrderById(orderID);  // Fetch the order by ID
+                List<Delivery> deliveries = deliveryDAO.getDeliveriesByOrderId(orderID);  // Fetch deliveries for this seller
 
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+                // Set attributes to be accessed in JSP
+                request.setAttribute("order", order);
+                request.setAttribute("deliveryList", deliveries);
+
+                // Forward to the customer order detail page
+                request.getRequestDispatcher("customerorderdetail.jsp").forward(request, response);
+            } catch (NumberFormatException e) {
+                response.sendRedirect("home");
+            }
+        } else {
+            response.sendRedirect("home");
+        }
     }
 
     /**

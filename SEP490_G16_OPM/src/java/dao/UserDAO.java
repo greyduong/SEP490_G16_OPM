@@ -43,7 +43,7 @@ public class UserDAO extends DBContext {
     public boolean addNewUser(User user) {
         try {
             String sql = "INSERT INTO UserAccount (RoleID, FullName, Username, Password, Email, Phone, Address, Wallet, Status) "
-                       + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             stm = connection.prepareStatement(sql);
             stm.setInt(1, user.getRoleID());
             stm.setString(2, user.getFullName());
@@ -89,4 +89,26 @@ public class UserDAO extends DBContext {
         }
         return user;
     }
+
+    public User getUserById(int id) {
+        User user = null;
+        try {
+            String sql = "SELECT * FROM UserAccount WHERE UserID = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                user = new User();
+                user.setUserID(rs.getInt("UserID"));
+                user.setFullName(rs.getString("FullName"));
+                user.setEmail(rs.getString("Email"));
+                user.setPhone(rs.getString("Phone"));
+                user.setAddress(rs.getString("Address"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
 }
