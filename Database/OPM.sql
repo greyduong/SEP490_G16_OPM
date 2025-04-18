@@ -93,10 +93,9 @@ CREATE TABLE PigsOffer (
 
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
-    DealerID INT FOREIGN KEY REFERENCES UserAccount(UserID),
+    UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     OfferID INT FOREIGN KEY REFERENCES PigsOffer(OfferID),
-    Quantity INT,
-    AddedAt DATETIME DEFAULT GETDATE()
+    Quantity INT
 );
 
 CREATE TABLE Payment (
@@ -169,8 +168,8 @@ VALUES
 (1, N'Nguyễn Văn A', 'admin', 'admin123', 'admin@gmail.com', '0909123456', N'123 Đường Lê Lợi, TP.HCM', 1000000),
 (2, N'Võ Minh E', 'manager1', 'manager123', 'manager1@gmail.com', '0909765432', N'654 Đường Hai Bà Trưng, TP.HCM', 800000),
 (3, N'Lê Thị D', 'staff1', 'staff123', 'staff1@gmail.com', '0909678456', N'321 Đường Trần Hưng Đạo, TP.HCM', 300000),
-(4, N'Trần Thị B', 'seller1', 'seller123', 'seller1@gmail.com', '0909345678', N'456 Đường Nguyễn Huệ, TP.HCM', 500000),
-(5, N'Phạm Văn C', 'dealer1', 'dealer123', 'dealer1@gmail.com', '0909567890', N'789 Đường Cách Mạng, TP.HCM', 200000);
+(4, N'Trần Thị B', 'seller1', 'seller123', 'yamadanumber1@gmail.com', '0909345678', N'456 Đường Nguyễn Huệ, TP.HCM', 500000),
+(5, N'Phạm Văn C', 'dealer1', 'dealer123', 'yamadanumber1@gmail.com', '0909567890', N'789 Đường Cách Mạng, TP.HCM', 200000);
 
 INSERT INTO Farm (SellerID, FarmName, Location, Description)
 VALUES
@@ -258,5 +257,5 @@ VALUES
 (3, 'Request for training course sponsorship', NULL, 'Approved', GETDATE(), GETDATE(), 'training_request.pdf'),
 (4, 'Request for additional feed stock', NULL, 'Rejected', GETDATE(), GETDATE(), NULL),
 (5, 'Request for marketing support', NULL, 'Pending', GETDATE(), NULL, 'marketing_support.pdf'),
-(6, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);
+(5, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);
 

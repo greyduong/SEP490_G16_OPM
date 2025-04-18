@@ -30,7 +30,7 @@
         <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
         <link rel="stylesheet" href="css/style.css" type="text/css">
         <style>
-            ..shoping__cart__quantity form {
+            .shoping__cart__quantity form {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -162,7 +162,7 @@
                                 <li><a href="#">Pages</a>
                                     <ul class="header__menu__dropdown">
                                         <li><a href="./shop-details.html">Shop Details</a></li>
-                                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
+                                        <li><a href="./shoping-cart.html">Shopping Cart</a></li>
                                         <li><a href="./checkout.html">Check Out</a></li>
                                         <li><a href="./blog-details.html">Blog Details</a></li>
                                     </ul>

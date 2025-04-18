@@ -23,6 +23,20 @@ public class UserDAO extends DBContext {
         }
         return false;
     }
+    // Check if email exists
+
+    public boolean checkExistsEmail(String email) {
+        try {
+            String sql = "SELECT * FROM UserAccount WHERE Email = ?";
+            stm = connection.prepareStatement(sql);
+            stm.setString(1, email);
+            rs = stm.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            System.out.println("checkExistsEmail: " + e.getMessage());
+        }
+        return false;
+    }
 
     // Login check
     public boolean checkUser(String username, String password) {
