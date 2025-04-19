@@ -4,6 +4,8 @@ import model.User;
 import dal.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO extends DBContext {
 
@@ -123,6 +125,32 @@ public class UserDAO extends DBContext {
             e.printStackTrace();
         }
         return user;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> list = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM UserAccount";
+            stm = connection.prepareStatement(sql);
+            rs = stm.executeQuery();
+            while (rs.next()) {
+                User user = new User();
+                user.setUserID(rs.getInt("UserID"));
+                user.setRoleID(rs.getInt("RoleID"));
+                user.setFullName(rs.getString("FullName"));
+                user.setUsername(rs.getString("Username"));
+                user.setPassword(rs.getString("Password")); // optional to hide
+                user.setEmail(rs.getString("Email"));
+                user.setPhone(rs.getString("Phone"));
+                user.setAddress(rs.getString("Address"));
+                user.setWallet(rs.getDouble("Wallet"));
+                user.setStatus(rs.getString("Status"));
+                list.add(user);
+            }
+        } catch (Exception e) {
+            System.out.println("getAllUsers: " + e.getMessage());
+        }
+        return list;
     }
 
 }

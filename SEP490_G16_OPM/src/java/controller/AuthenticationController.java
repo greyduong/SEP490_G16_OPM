@@ -94,7 +94,7 @@ public class AuthenticationController extends HttpServlet {
             int roleId = user.getRoleID();
             switch (roleId) {
                 case 1 ->
-                    response.sendRedirect("admin.jsp");
+                    response.sendRedirect("admin");
                 case 2 ->
                     response.sendRedirect("manager.jsp");
                 case 3 ->
