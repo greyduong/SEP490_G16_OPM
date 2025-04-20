@@ -43,7 +43,7 @@ public class AuthenticationController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doPost(request, response);
     }
 
     // Handles POST requests (login & signup)
@@ -56,6 +56,13 @@ public class AuthenticationController extends HttpServlet {
             handleLogin(request, response);
         } else if ("signup".equalsIgnoreCase(action)) {
             handleSignup(request, response);
+        } else if ("logout".equalsIgnoreCase(action)) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.removeAttribute("user");
+                session.getAttribute("username");
+            }
+            response.sendRedirect("home");
         } else {
             response.sendRedirect("login-register.jsp");
         }
@@ -86,10 +93,8 @@ public class AuthenticationController extends HttpServlet {
 
             session.setAttribute("username", username);
 
-            
- 
             session.setAttribute("successMsg", "Login successful!");
-            
+
             int roleId = user.getRoleID();
             switch (roleId) {
                 case 1 ->
@@ -98,7 +103,7 @@ public class AuthenticationController extends HttpServlet {
                     response.sendRedirect("manager.jsp");
                 case 3 ->
                     response.sendRedirect("staff.jsp");
-                case 4 -> 
+                case 4 ->
                     response.sendRedirect("sellerpage.jsp");
                 case 5 ->
                     response.sendRedirect("home");

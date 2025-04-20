@@ -250,24 +250,4 @@ public class PigsOfferDAO extends DBContext {
         }
     }
 
-    public static void main(String[] args) {
-        PigsOfferDAO dao = new PigsOfferDAO();
-        ArrayList<PigsOffer> list = dao.getAllPigsOffers();
-
-        if (list.isEmpty()) {
-            System.out.println("❌ Không có dữ liệu Offer nào!");
-        } else {
-            System.out.println("✅ Danh sách Offer lấy từ Database:");
-            for (PigsOffer offer : list) {
-                System.out.println("Offer ID: " + offer.getOfferID());
-                System.out.println("Tên Offer: " + offer.getName());
-                System.out.println("Giống Heo: " + offer.getPigBreed());
-                System.out.println("Số lượng: " + offer.getQuantity());
-                System.out.println("Giá bán lẻ: " + offer.getRetailPrice());
-                System.out.println("Ảnh: " + offer.getImageURL());
-                System.out.println("Ngày bắt đầu: " + offer.getStartDate());
-                System.out.println("------------------------------------------");
-            }
-        }
-    }
 }

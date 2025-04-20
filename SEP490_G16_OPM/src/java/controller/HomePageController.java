@@ -75,14 +75,14 @@ public class HomePageController extends HttpServlet {
         }
 
         CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> catgegoryList = categoryDAO.getAllCategories();
+        ArrayList<Category> categoryList = categoryDAO.getAllCategories();
 
         PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
         ArrayList<PigsOffer> offerList = pigsOfferDAO.getPagedPigsOffers(page, pageSize);
         int totalOffers = pigsOfferDAO.countAllOffers();
         int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
 
-        request.setAttribute("catgegoryList", catgegoryList);
+        request.setAttribute("categoryList", categoryList);
         request.setAttribute("offerList", offerList);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);

@@ -225,7 +225,7 @@ public class OrderDAO extends DBContext {
     public void cancelExpiredOrders() {
         String sql = "UPDATE Orders "
                 + "SET status = 'Cancelled' "
-                + "WHERE status = 'Pending' AND DATEDIFF(HOUR, create_time, GETDATE()) >= 24";
+                + "WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             int affectedRows = ps.executeUpdate();
             System.out.println("🔁 Số đơn hàng bị hủy: " + affectedRows);
