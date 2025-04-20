@@ -1,13 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import model.Application;
 import dao.ApplicationDAO;
+import model.User;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
+import java.util.Date;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,62 +17,18 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.Date;
-import model.User;
 
-/**
- *
- * @author tuan
- */
 @WebServlet(name = "CreateApplication", urlPatterns = {"/CreateApplication"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-        maxFileSize = 1024 * 1024 * 10, // 10MB
-        maxRequestSize = 1024 * 1024 * 50 // 50MB
+        fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
+        maxFileSize = 1024 * 1024 * 10,       // 10MB
+        maxRequestSize = 1024 * 1024 * 50     // 50MB
 )
 public class CreateApplication extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CreateApplication</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CreateApplication at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Check if user is logged in
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
             response.sendRedirect("login-register.jsp");
@@ -80,68 +38,75 @@ public class CreateApplication extends HttpServlet {
         request.getRequestDispatcher("createapplication.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Check if user is logged in
+
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
             response.sendRedirect("login-register.jsp");
             return;
         }
 
-        int userID = user.getUserID(); // Now getting ID from user object
-
+        int userID = user.getUserID();
         String content = request.getParameter("content");
         String status = "Pending";
         Date sentAt = new Date();
         Date processingDate = null;
         String filePath = null;
 
-        // Handle file upload
-        Part filePart = request.getPart("file");
-        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        // ✅ Validate content
+        if (content == null || content.trim().length() < 10) {
+            request.setAttribute("msg", "Nội dung đơn phải dài ít nhất 10 ký tự.");
+            request.getRequestDispatcher("createapplication.jsp").forward(request, response);
+            return;
+        }
 
-        if (!fileName.isEmpty()) {
-            String uploadPath = getServletContext().getRealPath("") + File.separator + "img" + File.separator + "applications";
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+        // ✅ Handle file upload
+        Part filePart = request.getPart("file");
+        if (filePart != null && filePart.getSize() > 0) {
+            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+            String contentType = filePart.getContentType();
+
+            // ✅ MIME type validation
+            if (!contentType.matches("application/pdf|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document|image/png|image/jpeg")) {
+                request.setAttribute("msg", "Chỉ cho phép file PDF, Word, PNG hoặc JPG.");
+                request.getRequestDispatcher("createapplication.jsp").forward(request, response);
+                return;
             }
 
-            filePart.write(uploadPath + File.separator + fileName);
+            if (filePart.getSize() > 10 * 1024 * 1024) {
+                request.setAttribute("msg", "File không được vượt quá 10MB.");
+                request.getRequestDispatcher("createapplication.jsp").forward(request, response);
+                return;
+            }
+
+            // ✅ Save to img/applications/
+            String uploadDir = getServletContext().getRealPath("/") + "img" + File.separator + "applications";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            String fullPath = uploadDir + File.separator + fileName;
+            filePart.write(fullPath);
             filePath = "img/applications/" + fileName;
         }
 
-        Application newApp = new Application(userID, content, null, status, sentAt, processingDate, filePath);
-
+        // ✅ Create application object
+        Application newApp = new Application(userID, content.trim(), null, status, sentAt, processingDate, filePath);
         ApplicationDAO dao = new ApplicationDAO();
         boolean isCreated = dao.createApplication(newApp);
 
         if (isCreated) {
-            request.getSession().setAttribute("success", "Application submitted successfully!");
+            request.getSession().setAttribute("success", "Đơn đã được gửi thành công!");
             response.sendRedirect("application");
         } else {
-            response.sendRedirect("error.jsp");
+            request.setAttribute("msg", "Không thể gửi đơn. Vui lòng thử lại sau.");
+            request.getRequestDispatcher("createapplication.jsp").forward(request, response);
         }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Xử lý tạo đơn đề nghị";
+    }
 }

@@ -1,6 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%
+    if (session.getAttribute("user") == null) {
+        response.sendRedirect("login-register.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -37,18 +43,21 @@
                 <form action="CreateApplication" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="purpose">Purpose</label>
-                        <textarea name="content" class="form-control" id="purpose" rows="5" required placeholder="Enter application purpose"></textarea>
+                        <textarea name="content" class="form-control" minlength="10" maxlength="1000" required></textarea>
                     </div>
 
                     <!-- File Upload Field -->
                     <div class="form-group">
                         <label for="file">Upload File (Optional)</label>
-                        <input type="file" name="file" class="form-control" id="file">
+                        <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
                     </div>
 
                     <button type="submit" class="site-btn">Submit Application</button>
                 </form>
             </div>
+            <c:if test="${not empty msg}">
+                <div class="alert alert-info">${msg}</div>
+            </c:if>
         </section>
         <!-- Application Form Section End -->
 

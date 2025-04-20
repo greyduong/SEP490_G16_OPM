@@ -95,6 +95,15 @@
                 });
             </script>
         </section>
+        <script>
+            // Check for access denied via query string
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("error") === "access-denied") {
+                alert("You do not have permission to access that page.");
+                // Remove the query param so it doesn't alert again on refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        </script>
     </body>
 </html>
 
