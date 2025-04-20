@@ -496,7 +496,13 @@
                                         });
         </script>
 
-
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("error") === "access-denied") {
+                alert("You do not have permission to access that page.");
+                window.history.replaceState({}, document.title, window.location.pathname); // Clean URL
+            }
+        </script>
 
     </body>
 
