@@ -1,6 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%
+    model.User user = (model.User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect("login-register.jsp");
+        return;
+    }
+    if (user.getRoleID() != 4 && user.getRoleID() != 5) {
+        response.sendRedirect("login-register.jsp?error=access-denied");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
