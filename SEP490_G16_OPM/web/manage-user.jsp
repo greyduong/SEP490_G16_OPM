@@ -6,24 +6,26 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Manager User | Online Pig Market</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css"/>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
         <main class="w-200 mx-auto mb-5">
-            <div class="text-3xl mb-3">Manage User</div>
-            <div class="mb-2">
-                <button id="new-user" class="bg-blue-600 text-white px-5 py-1 rounded-sm hover:bg-blue-700 hover:cursor-pointer" data-toggle="modal" data-target="#addUserForm"><i class="bi bi-plus"></i>Add user</button>
-            </div>
-            <div class="mb-3">
-                <form action="" class="inline-flex items-center gap-2 border border-slate-300 px-3">
-                    <i class="bi bi-search"></i>
-                    <input value="${search}" name="search" type="text" placeholder="Search user" class="outline-none px-3 py-1 rounded-sm focus:outline-none focus:!border-slate-600 transition-all">
+            <div class="text-3xl mb-3"><span class="mdi mdi-account-star me-2"></span>Manage User</div>
+            <div class="mb-3 d-flex">
+                <form action="" class="inline-flex items-center rounded-sm gap-2 border border-slate-300 px-2 has-[:focus]:border-slate-400">
+                    <span class="mdi mdi-magnify"></span>
+                    <input value="${search}" name="search" type="text" placeholder="Search user" class="outline-none py-1 focus:!outline-none">
                 </form>
+                <a href="?action=add" class="ml-auto !bg-blue-600 !text-white px-2 py-1 rounded-sm hover:!bg-blue-700 hover:cursor-pointer">
+                    <span class="mdi mdi-plus-box"></span>
+                    Add user
+                </a>
             </div>
             <div class="mb-3 overflow-x-auto">
-                <table class="border border-slate-300 overflow-x-auto">
+                <table class="border border-slate-300 overflow-x-auto w-full">
                     <thead>
                         <tr class="text-sm bg-slate-50 text-slate-500 text-left *:py-2 *:px-3 border-b border-slate-300">
                             <th>ID</th>
@@ -42,12 +44,30 @@
                                 <td>${usr.getEmail()}</td>
                                 <td>${usr.getFullName()}</td>
                                 <td>${usr.getUsername()}</td>
-                                <td><span class="border border-slate-300 rounded-full px-2 inline-flex items-center justify-center text-sm uppercase">${usr.getStatus()}</span></td>
-                                <td>${usr.getRoleID()}</td>
+                                <td><span class="border ${usr.getStatus() == 'Active' ? 'text-green-600' : 'text-red-600'} rounded-full px-2 inline-flex items-center justify-center text-sm uppercase">${usr.getStatus()}</span></td>
+                                <td>
+                                    <span class="whitespace-nowrap">
+                                        <c:choose>
+                                            <c:when test="${usr.roleID == 1}">Admin</c:when>
+                                            <c:when test="${usr.roleID == 2}">Manager</c:when>
+                                            <c:when test="${usr.roleID == 3}">Staff</c:when>
+                                            <c:when test="${usr.roleID == 4}">Pig Seller</c:when>
+                                            <c:when test="${usr.roleID == 5}">Pig Dealer</c:when>
+                                        </c:choose>
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="flex gap-2">
                                         <a href="?action=edit&id=${usr.getUserID()}" class="text-sm px-2 py-1 rounded-sm !text-slate-500 !bg-slate-100 hover:cursor-pointer hover:!bg-slate-200">Edit</a>
-                                        <form class="delete-user-form" method="POST" action="?action=delete&id=${usr.getUserID()}"><button class="delete-user text-sm px-2 py-1 rounded-sm text-slate-500 bg-slate-100 hover:cursor-pointer hover:bg-slate-200">Delete</button></form>
+                                        <c:choose>
+                                            <c:when test="${usr.getStatus() == 'Active'}">
+                                                <form class="delete-user-form" method="POST" action="?action=delete&id=${usr.getUserID()}"><button class="delete-user text-sm px-2 py-1 rounded-sm text-slate-500 bg-slate-100 hover:cursor-pointer hover:bg-slate-200">Delete</button></form>
+                                            </c:when>
+                                            <c:when test="${usr.getStatus() == 'Inactive'}">
+                                                <form class="recover-user-form" method="POST" action="?action=recover&id=${usr.getUserID()}"><button class="recover-user text-sm px-2 py-1 rounded-sm text-slate-500 bg-slate-100 hover:cursor-pointer hover:bg-slate-200">Recover</button></form>
+                                            </c:when>
+                                        </c:choose>
+
                                     </div>
                                 </td>
                             </tr>
@@ -61,30 +81,18 @@
                 <a href="?page=${page+1}&search=${search}" class="!text-slate-600 !bg-slate-100 px-2 py-1 hover:!bg-slate-200 rounded-sm hover:cursor-pointer">Next</a>
             </div>
         </main>
-        <div id="addUserForm" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add new user</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Modal body text goes here.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
         <jsp:include page="component/footer.jsp" />
         <script>
             $(".delete-user-form").on("submit", function (e) {
                 e.preventDefault();
                 const choice = confirm("Do you want to delete this user?");
+                if (!choice)
+                    return;
+                e.target.submit();
+            });
+            $(".recover-user-form").on("submit", function (e) {
+                e.preventDefault();
+                const choice = confirm("Do you want to recover this user?");
                 if (!choice)
                     return;
                 e.target.submit();
