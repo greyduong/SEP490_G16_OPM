@@ -62,9 +62,13 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        final int pageSize = 8;
-        int page = 1;
 
+        String categoryName = request.getParameter("categoryName");
+        String keyword = request.getParameter("keyword");
+        String sort = request.getParameter("sort"); // e.g., "quantity_asc", "price_desc"
+
+        int page = 1;
+        final int pageSize = 8;
         String pageParam = request.getParameter("page");
         if (pageParam != null) {
             try {
@@ -74,18 +78,33 @@ public class HomePageController extends HttpServlet {
             }
         }
 
+        // Load categories
         CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> catgegoryList = categoryDAO.getAllCategories();
+        ArrayList<Category> categoryList = categoryDAO.getAllCategories();
 
+        // Load offers
         PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-        ArrayList<PigsOffer> offerList = pigsOfferDAO.getPagedPigsOffers(page, pageSize);
-        int totalOffers = pigsOfferDAO.countAllOffers();
+        ArrayList<PigsOffer> offerList;
+        int totalOffers;
+
+        if ((keyword != null && !keyword.trim().isEmpty()) || (categoryName != null && !categoryName.trim().isEmpty())) {
+            offerList = pigsOfferDAO.searchOffersFlexible(keyword, categoryName, sort, page, pageSize);
+            totalOffers = pigsOfferDAO.countOffersFlexible(keyword, categoryName);
+        } else {
+            offerList = pigsOfferDAO.getPagedPigsOffersWithSort(sort, page, pageSize);
+            totalOffers = pigsOfferDAO.countAllOffers();
+        }
+
         int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
 
-        request.setAttribute("catgegoryList", catgegoryList);
+        // Set attributes for JSP
+        request.setAttribute("categoryList", categoryList);
         request.setAttribute("offerList", offerList);
         request.setAttribute("currentPage", page);
         request.setAttribute("totalPages", totalPages);
+        request.setAttribute("sort", sort);
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("categoryName", categoryName);
 
         request.getRequestDispatcher("homepage.jsp").forward(request, response);
     }

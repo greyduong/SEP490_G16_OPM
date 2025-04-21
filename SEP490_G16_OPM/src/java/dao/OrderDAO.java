@@ -222,13 +222,83 @@ public class OrderDAO extends DBContext {
         return false;  // Return false if the update fails
     }
 
+    public boolean isOrderOwnedBySeller(int orderId, int sellerId) {
+        String sql = "SELECT COUNT(*) FROM Orders WHERE OrderID = ? AND SellerID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ps.setInt(2, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int getOrderQuantity(int orderId) {
+        String sql = "SELECT Quantity FROM Orders WHERE OrderID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("Quantity");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public double getOrderTotalPrice(int orderId) {
+        String sql = "SELECT TotalPrice FROM Orders WHERE OrderID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("TotalPrice");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public void cancelExpiredOrders() {
-        String sql = "UPDATE Orders "
+        String selectSql = "SELECT OfferID, Quantity FROM Orders "
+                + "WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24";
+
+        String updateOfferSql = "UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?";
+
+        String cancelSql = "UPDATE Orders "
                 + "SET status = 'Cancelled' "
                 + "WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            int affectedRows = ps.executeUpdate();
-            System.out.println("🔁 Số đơn hàng bị hủy: " + affectedRows);
+
+        try (
+                PreparedStatement selectStm = connection.prepareStatement(selectSql); PreparedStatement updateOfferStm = connection.prepareStatement(updateOfferSql); PreparedStatement cancelStm = connection.prepareStatement(cancelSql);) {
+            ResultSet rs = selectStm.executeQuery();
+
+            int counter = 0;
+
+            while (rs.next()) {
+                int offerId = rs.getInt("OfferID");
+                int quantity = rs.getInt("Quantity");
+
+                updateOfferStm.setInt(1, quantity);
+                updateOfferStm.setInt(2, offerId);
+                updateOfferStm.addBatch();
+                counter++;
+            }
+
+            if (counter > 0) {
+                updateOfferStm.executeBatch(); // Cộng lại số lượng
+                int affected = cancelStm.executeUpdate(); // Huỷ đơn hàng
+                System.out.println("🔁 Đã huỷ " + affected + " đơn và hoàn số lượng về offer.");
+            } else {
+                System.out.println("⏳ Không có đơn hàng nào cần huỷ.");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

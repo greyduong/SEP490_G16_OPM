@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS FarmRequest;
 DROP TABLE IF EXISTS Farm;
 DROP TABLE IF EXISTS UserAccount;
 DROP TABLE IF EXISTS Role;
+DROP TABLE IF EXISTS WalletTopupHistory;
 
 -- Recreate tables
 CREATE TABLE Role (
@@ -44,6 +45,14 @@ CREATE TABLE UserAccount (
     Address NVARCHAR(255),
     Wallet DECIMAL(15,2) DEFAULT 0,
     Status NVARCHAR(20) DEFAULT 'Active'
+);
+
+CREATE TABLE WalletTopupHistory (
+	TransactionID INT PRIMARY KEY IDENTITY(1,1),
+	UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
+	Amount MONEY NOT NULL,
+	TxnRef NVARCHAR(100) NOT NULL,
+	Status NVARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Farm (
@@ -263,6 +272,8 @@ VALUES
 (3, 4, 5, 'In Transit', 'Alice Johnson', 6, 24600000, 'Delivery in progress for confirmed order'),  -- OrderID 3
 (4, 4, 5, 'Pending', 'Bob Brown', 7, 24600000, 'Waiting for shipment approval'),    -- OrderID 4
 (5, 4, 5, 'Delivered', 'Charlie Wilson', 10, 24600000, 'Order has been delivered to the dealer');  -- OrderID 5
+
+
  
 
 INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)

@@ -4,7 +4,7 @@
  */
 package controller;
 
-import dao.OrderDAO;
+import dao.CartDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,17 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.List;
-import model.Order;
-import model.User;
 
 /**
  *
  * @author duong
  */
-@WebServlet(name = "ViewMyOrdersController", urlPatterns = {"/myorders"})
-public class ViewMyOrdersController extends HttpServlet {
+@WebServlet(name = "UpdateCartController", urlPatterns = {"/update-cart"})
+public class UpdateCartController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +37,10 @@ public class ViewMyOrdersController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewMyOrdersController</title>");
+            out.println("<title>Servlet UpdateCartController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewMyOrdersController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateCartController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,25 +58,7 @@ public class ViewMyOrdersController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
-
-        if (currentUser == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
-        int userId = currentUser.getUserID();
-        OrderDAO orderDAO = new OrderDAO();
-        List<Order> myOrders = orderDAO.getOrdersByBuyerId(userId);
-
-        String msg = request.getParameter("msg");
-        if (msg != null) {
-            request.setAttribute("msg", msg);
-        }
-
-        request.setAttribute("orderList", myOrders);
-        request.getRequestDispatcher("myorders.jsp").forward(request, response);
+        processRequest(request, response);
     }
 
     /**
@@ -94,7 +72,21 @@ public class ViewMyOrdersController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        int cartId = Integer.parseInt(request.getParameter("cartId"));
+        String mode = request.getParameter("mode");
+        int quantity = Integer.parseInt(request.getParameter("quantity"));
+        int page = Integer.parseInt(request.getParameter("page")); // giữ nguyên trang hiện tại
+
+        // Nếu chọn toàn bộ, quantity sẽ bằng max đã gửi từ frontend
+        if ("all".equals(mode)) {
+            // Bạn có thể bỏ qua xử lý vì giá trị đã là max
+        }
+
+        CartDAO cartDAO = new CartDAO();
+        cartDAO.updateCartQuantity(cartId, quantity);
+
+        response.sendRedirect("cart?page=" + page);
+
     }
 
     /**

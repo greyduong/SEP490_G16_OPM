@@ -4,7 +4,7 @@
  */
 package controller;
 
-import dao.OrderDAO;
+import dao.CartDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,17 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.List;
-import model.Order;
-import model.User;
 
 /**
  *
  * @author duong
  */
-@WebServlet(name = "ViewMyOrdersController", urlPatterns = {"/myorders"})
-public class ViewMyOrdersController extends HttpServlet {
+@WebServlet(name = "RemoveCartController", urlPatterns = {"/remove-cart"})
+public class RemoveCartController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +37,10 @@ public class ViewMyOrdersController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewMyOrdersController</title>");
+            out.println("<title>Servlet RemoveCartController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewMyOrdersController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RemoveCartController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,25 +58,11 @@ public class ViewMyOrdersController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        User currentUser = (User) session.getAttribute("user");
+        int cartId = Integer.parseInt(request.getParameter("id"));
+        CartDAO cartDAO = new CartDAO();
+        cartDAO.removeCartById(cartId);
 
-        if (currentUser == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
-        int userId = currentUser.getUserID();
-        OrderDAO orderDAO = new OrderDAO();
-        List<Order> myOrders = orderDAO.getOrdersByBuyerId(userId);
-
-        String msg = request.getParameter("msg");
-        if (msg != null) {
-            request.setAttribute("msg", msg);
-        }
-
-        request.setAttribute("orderList", myOrders);
-        request.getRequestDispatcher("myorders.jsp").forward(request, response);
+        response.sendRedirect("cart");
     }
 
     /**
