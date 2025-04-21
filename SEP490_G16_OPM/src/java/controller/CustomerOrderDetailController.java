@@ -76,7 +76,10 @@ public class CustomerOrderDetailController extends HttpServlet {
         if (orderIdStr != null) {
             try {
                 int orderID = Integer.parseInt(orderIdStr);
-
+                String openCreateDelivery = request.getParameter("openCreateDelivery");
+                if ("true".equals(openCreateDelivery)) {
+                    request.setAttribute("showCreateDeliveryForm", true);
+                }
                 // Fetch order and delivery details
                 OrderDAO orderDAO = new OrderDAO();
                 DeliveryDAO deliveryDAO = new DeliveryDAO();
@@ -84,11 +87,28 @@ public class CustomerOrderDetailController extends HttpServlet {
                 Order order = orderDAO.getOrderById(orderID);  // Fetch the order by ID
                 List<Delivery> deliveries = deliveryDAO.getDeliveriesByOrderId(orderID);  // Fetch deliveries for this seller
 
+                int totalDeliveredQuantity = deliveries.stream().mapToInt(Delivery::getQuantity).sum();
+                double totalDeliveredPrice = deliveries.stream().mapToDouble(Delivery::getTotalPrice).sum();
+
+                int remainingQuantity = order.getQuantity() - totalDeliveredQuantity;
+                double remainingPrice = order.getTotalPrice() - totalDeliveredPrice;
+
+                request.setAttribute("totalDeliveredQuantity", totalDeliveredQuantity);
+                request.setAttribute("totalDeliveredPrice", totalDeliveredPrice);
+                request.setAttribute("remainingQuantity", remainingQuantity);
+                request.setAttribute("remainingPrice", remainingPrice);
+
                 // Set attributes to be accessed in JSP
                 request.setAttribute("order", order);
                 request.setAttribute("deliveryList", deliveries);
 
                 // Forward to the customer order detail page
+                String msg = (String) session.getAttribute("msg");
+                if (msg != null) {
+                    request.setAttribute("msg", msg);
+                    session.removeAttribute("msg"); // remove để tránh hiển thị lại khi refresh
+                }
+
                 request.getRequestDispatcher("customerorderdetail.jsp").forward(request, response);
             } catch (NumberFormatException e) {
                 response.sendRedirect("home");

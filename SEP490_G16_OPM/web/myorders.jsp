@@ -56,8 +56,13 @@
             </section>
             <!-- Breadcrumb Section End -->
 
-            <!-- Featured Section Begin -->
-            <div class="container mt-5">
+        <c:if test="${not empty msg}">
+            <div class="alert alert-warning">${msg}</div>
+        </c:if>
+
+
+        <!-- Featured Section Begin -->
+        <div class="container mt-5">
             <c:if test="${empty orderList}">
                 <p class="text-center">You have no orders yet.</p>
             </c:if>

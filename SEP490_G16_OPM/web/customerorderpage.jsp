@@ -56,29 +56,29 @@
     </head>
 
     <body>
-        
+
         <jsp:include page="component/header.jsp"></jsp:include>
 
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Customer Order Page</h2>
-                            <div class="breadcrumb__option">
-                                <a href="./index.html">Home</a>
-                                <span>Customer Order Page</span>
+            <!-- Breadcrumb Section Begin -->
+            <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12 text-center">
+                            <div class="breadcrumb__text">
+                                <h2>Customer Order Page</h2>
+                                <div class="breadcrumb__option">
+                                    <a href="./index.html">Home</a>
+                                    <span>Customer Order Page</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
+            </section>
+            <!-- Breadcrumb Section End -->
 
-        <!-- Order List Section Begin -->
-        <div class="container mt-5">
+            <!-- Order List Section Begin -->
+            <div class="container mt-5">
             <c:if test="${empty orderList}">
                 <p class="text-center">You have no orders yet.</p>
             </c:if>
@@ -109,8 +109,10 @@
                                 <td>
                                     <!-- Show Create Delivery Button if the order is either 'Deposited' or 'In Delivery' -->
                                     <c:if test="${o.status == 'Deposited' || o.status == 'In Delivery'}">
-                                        <form action="createDelivery" method="post">
-                                            <button type="submit" name="orderID" value="${o.orderID}" class="btn btn-primary">Create Delivery</button>
+                                        <form action="CustomerOrderDetailController" method="get">
+                                            <input type="hidden" name="id" value="${o.orderID}" />
+                                            <input type="hidden" name="openCreateDelivery" value="true" />
+                                            <button type="submit" class="btn btn-primary">Create Delivery</button>
                                         </form>
                                     </c:if>
                                 </td>

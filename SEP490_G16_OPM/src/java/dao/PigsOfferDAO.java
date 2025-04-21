@@ -250,6 +250,17 @@ public class PigsOfferDAO extends DBContext {
         }
     }
 
+    public void updateOfferQuantityAfterCheckout(int offerId, int purchasedQuantity) {
+        String sql = "UPDATE PigsOffer SET Quantity = Quantity - ? WHERE OfferID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, purchasedQuantity);
+            stm.setInt(2, offerId);
+            stm.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public ArrayList<PigsOffer> getPagedPigsOffersWithSort(String sortOption, int page, int pageSize) {
         ArrayList<PigsOffer> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
