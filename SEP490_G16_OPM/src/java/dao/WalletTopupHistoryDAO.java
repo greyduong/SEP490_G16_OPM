@@ -1,7 +1,6 @@
 package dao;
 
 import dal.DBContext;
-import dal.Mapper;
 import java.util.Optional;
 import model.WalletTopupHistory;
 
