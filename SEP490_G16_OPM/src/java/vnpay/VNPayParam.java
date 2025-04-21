@@ -21,7 +21,7 @@ public class VNPayParam {
     }
 
     public String getValue() {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+        return value;
     }
 
     public void setValue(String value) {
