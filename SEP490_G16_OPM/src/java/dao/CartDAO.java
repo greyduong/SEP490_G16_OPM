@@ -144,4 +144,25 @@ public class CartDAO extends DBContext {
         return false;
     }
 
+    public void updateCartQuantity(int cartId, int quantity) {
+        String sql = "UPDATE Cart SET Quantity = ? WHERE CartID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, quantity);
+            stm.setInt(2, cartId);
+            stm.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeCartById(int cartId) {
+        String sql = "DELETE FROM Cart WHERE CartID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, cartId);
+            stm.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -4,25 +4,21 @@
  */
 package controller;
 
-import dao.CategoryDAO;
+import dao.CartDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import model.PigsOffer;
-import dao.PigsOfferDAO;
-import jakarta.servlet.http.HttpSession;
-import model.Category;
-import model.User;
 
 /**
  *
- * @author dangtuong
+ * @author duong
  */
-public class HomePageController extends HttpServlet {
+@WebServlet(name = "UpdateCartController", urlPatterns = {"/update-cart"})
+public class UpdateCartController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +37,10 @@ public class HomePageController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet AddToCartController</title>");
+            out.println("<title>Servlet UpdateCartController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet AddToCartController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateCartController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -62,51 +58,7 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String categoryName = request.getParameter("categoryName");
-        String keyword = request.getParameter("keyword");
-        String sort = request.getParameter("sort"); // e.g., "quantity_asc", "price_desc"
-
-        int page = 1;
-        final int pageSize = 8;
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
-                page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
-        }
-
-        // Load categories
-        CategoryDAO categoryDAO = new CategoryDAO();
-        ArrayList<Category> categoryList = categoryDAO.getAllCategories();
-
-        // Load offers
-        PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-        ArrayList<PigsOffer> offerList;
-        int totalOffers;
-
-        if ((keyword != null && !keyword.trim().isEmpty()) || (categoryName != null && !categoryName.trim().isEmpty())) {
-            offerList = pigsOfferDAO.searchOffersFlexible(keyword, categoryName, sort, page, pageSize);
-            totalOffers = pigsOfferDAO.countOffersFlexible(keyword, categoryName);
-        } else {
-            offerList = pigsOfferDAO.getPagedPigsOffersWithSort(sort, page, pageSize);
-            totalOffers = pigsOfferDAO.countAllOffers();
-        }
-
-        int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
-
-        // Set attributes for JSP
-        request.setAttribute("categoryList", categoryList);
-        request.setAttribute("offerList", offerList);
-        request.setAttribute("currentPage", page);
-        request.setAttribute("totalPages", totalPages);
-        request.setAttribute("sort", sort);
-        request.setAttribute("keyword", keyword);
-        request.setAttribute("categoryName", categoryName);
-
-        request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        processRequest(request, response);
     }
 
     /**
@@ -120,7 +72,21 @@ public class HomePageController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        int cartId = Integer.parseInt(request.getParameter("cartId"));
+        String mode = request.getParameter("mode");
+        int quantity = Integer.parseInt(request.getParameter("quantity"));
+        int page = Integer.parseInt(request.getParameter("page")); // giữ nguyên trang hiện tại
+
+        // Nếu chọn toàn bộ, quantity sẽ bằng max đã gửi từ frontend
+        if ("all".equals(mode)) {
+            // Bạn có thể bỏ qua xử lý vì giá trị đã là max
+        }
+
+        CartDAO cartDAO = new CartDAO();
+        cartDAO.updateCartQuantity(cartId, quantity);
+
+        response.sendRedirect("cart?page=" + page);
+
     }
 
     /**
