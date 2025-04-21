@@ -112,6 +112,7 @@ public class CheckOutController extends HttpServlet {
 
             // Thêm đơn hàng
             orderDAO.insertOrder(user.getUserID(), offer.getSellerID(), offerId, quantity, totalPrice);
+            offerDAO.updateOfferQuantityAfterCheckout(offerId, quantity);
 
             // Xoá cart
             cartDAO.deleteCartById(cartId);
