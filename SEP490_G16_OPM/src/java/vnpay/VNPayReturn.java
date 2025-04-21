@@ -67,6 +67,15 @@ public class VNPayReturn extends HttpServlet {
                 } catch (NoSuchElementException e) {
                     req.setAttribute("error", "TxnRef not exist!");
                 }
+            } else {
+                try {
+                    WalletTopupHistoryDAO dao = new WalletTopupHistoryDAO();
+                    WalletTopupHistory history = dao.getByTxnRef(vnp_TxnRef).orElseThrow();
+                    dao.updateStatusByTxnRef(vnp_TxnRef, "Cancel");
+                    req.setAttribute("error", "Transaction cancelled");
+                } catch (NoSuchElementException e) {
+                    req.setAttribute("error", "TxnRef not exist!");
+                }
             }
         } else {
             req.setAttribute("error", "Invalid signature");
