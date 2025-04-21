@@ -60,7 +60,9 @@ public class AuthenticationController extends HttpServlet {
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.removeAttribute("user");
-                session.getAttribute("username");
+                session.removeAttribute("username");
+                session.removeAttribute("successMsg");
+
             }
             response.sendRedirect("home");
         } else {
@@ -92,8 +94,6 @@ public class AuthenticationController extends HttpServlet {
             session.setAttribute("user", user);
 
             session.setAttribute("username", username);
-
-            session.setAttribute("successMsg", "Login successful!");
 
             int roleId = user.getRoleID();
             switch (roleId) {

@@ -250,4 +250,162 @@ public class PigsOfferDAO extends DBContext {
         }
     }
 
+    public ArrayList<PigsOffer> getPagedPigsOffersWithSort(String sortOption, int page, int pageSize) {
+        ArrayList<PigsOffer> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+
+        String orderClause = "ORDER BY CreatedAt DESC";
+        if (sortOption != null) {
+            switch (sortOption) {
+                case "quantity_asc":
+                    orderClause = "ORDER BY Quantity ASC";
+                    break;
+                case "quantity_desc":
+                    orderClause = "ORDER BY Quantity DESC";
+                    break;
+                case "price_asc":
+                    orderClause = "ORDER BY RetailPrice ASC";
+                    break;
+                case "price_desc":
+                    orderClause = "ORDER BY RetailPrice DESC";
+                    break;
+            }
+        }
+
+        String sql = "SELECT * FROM PigsOffer " + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, offset);
+            stm.setInt(2, pageSize);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                PigsOffer offer = new PigsOffer();
+                offer.setOfferID(rs.getInt("OfferID"));
+                offer.setSellerID(rs.getInt("SellerID"));
+                offer.setFarmID(rs.getInt("FarmID"));
+                offer.setCategoryID(rs.getInt("CategoryID"));
+                offer.setName(rs.getString("Name"));
+                offer.setPigBreed(rs.getString("PigBreed"));
+                offer.setQuantity(rs.getInt("Quantity"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
+                offer.setImageURL(rs.getString("ImageURL"));
+                offer.setStartDate(rs.getDate("StartDate"));
+                offer.setEndDate(rs.getDate("EndDate"));
+                offer.setStatus(rs.getString("Status"));
+                offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                list.add(offer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public ArrayList<PigsOffer> searchOffersFlexible(String keyword, String categoryName, String sortOption, int page, int pageSize) {
+        ArrayList<PigsOffer> list = new ArrayList<>();
+        int offset = (page - 1) * pageSize;
+
+        StringBuilder sql = new StringBuilder("SELECT po.* FROM PigsOffer po JOIN Category c ON po.CategoryID = c.CategoryID WHERE 1=1 ");
+        ArrayList<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND po.Name LIKE ? ");
+            params.add("%" + keyword.trim() + "%");
+        }
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
+            sql.append("AND c.Name = ? ");
+            params.add(categoryName.trim());
+        }
+
+        if (sortOption != null) {
+            switch (sortOption) {
+                case "quantity_asc":
+                    sql.append("ORDER BY po.Quantity ASC ");
+                    break;
+                case "quantity_desc":
+                    sql.append("ORDER BY po.Quantity DESC ");
+                    break;
+                case "price_asc":
+                    sql.append("ORDER BY po.RetailPrice ASC ");
+                    break;
+                case "price_desc":
+                    sql.append("ORDER BY po.RetailPrice DESC ");
+                    break;
+                default:
+                    sql.append("ORDER BY po.CreatedAt DESC ");
+            }
+        } else {
+            sql.append("ORDER BY po.CreatedAt DESC ");
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(pageSize);
+
+        try (PreparedStatement stm = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                PigsOffer offer = new PigsOffer();
+                offer.setOfferID(rs.getInt("OfferID"));
+                offer.setSellerID(rs.getInt("SellerID"));
+                offer.setFarmID(rs.getInt("FarmID"));
+                offer.setCategoryID(rs.getInt("CategoryID"));
+                offer.setName(rs.getString("Name"));
+                offer.setPigBreed(rs.getString("PigBreed"));
+                offer.setQuantity(rs.getInt("Quantity"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
+                offer.setImageURL(rs.getString("ImageURL"));
+                offer.setStartDate(rs.getDate("StartDate"));
+                offer.setEndDate(rs.getDate("EndDate"));
+                offer.setStatus(rs.getString("Status"));
+                offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                list.add(offer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public int countOffersFlexible(String keyword, String categoryName) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM PigsOffer po JOIN Category c ON po.CategoryID = c.CategoryID WHERE 1=1 ");
+        ArrayList<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND po.Name LIKE ? ");
+            params.add("%" + keyword.trim() + "%");
+        }
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
+            sql.append("AND c.Name = ? ");
+            params.add(categoryName.trim());
+        }
+
+        try (PreparedStatement stm = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
 }

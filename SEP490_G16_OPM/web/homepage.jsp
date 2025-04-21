@@ -50,9 +50,26 @@
             #addToCartModal .btn {
                 font-size: 14px;
             }
+            /* Giữ nguyên danh sách dọc, nhưng không đẩy xuống các phần khác */
+            .hero__categories {
+                position: relative;
+            }
+
+            .hero__categories ul {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                z-index: 10;
+                background: white;
+                width: 100%;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                display: none;
+            }
+
+            .hero__categories.open ul {
+                display: block;
+            }
         </style>
-
-
     </head>
 
     <body>
@@ -67,12 +84,21 @@
                             <div class="hero__categories">
                                 <div class="hero__categories__all">
                                     <i class="fa fa-bars"></i>
-                                    <span>All Categories</span>
-                                </div>
-                                <ul>
-                                <c:forEach var="c" items="${categoryList}">
-                                    <li><a href="category?cid=${c.categoryID}">${c.name}</a></li>
+                                    <span><c:choose>
+                                        <c:when test="${not empty param.categoryName}">
+                                            ${param.categoryName}
+                                        </c:when>
+                                        <c:otherwise>
+                                            Categories
+                                        </c:otherwise>
+                                    </c:choose></span>
+                            </div>
+                            <ul>
+                                <li><a href="home">All Categories</a></li>
+                                    <c:forEach var="c" items="${categoryList}">
+                                    <li><a href="home?categoryName=${c.name}">${c.name}</a></li>
                                     </c:forEach>
+
                             </ul>
                         </div>
                     </div>
@@ -80,31 +106,35 @@
                     <div class="col-lg-9">
                         <div class="hero__search">
                             <div class="hero__search__form">
-                                <form action="search">
-                                    <input type="text" name="keyword" placeholder="What do you need?">
+                                <form action="home" method="get">
+                                    <input type="text" name="keyword" placeholder="What do you need?" value="${param.keyword}">
+                                    <c:if test="${not empty param.categoryName}">
+                                        <input type="hidden" name="categoryName" value="${param.categoryName}" />
+                                    </c:if>
                                     <button type="submit" class="site-btn">SEARCH</button>
                                 </form>
+
                             </div>
                         </div>
                     </div>
 
-                    <!-- Filter by Price -->
-                    <div class="hero__search__filters">
-                        <select name="price" class="form-control">
-                            <option value="all">All Prices</option>
-                            <option value="low">Low to High</option>
-                            <option value="high">High to Low</option>
-                        </select>
+                    <!-- Unified Sort Dropdown -->
+                    <div class="container my-3">
+                        <form action="home" method="get" class="form-inline">
+                            <input type="hidden" name="keyword" value="${param.keyword}">
+                            <input type="hidden" name="categoryName" value="${param.categoryName}">
+
+                            <label class="mr-2 font-weight-bold">Sort by:</label>
+                            <select name="sort" class="form-control mr-2" onchange="this.form.submit()">
+                                <option value="none">-- Select --</option>
+                                <option value="quantity_asc" ${param.sort == 'quantity_asc' ? 'selected' : ''}>Quantity ↑</option>
+                                <option value="quantity_desc" ${param.sort == 'quantity_desc' ? 'selected' : ''}>Quantity ↓</option>
+                                <option value="price_asc" ${param.sort == 'price_asc' ? 'selected' : ''}>Price ↑</option>
+                                <option value="price_desc" ${param.sort == 'price_desc' ? 'selected' : ''}>Price ↓</option>
+                            </select>
+                        </form>
                     </div>
 
-                    <!-- Filter by Quantity -->
-                    <div class="hero__search__filters">
-                        <select name="quantity" class="form-control">
-                            <option value="all">All Quantities</option>
-                            <option value="low">Low Quantity</option>
-                            <option value="high">High Quantity</option>
-                        </select>
-                    </div>
                 </div>
             </div>
         </section>
