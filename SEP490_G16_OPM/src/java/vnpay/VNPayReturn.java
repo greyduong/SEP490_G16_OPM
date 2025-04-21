@@ -55,7 +55,6 @@ public class VNPayReturn extends HttpServlet {
 
         if (signValue.equals(vnp_SecureHash)) {
             boolean result = "00".equals(req.getParameter("vnp_TransactionStatus"));
-            req.setAttribute("result", result);
             if (result) {
                 try {
                     WalletTopupHistoryDAO dao = new WalletTopupHistoryDAO();
@@ -64,6 +63,7 @@ public class VNPayReturn extends HttpServlet {
                     new DBContext().update("UPDATE UserAccount SET wallet = wallet + ? WHERE UserID = ?",
                             history.getAmount(),
                             history.getUserID());
+                    req.setAttribute("success", "Success");
                 } catch (NoSuchElementException e) {
                     req.setAttribute("error", "TxnRef not exist!");
                 }

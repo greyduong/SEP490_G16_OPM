@@ -19,15 +19,7 @@
             <div class="w-25 mx-auto">
                 <h4 class="font-weight-bold">Wallet Result</h4>
                 <p class="text-danger">${error}</p>
-                <c:choose>
-                    <c:when test="${success}">
-                        <p class="text-primary">Success topup ${vnp_Amount} to wallet</p>
-                    </c:when>
-                        <c:when test="${!success}">
-                        <p class="text-primary">Transaction failed</p>
-                    </c:when>
-                </c:choose>
-                
+                <c:if test="${success != null}"><p class="text-success">Success topup ${vnp_Amount} VND</p></c:if>
             </div>
         </main>
         <jsp:include page="component/footer.jsp" />     

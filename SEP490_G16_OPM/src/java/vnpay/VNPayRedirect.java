@@ -57,7 +57,7 @@ public class VNPayRedirect extends HttpServlet {
         params.add("vnp_OrderInfo", "wallet");
         params.add("vnp_Locale", "vn");
         params.add("vnp_TmnCode", Config.vnp_TmnCode);
-        params.add("vnp_ReturnUrl", Config.vnp_ReturnUrl);
+        params.add("vnp_ReturnUrl", req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + Config.vnp_ReturnUrl);
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
@@ -76,6 +76,8 @@ public class VNPayRedirect extends HttpServlet {
         history.setTxnRef(txnRef);
         history.setAmount(amount);
         history.setStatus("Pending");
+        new WalletTopupHistoryDAO().create(history);
+        
         resp.sendRedirect(paymentUrl);
     }
 }
