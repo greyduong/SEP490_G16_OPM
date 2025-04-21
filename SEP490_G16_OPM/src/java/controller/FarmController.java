@@ -11,7 +11,7 @@ import java.util.Optional;
 import model.Farm;
 import model.Page;
 
-@WebServlet("/farm")
+@WebServlet("/farms")
 public class FarmController extends HttpServlet {
 
     public Optional<Integer> getIntParameter(HttpServletRequest req, String name) {
@@ -39,9 +39,9 @@ public class FarmController extends HttpServlet {
     private void doGetFarmDetails(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer id = getIntParameter(req, "id").get();
         FarmDAO db = new FarmDAO();
-        Farm farm = db.getFarm(id);
+        Farm farm = db.getById(id);
         req.setAttribute("farm", farm);
-        req.getRequestDispatcher("page/farm.jsp").forward(req, resp);
+        req.getRequestDispatcher("farm.jsp").forward(req, resp);
     }
 
     private void doGetListFarm(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -51,12 +51,14 @@ public class FarmController extends HttpServlet {
         if (pageNumber < 1) {
             pageNumber = 1;
         }
-        Page<Farm> page = db.searchFarm(search, pageNumber, 3);
+        Page<Farm> page = db.search(search, pageNumber, 6);
         req.setAttribute("page", page);
         int nextPage = pageNumber < page.getTotalPage() ? pageNumber + 1 : page.getTotalPage();
         int prevPage = pageNumber > 1 ? pageNumber - 1 : 1;
         req.setAttribute("nextPage", nextPage);
         req.setAttribute("prevPage", prevPage);
-        req.getRequestDispatcher("page/farms.jsp").forward(req, resp);
+        long offset = (page.getPageNumber()-1) * page.getPageSize();
+        req.setAttribute("offset", offset);
+        req.getRequestDispatcher("farms.jsp").forward(req, resp);
     }
 }
