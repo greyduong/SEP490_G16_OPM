@@ -1,7 +1,6 @@
 package controller;
 
 import dal.DBContext;
-import dal.UserMapper;
 import dao.UserDAO;
 import dao.Validation;
 import jakarta.servlet.ServletException;
@@ -77,10 +76,7 @@ public class ManageUserController extends HttpServlet {
         }
         try {
             int id = getIntParam(req, "id").orElseThrow();
-            User user = new DBContext().fetchOne(UserMapper.toUser(), "SELECT * FROM UserAccount WHERE UserID = ?", id);
-            if (user == null) {
-                throw new NoSuchElementException();
-            }
+            User user = new UserDAO().findById(id).orElseThrow();
             req.setAttribute("fullname", user.getFullName());
             req.setAttribute("username", user.getUsername());
             req.setAttribute("id", id);
@@ -102,17 +98,13 @@ public class ManageUserController extends HttpServlet {
         if (page < 1) page = 1;
         int size = 5;
         int offset = (page - 1) * size;
-        String pattern = "%" + search + "%";
-        int total = new DBContext().count("SELECT COUNT(*) FROM UserAccount WHERE Username LIKE ?", pattern);
+        UserDAO db = new UserDAO();
+        int total = db.countSearch(search);
         if (total <= offset) {
             offset = 0;
             page = 1;
         }
-        List<User> users = new DBContext().fetchAll(UserMapper.toUser(), "SELECT * FROM UserAccount WHERE Username LIKE ? ORDER BY UserID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
-                pattern,
-                offset,
-                size);
-
+        List<User> users = db.search(search, page, size);
         req.setAttribute("users", users);
         req.setAttribute("offset", offset);
         req.setAttribute("total", total);
@@ -182,8 +174,7 @@ public class ManageUserController extends HttpServlet {
         User user;
         try {
             id = getIntParam(req, "id").orElseThrow();
-            user = new DBContext().fetchOne(UserMapper.toUser(), "SELECT * FROM UserAccount WHERE UserID = ?", id);
-            if (user == null) throw new NoSuchElementException();
+            user = new UserDAO().findById(id).orElseThrow();
         } catch (NoSuchElementException e) {
             req.setAttribute("error", "Invalid user id");
             req.getRequestDispatcher("manage-user-edit.jsp").forward(req, resp);
