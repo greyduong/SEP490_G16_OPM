@@ -78,7 +78,7 @@
                         ${msg}
                     </div>
                 </c:if>
-                <form action="editFarm" method="post">
+                <form action="updateFarm" method="post">
                     <input type="hidden" name="farmId" value="${farm.farmID}" />
                     <input type="hidden" name="page" value="${page != null ? page : param.page}" />
                     <input type="hidden" name="sort" value="${sort != null ? sort : param.sort}" />
@@ -112,7 +112,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
-                    <a href="ViewMyFarmsController?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
+                    <a href="my-farms?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
                 </form>
             </div>
         </section>

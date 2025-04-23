@@ -75,7 +75,7 @@ public class DeleteFarmController extends HttpServlet {
         String search = request.getParameter("search");
         String status = request.getParameter("status");
 
-        String baseRedirectURL = "ViewMyFarmsController"
+        String baseRedirectURL = "my-farms"
                 + (page != null ? "?page=" + page : "")
                 + (sort != null ? "&sort=" + sort : "")
                 + (search != null ? "&search=" + java.net.URLEncoder.encode(search, "UTF-8") : "")

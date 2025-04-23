@@ -97,7 +97,7 @@
                                 </a>
                             </div>
 
-                            <form class="form-inline mb-3" method="get" action="ViewMyFarmsController">
+                            <form class="form-inline mb-3" method="get" action="my-farms">
                                 <!-- Ô tìm kiếm -->
                                 <input type="text" name="search" class="form-control form-control-sm mr-2"
                                        placeholder="Tìm tên trang trại"
@@ -114,7 +114,7 @@
                                 <input type="hidden" name="sort" value="${param.sort}" />
 
                                 <button type="submit" class="btn btn-sm btn-success mr-2">Tìm</button>
-                                <a href="ViewMyFarmsController" class="btn btn-sm btn-outline-secondary">Bỏ lọc</a>
+                                <a href="my-farms" class="btn btn-sm btn-outline-secondary">Bỏ lọc</a>
                             </form>
 
 
@@ -131,7 +131,7 @@
                                         </th>
                                         <th>
                                             Chào bán
-                                            <a href="ViewMyFarmsController?sort=${currentSort == 'offer_desc' ? 'offer_asc' : 'offer_desc'}&search=${param.search}&status=${param.status}"
+                                            <a href="my-farms?sort=${currentSort == 'offer_desc' ? 'offer_asc' : 'offer_desc'}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'offer_asc'}">▲</c:when>
@@ -142,7 +142,7 @@
                                         </th>
                                         <th>
                                             Đặt hàng
-                                            <a href="ViewMyFarmsController?sort=${currentSort == 'order_desc' ? 'order_asc' : 'order_desc'}&search=${param.search}&status=${param.status}"
+                                            <a href="my-farms?sort=${currentSort == 'order_desc' ? 'order_asc' : 'order_desc'}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'order_asc'}">▲</c:when>
@@ -154,7 +154,7 @@
                                         <th>Trạng thái</th>
                                         <th>
                                             Ngày tạo
-                                            <a href="ViewMyFarmsController?sort=${currentSort == 'date_desc' ? 'date_asc' : 'date_desc'}&search=${param.search}&status=${param.status}"
+                                            <a href="my-farms?sort=${currentSort == 'date_desc' ? 'date_asc' : 'date_desc'}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'date_asc'}">▲</c:when>
@@ -183,41 +183,15 @@
                                             <td>${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</td>
                                             <td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                             <td>
-                                                <a href="editFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-primary">Sửa</a>
+                                                <a href="updateFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-primary">Sửa</a>
                                                 <a href="deleteFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-danger"
                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa trang trại này?');">Xóa</a>
                                             </td>
                                         </tr>
 
-                                        <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
-                                            <!-- Modal hiển thị thông tin chi tiết -->
-                                        <div class="modal fade" id="farmModal${farm.farmID}" tabindex="-1" role="dialog" aria-labelledby="farmModalLabel${farm.farmID}" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="farmModalLabel${farm.farmID}">Thông tin chi tiết trang trại</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Tên trang trại:</strong> ${farm.farmName}</p>
-                                                        <p><strong>Vị trí:</strong> ${farm.location}</p>
-                                                        <p><strong>Mô tả:</strong> ${farm.description}</p>
-                                                        <p><strong>Số lượng chào bán:</strong> ${farm.offerCount}</p>
-                                                        <p><strong>Số lượng đơn hàng:</strong> ${farm.orderCount}</p>
-                                                        <p><strong>Trạng thái:</strong> ${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</p>
-                                                        <p><strong>Ngày tạo:</strong> <fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
 
-                                </c:forEach>
+
+                                    </c:forEach>
                                 </tbody>
                             </table>
                         </div>
@@ -234,7 +208,7 @@
                                 <c:forEach begin="1" end="${pagedFarms.totalPage}" var="i">
                                     <li class="page-item ${i == pagedFarms.pageNumber ? 'active' : ''}">
                                         <a class="page-link"
-                                           href="ViewMyFarmsController?page=${i}&sort=${param.sort}&search=${param.search}&status=${param.status}">
+                                           href="my-farms?page=${i}&sort=${param.sort}&search=${param.search}&status=${param.status}">
                                             ${i}
                                         </a>
                                     </li>
@@ -249,6 +223,37 @@
             </div>
         </section>
         <!-- Farm Management Table End -->
+
+        <!-- Modal hiển thị chi tiết cho từng farm -->
+        <c:forEach var="farm" items="${pagedFarms.data}">
+            <div class="modal fade" id="farmModal${farm.farmID}" tabindex="-1" role="dialog" aria-labelledby="farmModalLabel${farm.farmID}" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="farmModalLabel${farm.farmID}">Thông tin chi tiết trang trại</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tr><th>Tên trang trại</th><td>${farm.farmName}</td></tr>
+                                <tr><th>Vị trí</th><td>${farm.location}</td></tr>
+                                <tr><th>Mô tả</th><td>${farm.description}</td></tr>
+                                <tr><th>Số lượng chào bán</th><td>${farm.offerCount}</td></tr>
+                                <tr><th>Số lượng đơn hàng</th><td>${farm.orderCount}</td></tr>
+                                <tr><th>Trạng thái</th><td>${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</td></tr>
+                                <tr><th>Ghi chú</th><td>${farm.note}</td></tr>
+                                <tr><th>Ngày tạo</th><td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td></tr>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:forEach>
 
 
         <jsp:include page="component/footer.jsp"></jsp:include>

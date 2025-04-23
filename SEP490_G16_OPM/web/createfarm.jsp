@@ -108,7 +108,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Tạo trang trại</button>
-                    <a href="ViewMyFarmsController?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
+                    <a href="my-farms?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
                 </form>
             </div>
         </section>
