@@ -11,7 +11,8 @@ import model.User;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = {
-    "/createFarm"
+    "/createFarm",
+    "/CustomerOrderPageController"
 })
 public class OnlySellerFilter extends HttpFilter {
     @Override
