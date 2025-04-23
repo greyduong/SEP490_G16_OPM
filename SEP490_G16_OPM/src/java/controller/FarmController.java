@@ -1,6 +1,7 @@
 package controller;
 
 import dao.FarmDAO;
+import exeception.AppException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -28,8 +29,7 @@ public class FarmController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<Integer> id = getIntParameter(req, "id");
-        if (id.isPresent()) {
+        if (getIntParameter(req, "id").isPresent()) {
             doGetFarmDetails(req, resp);
             return;
         }
@@ -37,10 +37,16 @@ public class FarmController extends HttpServlet {
     }
 
     private void doGetFarmDetails(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer id = getIntParameter(req, "id").get();
-        FarmDAO db = new FarmDAO();
-        Farm farm = db.getById(id);
-        req.setAttribute("farm", farm);
+        try {
+            Optional<Integer> idOpt = getIntParameter(req, "id");
+            if (idOpt.isEmpty()) throw new AppException("Invalid id");
+            final int id = idOpt.get();
+            final FarmDAO db = new FarmDAO();
+            final Farm farm = db.getById(id);
+            req.setAttribute("farm", farm);
+        } catch (AppException e) {
+            req.setAttribute("error", e.getMessage());
+        }
         req.getRequestDispatcher("farm.jsp").forward(req, resp);
     }
 
@@ -57,7 +63,7 @@ public class FarmController extends HttpServlet {
         int prevPage = pageNumber > 1 ? pageNumber - 1 : 1;
         req.setAttribute("nextPage", nextPage);
         req.setAttribute("prevPage", prevPage);
-        long offset = (page.getPageNumber()-1) * page.getPageSize();
+        long offset = (long) (page.getPageNumber() - 1) * page.getPageSize();
         req.setAttribute("offset", offset);
         req.getRequestDispatcher("farms.jsp").forward(req, resp);
     }

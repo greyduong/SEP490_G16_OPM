@@ -22,7 +22,9 @@ public class ImageService {
     private static final String API_KEY = "ad774e1bc6998d674021f7b483f711ca";
 
     public String upload(Part part) {
-        if (part.getSize() == 0) return null;
+        if (part.getSize() == 0) {
+            return null;
+        }
         try {
             // convert file to base64
             String base64 = Base64.getEncoder().encodeToString(part.getInputStream().readAllBytes());
