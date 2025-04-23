@@ -419,4 +419,22 @@ public class PigsOfferDAO extends DBContext {
         return 0;
     }
 
+    public int countOffersByFarmId(int farmId) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM PigsOffer WHERE FarmID = ?";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, farmId);
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("countOffersByFarmId: " + e.getMessage());
+        }
+
+        return count;
+    }
+
 }

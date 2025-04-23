@@ -7,26 +7,34 @@
     <div class="flex items-center gap-6">
         <a href="${pageContext.request.contextPath}/home" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-home"></span>
-            Home
+            Trang chủ
         </a>
-        <a href="${pageContext.request.contextPath}/farms" class="!font-bold !text-slate-600 hover:!text-green-600">
+        <a href="${pageContext.request.contextPath}/ViewMyFarmsController" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-barn"></span>
-            Farms
+            Trang trại
         </a>
         <a href="${pageContext.request.contextPath}/offers" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-offer"></span>
-            Offers
+            Chào bán
+        </a>
+        <a href="${pageContext.request.contextPath}/CustomerOrderPageController" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <span class="mdi mdi-invoice-list"></span>
+            Đơn hàng của khách
+        </a>
+        <a href="${pageContext.request.contextPath}/OrdersRequestController" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <span class="mdi mdi-invoice-list"></span>
+            Đơn hàng chờ duyệt
         </a>
         <c:if test="${not empty sessionScope.user}">
             <a href="${pageContext.request.contextPath}/cart" class="!font-bold !text-slate-600 hover:!text-green-600">
                 <span class="mdi mdi-cart"></span>
-                Shopping Cart
+                Giỏ hàng
             </a>
             <a href="${pageContext.request.contextPath}/orders" class="!font-bold !text-slate-600 hover:!text-green-600">
                 <span class="mdi mdi-invoice-list"></span>
-                Your Orders
+                Đơn hàng của tôi
             </a>
-                <a href="${pageContext.request.contextPath}/application" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <a href="${pageContext.request.contextPath}/application" class="!font-bold !text-slate-600 hover:!text-green-600">
                 <span class="mdi mdi-invoice-list-outline"></span>
                 Your Application
             </a>
