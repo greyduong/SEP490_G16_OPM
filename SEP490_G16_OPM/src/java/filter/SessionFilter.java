@@ -18,7 +18,7 @@ public class SessionFilter extends HttpFilter {
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         Optional<User> opt = Optional.ofNullable(request.getSession().getAttribute("user")).map(obj -> (User) obj);
         if (opt.isPresent()) {
-            User user = new UserDAO().getUserById(opt.get().getUserID());
+            User user = new UserDAO().getUserByUsername(opt.get().getUsername());
             request.setAttribute("user", user);
         }
         super.doFilter(request, response, chain);
