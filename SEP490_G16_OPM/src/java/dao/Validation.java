@@ -60,4 +60,9 @@ public class Validation {
         }
         return null;
     }
+
+    // Kiểm tra họ tên hợp lệ: chỉ chữ cái (unicode) và khoảng trắng, tối thiểu 2 ký tự
+    public static boolean isValidFullName(String fullname) {
+        return fullname != null && fullname.matches("^[\\p{L} ]{2,50}$");
+    }
 }
