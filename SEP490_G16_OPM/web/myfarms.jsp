@@ -180,7 +180,7 @@
                                             <td>${farm.location}</td>
                                             <td>${farm.offerCount}</td>
                                             <td>${farm.orderCount}</td>
-                                            <td>${farm.status}</td>
+                                            <td>${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</td>
                                             <td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                             <td>
                                                 <a href="editFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-primary">Sửa</a>
@@ -206,7 +206,7 @@
                                                         <p><strong>Mô tả:</strong> ${farm.description}</p>
                                                         <p><strong>Số lượng chào bán:</strong> ${farm.offerCount}</p>
                                                         <p><strong>Số lượng đơn hàng:</strong> ${farm.orderCount}</p>
-                                                        <p><strong>Trạng thái:</strong> ${farm.status}</p>
+                                                        <p><strong>Trạng thái:</strong> ${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</p>
                                                         <p><strong>Ngày tạo:</strong> <fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></p>
                                                     </div>
                                                     <div class="modal-footer">
