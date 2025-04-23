@@ -5,31 +5,14 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Category List - Online Pig Market</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        <!-- Google Font -->
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-
-        <!-- Ogani CSS Styles -->
-        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-        <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-        <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-        <link rel="stylesheet" href="css/nice-select.css" type="text/css">
-        <link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css">
-        <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
-        <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-        <link rel="stylesheet" href="css/style.css" type="text/css">
-    </head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <body>
-
+        <title>Category List | Online Pig Market</title>
         <jsp:include page="component/library.jsp" />
+    </head>
+    <body>
         <jsp:include page="component/header.jsp" />
-
         <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+        <section class="breadcrumb-section set-bg" data-setbg="${pageContext.request.contextPath}/img/breadcrumb.jpg">
             <div class="container text-center">
                 <div class="breadcrumb__text">
                     <h2>Category List</h2>
@@ -142,20 +125,7 @@
                 </div>
             </div>
         </div>
-
         <jsp:include page="component/footer.jsp" />
-
-        <!-- Ogani JS -->
-        <script src="js/jquery-3.3.1.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/jquery.nice-select.min.js"></script>
-        <script src="js/jquery-ui.min.js"></script>
-        <script src="js/jquery.slicknav.js"></script>
-        <script src="js/mixitup.min.js"></script>
-        <script src="js/owl.carousel.min.js"></script>
-        <script src="js/main.js"></script>
-
-        <!-- Populate Edit Modal -->
         <script>
             $('#editCategoryModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget);  // Button that triggered the modal
