@@ -131,7 +131,7 @@
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
                 <li class="${currentPath.contains('/home') ? 'active' : ''}"><a href="home">Home</a></li>
-                <li class="${currentPath.contains('/shop-grid') ? 'active' : ''}"><a href="#">Farm</a></li>
+                <li class="${currentPath.contains('/shop-grid') ? 'active' : ''}"><a href="ViewMyFarmsController">Farm</a></li>
                 <li class="${currentPath.contains('/shop-grid') ? 'active' : ''}"><a href="#">Offer</a></li>
                 <li><a href="CustomerOrderPageController">Customer Order</a>
                     <ul class="header__menu__dropdown">
@@ -199,7 +199,7 @@
                     <nav class="header__menu">
                         <ul>
                             <li class="${currentPath.contains('/home') ? 'active' : ''}"><a href="home">Home</a></li>
-                            <li class="${currentPath.contains('/shop-grid') ? 'active' : ''}"><a href="#">Farm</a></li>
+                            <li class="${currentPath.contains('/shop-grid') ? 'active' : ''}"><a href="ViewMyFarmsController">Farm</a></li>
                             <li class="${currentPath.contains('/shop-grid') ? 'active' : ''}"><a href="#">Offer</a></li>
                             <li><a href="CustomerOrderPageController">Customer Order</a>
                                 <ul class="header__menu__dropdown">
