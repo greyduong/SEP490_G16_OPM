@@ -14,6 +14,15 @@ public class Page<T> {
     private int pageNumber = 1;
     private int pageSize = 10;
     private int totalPage;
+    private int totalElements;
+
+    public int getTotalElements() {
+        return totalElements;
+    }
+
+    public void setTotalElements(int totalElements) {
+        this.totalElements = totalElements;
+    }
     private List<T> data = new ArrayList<>();
     private int totalData;
 

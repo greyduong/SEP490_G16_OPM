@@ -1,7 +1,7 @@
 package dao;
 
 import dal.DBContext;
-import dal.FarmMapper;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -12,38 +12,28 @@ import model.User;
 
 public class FarmDAO extends DBContext {
 
-    public Page<Farm> getAllFarm(int pageNumber, int pageSize) {
-        Page<Farm> page = new Page<>();
-        if (pageNumber < 1) {
-            pageNumber = 1;
-        }
-        if (pageSize < 1) {
-            pageSize = 10;
-        }
-        int offset = (pageNumber - 1) * pageSize;
-        List<Farm> data = fetchAll(
-                FarmMapper.toFarm(),
-                "SELECT * FROM Farm WHERE Status = 'Active' ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
-                offset,
-                pageSize);
-        int totalRows = count("SELECT COUNT(*) FROM Farm WHERE Status = 'Active'");
-        int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
-        page.setTotalPage(totalPages);
-        if (data == null) {
-            return null;
-        }
-        page.setData(data);
-        return page;
+    public static Mapper<Farm> mapper() {
+        return (rs) -> {
+            Farm farm = new Farm();
+            farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+            farm.setDescription(rs.getString("Description"));
+            farm.setFarmID(rs.getInt("FarmID"));
+            farm.setFarmName(rs.getString("FarmName"));
+            farm.setLocation(rs.getString("Location"));
+            farm.setSellerID(rs.getInt("SellerID"));
+            farm.setStatus(rs.getString("Status"));
+            return farm;
+        };
     }
 
-    public Farm getFarm(int farmId) {
+    public Farm getById(int id) {
         return fetchOne(
-                FarmMapper.toFarm(),
+                mapper(),
                 "SELECT * FROM Farm WHERE FarmID = ?",
-                farmId);
+                id);
     }
 
-    public int createFarm(Farm farm) {
+    public int create(Farm farm) {
         return insert(
                 "INSERT INTO Farm(FarmID, SellerID, FarmName, Location, Description, Status) VALUES (?, ?, ?, ?, ?, ?)",
                 farm.getFarmID(),
@@ -53,7 +43,7 @@ public class FarmDAO extends DBContext {
                 farm.getStatus());
     }
 
-    public void updateFarm(Farm farm) {
+    public void update(Farm farm) {
         update(
                 "UPDATE Farm SET FarmName = ?, Location = ?, Description = ?, Status = ? WHERE FarmID = ?",
                 farm.getFarmName(),
@@ -63,14 +53,14 @@ public class FarmDAO extends DBContext {
                 farm.getFarmID());
     }
 
-    public void deleteFarm(int id) {
+    public void delete(int id) {
         update(
                 "UPDATE Farm SET Status = ? WHERE FarmID = ?",
                 "Inactive",
                 id);
     }
 
-    public Page<Farm> searchFarm(String name, int pageNumber, int pageSize) {
+    public Page<Farm> search(String name, int pageNumber, int pageSize) {
         String selectQuery = "SELECT * FROM Farm WHERE Status = 'Active' AND FarmName LIKE ? ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         String countQuery = "SELECT COUNT(*) FROM Farm WHERE Status = 'Active' AND FarmName LIKE ?";
         Page<Farm> page = new Page<>();
@@ -81,12 +71,13 @@ public class FarmDAO extends DBContext {
             pageSize = 10;
         }
         int offset = (pageNumber - 1) * pageSize;
-        List<Farm> data = fetchAll(FarmMapper.toFarm(), selectQuery, "%" + name + "%", offset, pageSize);
+        List<Farm> data = fetchAll(mapper(), selectQuery, "%" + name + "%", offset, pageSize);
         int totalRows = count(countQuery, "%" + name + "%");
         int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
         page.setTotalPage(totalPages);
         page.setPageNumber(pageNumber);
         page.setPageSize(pageSize);
+        page.setTotalElements(totalRows);
         if (data == null) {
             return null;
         }
