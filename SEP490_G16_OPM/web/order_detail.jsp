@@ -1,63 +1,37 @@
-<%-- 
-    Document   : order_detail
-    Created on : Apr 10, 2025, 7:58:06 PM
-    Author     : duong
---%>
-
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="zxx">
-
+<html>
     <head>
         <meta charset="UTF-8">
-        <meta name="description" content="Ogani Template">
-        <meta name="keywords" content="Ogani, unica, creative, html">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Order Details</title>
-
-        <!-- Google Font -->
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-
-        <!-- Css Styles -->
-        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-        <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-        <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-        <link rel="stylesheet" href="css/nice-select.css" type="text/css">
-        <link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css">
-        <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
-        <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-        <link rel="stylesheet" href="css/style.css" type="text/css">
-
+        <jsp:include page="component/library.jsp" />
     </head>
-
     <body>
-
-        <jsp:include page="component/header.jsp"></jsp:include>
-
-            <!-- Breadcrumb Section Begin -->
-            <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12 text-center">
-                            <div class="breadcrumb__text">
-                                <h2>Order Details</h2>
-                                <div class="breadcrumb__option">
-                                    <a href="home">Home</a>
-                                    <span>OrderDetails</span>
-                                </div>
+        <jsp:include page="component/header.jsp" />
+        <!-- Breadcrumb Section Begin -->
+        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="breadcrumb__text">
+                            <h2>Order Details</h2>
+                            <div class="breadcrumb__option">
+                                <a href="home">Home</a>
+                                <span>OrderDetails</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
-            <!-- Breadcrumb Section End -->
+            </div>
+        </section>
+        <!-- Breadcrumb Section End -->
 
-            <!-- Order Detail Section Begin -->
-            <div class="container mt-5 mb-5">
+        <!-- Order Detail Section Begin -->
+        <div class="container mt-5 mb-5">
             <c:if test="${not empty msg}">
                 <div class="alert alert-info text-center">${msg}</div>
             </c:if>
@@ -156,21 +130,7 @@
             </div>
         </div>
         <!-- Order Detail Section End -->
-
-
-        <jsp:include page="component/footer.jsp"></jsp:include>
-
-        <!-- Js Plugins -->
-        <script src="js/jquery-3.3.1.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/jquery.nice-select.min.js"></script>
-        <script src="js/jquery-ui.min.js"></script>
-        <script src="js/jquery.slicknav.js"></script>
-        <script src="js/mixitup.min.js"></script>
-        <script src="js/owl.carousel.min.js"></script>
-        <script src="js/main.js"></script>
-        <script src="js/bootstrap.min.js"></script> 
-
+        <jsp:include page="component/footer.jsp" />
     </body>
 
 </html>

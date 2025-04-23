@@ -6,8 +6,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Manager User | Online Pig Market</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css"/>
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
