@@ -166,8 +166,7 @@
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>
-
-
+                               
                                 <tbody>
                                     <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
                                         <tr>
