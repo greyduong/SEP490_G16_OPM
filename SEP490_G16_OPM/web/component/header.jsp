@@ -9,7 +9,7 @@
             <span class="mdi mdi-home"></span>
             Home
         </a>
-        <a href="${pageContext.request.contextPath}/farms" class="!font-bold !text-slate-600 hover:!text-green-600">
+        <a href="${pageContext.request.contextPath}/ViewMyFarmsController" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-barn"></span>
             Farms
         </a>
@@ -26,7 +26,7 @@
                 <span class="mdi mdi-invoice-list"></span>
                 Your Orders
             </a>
-                <a href="${pageContext.request.contextPath}/application" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <a href="${pageContext.request.contextPath}/application" class="!font-bold !text-slate-600 hover:!text-green-600">
                 <span class="mdi mdi-invoice-list-outline"></span>
                 Your Application
             </a>
