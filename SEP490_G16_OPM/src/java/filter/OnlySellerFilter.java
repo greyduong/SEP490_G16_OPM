@@ -10,7 +10,9 @@ import model.User;
 
 import java.io.IOException;
 
-@WebFilter()
+@WebFilter(urlPatterns = {
+    "/createFarm"
+})
 public class OnlySellerFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
