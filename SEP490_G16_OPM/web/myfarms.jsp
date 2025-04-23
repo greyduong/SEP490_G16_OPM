@@ -172,7 +172,11 @@
                                     <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
                                         <tr>
                                             <td>${loop.index + 1 + (pagedFarms.pageNumber - 1) * pagedFarms.pageSize}</td>
-                                            <td>${farm.farmName}</td>
+                                            <td>
+                                                <a href="#" class="text-primary" data-toggle="modal" data-target="#farmModal${farm.farmID}">
+                                                    ${farm.farmName}
+                                                </a>
+                                            </td>
                                             <td>${farm.location}</td>
                                             <td>${farm.offerCount}</td>
                                             <td>${farm.orderCount}</td>
@@ -184,7 +188,36 @@
                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa trang trại này?');">Xóa</a>
                                             </td>
                                         </tr>
+
+                                        <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
+                                            <!-- Modal hiển thị thông tin chi tiết -->
+                                        <div class="modal fade" id="farmModal${farm.farmID}" tabindex="-1" role="dialog" aria-labelledby="farmModalLabel${farm.farmID}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="farmModalLabel${farm.farmID}">Thông tin chi tiết trang trại</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p><strong>Tên trang trại:</strong> ${farm.farmName}</p>
+                                                        <p><strong>Vị trí:</strong> ${farm.location}</p>
+                                                        <p><strong>Mô tả:</strong> ${farm.description}</p>
+                                                        <p><strong>Số lượng chào bán:</strong> ${farm.offerCount}</p>
+                                                        <p><strong>Số lượng đơn hàng:</strong> ${farm.orderCount}</p>
+                                                        <p><strong>Trạng thái:</strong> ${farm.status}</p>
+                                                        <p><strong>Ngày tạo:</strong> <fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </c:forEach>
+
+                                </c:forEach>
                                 </tbody>
                             </table>
                         </div>

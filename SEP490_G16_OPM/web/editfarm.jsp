@@ -112,7 +112,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
-                    <a href="ViewMyFarmsController" class="btn btn-secondary">Hủy</a>
+                    <a href="ViewMyFarmsController?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
                 </form>
             </div>
         </section>

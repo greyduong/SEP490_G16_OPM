@@ -17,6 +17,14 @@
             <span class="mdi mdi-offer"></span>
             Offers
         </a>
+        <a href="${pageContext.request.contextPath}/CustomerOrderPageController" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <span class="mdi mdi-invoice-list"></span>
+            Customer Order
+        </a>
+        <a href="${pageContext.request.contextPath}/OrdersRequestController" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <span class="mdi mdi-invoice-list"></span>
+            Order Request
+        </a>
         <c:if test="${not empty sessionScope.user}">
             <a href="${pageContext.request.contextPath}/cart" class="!font-bold !text-slate-600 hover:!text-green-600">
                 <span class="mdi mdi-cart"></span>
