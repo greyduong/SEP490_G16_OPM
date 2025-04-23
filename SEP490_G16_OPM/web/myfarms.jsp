@@ -131,7 +131,7 @@
                                         </th>
                                         <th>
                                             Chào bán
-                                            <a href="ViewMyFarmsController?sort=${currentSort == 'offer_asc' ? 'offer_desc' : 'offer_asc'}&search=${param.search}&status=${param.status}"
+                                            <a href="ViewMyFarmsController?sort=${currentSort == 'offer_desc' ? 'offer_asc' : 'offer_desc'}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'offer_asc'}">▲</c:when>
@@ -142,7 +142,7 @@
                                         </th>
                                         <th>
                                             Đặt hàng
-                                            <a href="ViewMyFarmsController?sort=${currentSort == 'order_asc' ? 'order_desc' : 'order_asc'}&search=${param.search}&status=${param.status}"
+                                            <a href="ViewMyFarmsController?sort=${currentSort == 'order_desc' ? 'order_asc' : 'order_desc'}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'order_asc'}">▲</c:when>
@@ -154,7 +154,7 @@
                                         <th>Trạng thái</th>
                                         <th>
                                             Ngày tạo
-                                            <a href="ViewMyFarmsController?sort=${currentSort == 'date_asc' ? 'date_desc' : 'date_asc'}&search=${param.search}&status=${param.status}"
+                                            <a href="ViewMyFarmsController?sort=${currentSort == 'date_desc' ? 'date_asc' : 'date_desc'}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'date_asc'}">▲</c:when>
@@ -171,7 +171,7 @@
                                 <tbody>
                                     <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
                                         <tr>
-                                            <td>${loop.index + 1 + (pagedFarms.pageNumber - 1) * pagedFarms.pageSize}</td>
+                                            <td>${farm.farmID}</td>
                                             <td>
                                                 <a href="#" class="text-primary" data-toggle="modal" data-target="#farmModal${farm.farmID}">
                                                     ${farm.farmName}
