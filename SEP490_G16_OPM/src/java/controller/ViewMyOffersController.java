@@ -4,6 +4,8 @@
  */
 package controller;
 
+import dao.FarmDAO;
+import dao.PigsOfferDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -11,6 +13,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.util.List;
+import model.Farm;
+import model.Page;
+import model.PigsOffer;
+import model.User;
 
 /**
  *
@@ -57,7 +65,53 @@ public class ViewMyOffersController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
+        if (user == null || user.getRoleID() != 4) {
+            response.sendRedirect("login-register.jsp");
+            return;
+        }
+
+        String msg = request.getParameter("msg");
+        if (msg != null && !msg.isEmpty()) {
+            request.setAttribute("msg", msg);
+        }
+
+        int userId = user.getUserID();
+        int pageNumber = 1;
+        int pageSize = 5;
+
+        try {
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                pageNumber = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException e) {
+            pageNumber = 1;
+        }
+
+        String sort = request.getParameter("sort");
+        String search = request.getParameter("search");
+        String status = request.getParameter("status");
+        String farmId = request.getParameter("farmId");
+
+        request.setAttribute("sort", sort);
+        request.setAttribute("search", search);
+        request.setAttribute("status", status);
+        request.setAttribute("farmId", farmId);
+
+        PigsOfferDAO offerDAO = new PigsOfferDAO();
+        FarmDAO farmDAO = new FarmDAO();
+
+        Page<PigsOffer> page = offerDAO.getOffersBySeller(userId, pageNumber, pageSize, sort, search, status, farmId);
+        List<Farm> myFarms = farmDAO.getFarmsBySellerId(userId);
+
+        request.setAttribute("myFarms", myFarms);
+        request.setAttribute("page", page);
+        request.setAttribute("currentPage", pageNumber);
+
+        request.getRequestDispatcher("myoffers.jsp").forward(request, response);
     }
 
     /**

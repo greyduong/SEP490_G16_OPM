@@ -11,7 +11,7 @@
             <span class="mdi mdi-barn"></span>
             Trang trại
         </a>
-        <a href="${pageContext.request.contextPath}/offers" class="!font-bold !text-slate-600 hover:!text-green-600">
+        <a href="${pageContext.request.contextPath}/my-offers" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-offer"></span>
             Chào bán
         </a>

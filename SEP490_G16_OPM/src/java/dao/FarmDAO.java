@@ -86,7 +86,7 @@ public class FarmDAO extends DBContext {
         return page;
     }
 
-    public Page<Farm> getFarmsByFilter(int userId, String search, String status, int pageNumber, int pageSize, String sort) {
+    public Page<Farm> getFarmsByFilterbySellerId(int userId, String search, String status, int pageNumber, int pageSize, String sort) {
         Page<Farm> page = new Page<>();
         if (pageNumber < 1) {
             pageNumber = 1;
@@ -138,7 +138,7 @@ public class FarmDAO extends DBContext {
         JOIN UserAccount u ON f.SellerID = u.UserID
         LEFT JOIN PigsOffer po ON f.FarmID = po.FarmID
         LEFT JOIN Orders o ON f.FarmID = o.FarmID
-    """ + whereClause + """
+        """ + whereClause + """
         GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt,
                  u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID
         ORDER BY """ + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
@@ -278,6 +278,37 @@ public class FarmDAO extends DBContext {
             System.out.println("deleteOldFarm: " + e.getMessage());
         }
         return false;
+    }
+
+    public List<Farm> getFarmsBySellerId(int sellerId) {
+        List<Farm> farms = new ArrayList<>();
+        String sql = """
+        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt
+        FROM Farm f
+        WHERE f.SellerID = ?
+        ORDER BY f.FarmName
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farms.add(farm);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return farms;
     }
 
 }

@@ -11,73 +11,68 @@
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
-        <jsp:include page="component/header.jsp" />
-            <!-- Breadcrumb Section Begin -->
-            <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12 text-center">
-                            <div class="breadcrumb__text">
-                                <h2>Trang trại</h2>
-                                <div class="breadcrumb__option">
-                                    <a href="home">Trang chủ</a>
-                                    <span>Trang trại</span>
-                                </div>
+        <jsp:include page="component/header.jsp"/>
+        <!-- Breadcrumb Section Begin -->
+        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="breadcrumb__text">
+                            <h2>Trang trại</h2>
+                            <div class="breadcrumb__option">
+                                <a href="home">Trang chủ</a>
+                                <span>Trang trại</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
-            <!-- Breadcrumb Section End -->
+            </div>
+        </section>
+        <!-- Breadcrumb Section End -->
 
-            <!-- Farm Management Table Begin -->
-            <section class="spad" style="padding-top: 30px;">
-                <div class="container">
-                    <h4 class="mb-4">Danh sách trang trại của bạn</h4>
-
-                    <!-- Display error or success message -->
+        <!-- Farm Management Table Begin -->
+        <section class="spad" style="padding-top: 30px;">
+            <div class="container">
+                <div class="d-flex justify-content-between mb-3">
+                    <h4>Danh sách trang trại của bạn</h4>
+                    <a href="createFarm" class="btn btn-success">+ Tạo trang trại</a>
+                </div>
+                <!-- Display error or success message -->
                 <c:if test="${not empty msg}">
                     <div class="alert alert-info" role="alert">
                         ${msg}  <!-- This will display the message set in the controller -->
                     </div>
                 </c:if>
 
+                <form class="form-inline mb-3" method="get" action="my-farms">
+                    <!-- Ô tìm kiếm -->
+                    <input type="text" name="search" class="form-control form-control-sm mr-2"
+                           placeholder="Tìm tên trang trại"
+                           value="${param.search != null ? param.search : ''}" />
+
+                    <!-- Dropdown chọn trạng thái -->
+                    <select name="status" class="form-control form-control-sm mr-2">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>Hoạt động</option>
+                        <option value="Pending" ${param.status == 'Pending' ? 'selected' : ''}>Đang chờ</option>
+                    </select>
+
+                    <!-- Hidden giữ sort -->
+                    <input type="hidden" name="sort" value="${param.sort}" />
+
+                    <button type="submit" class="btn btn-sm btn-success mr-2">Tìm</button>
+                    <a href="my-farms" class="btn btn-sm btn-outline-secondary">Bỏ lọc</a>
+                </form>
+
                 <c:choose>
                     <c:when test="${not empty pagedFarms and not empty pagedFarms.data}">
+
                         <div class="table-responsive">
 
                             <c:set var="currentSort" value="${param.sort}" />
-                            <c:set var="nextOfferSort" value="${currentSort == 'offer_asc' ? 'offer_desc' : 'offer_asc'}" />
-                            <c:set var="nextOrderSort" value="${currentSort == 'order_asc' ? 'order_desc' : 'order_asc'}" />
-                            <c:set var="nextDateSort" value="${currentSort == 'date_asc' ? 'date_desc' : 'date_asc'}" />
-
-                            <div class="text-left mb-3">
-                                <a href="createFarm" class="btn btn-sm btn-success">
-                                    <i class="fa fa-plus mr-1"></i> Tạo trang trại
-                                </a>
-                            </div>
-
-                            <form class="form-inline mb-3" method="get" action="my-farms">
-                                <!-- Ô tìm kiếm -->
-                                <input type="text" name="search" class="form-control form-control-sm mr-2"
-                                       placeholder="Tìm tên trang trại"
-                                       value="${param.search != null ? param.search : ''}" />
-
-                                <!-- Dropdown chọn trạng thái -->
-                                <select name="status" class="form-control form-control-sm mr-2">
-                                    <option value="">Tất cả trạng thái</option>
-                                    <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>Hoạt động</option>
-                                    <option value="Pending" ${param.status == 'Pending' ? 'selected' : ''}>Đang chờ</option>
-                                </select>
-
-                                <!-- Hidden giữ sort -->
-                                <input type="hidden" name="sort" value="${param.sort}" />
-
-                                <button type="submit" class="btn btn-sm btn-success mr-2">Tìm</button>
-                                <a href="my-farms" class="btn btn-sm btn-outline-secondary">Bỏ lọc</a>
-                            </form>
-
-
+                            <c:set var="nextOfferSort" value="${currentSort == 'offer_desc' ? 'offer_asc' : 'offer_desc'}" />
+                            <c:set var="nextOrderSort" value="${currentSort == 'order_desc' ? 'order_asc' : 'order_desc'}" />
+                            <c:set var="nextDateSort" value="${currentSort == 'date_desc' ? 'date_asc' : 'date_desc'}" />
 
                             <table class="table table-bordered table-striped">
                                 <thead class="thead-light">
@@ -91,7 +86,7 @@
                                         </th>
                                         <th>
                                             Chào bán
-                                            <a href="my-farms?sort=${currentSort == 'offer_desc' ? 'offer_asc' : 'offer_desc'}&search=${param.search}&status=${param.status}"
+                                            <a href="my-farms?sort=${nextOfferSort}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'offer_asc'}">▲</c:when>
@@ -102,7 +97,7 @@
                                         </th>
                                         <th>
                                             Đặt hàng
-                                            <a href="my-farms?sort=${currentSort == 'order_desc' ? 'order_asc' : 'order_desc'}&search=${param.search}&status=${param.status}"
+                                            <a href="my-farms?sort=${nextOrderSort}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'order_asc'}">▲</c:when>
@@ -114,7 +109,7 @@
                                         <th>Trạng thái</th>
                                         <th>
                                             Ngày tạo
-                                            <a href="my-farms?sort=${currentSort == 'date_desc' ? 'date_asc' : 'date_desc'}&search=${param.search}&status=${param.status}"
+                                            <a href="my-farms?sort=${nextDateSort}&search=${param.search}&status=${param.status}"
                                                class="btn btn-sm btn-outline-secondary ml-1">
                                                 <c:choose>
                                                     <c:when test="${currentSort == 'date_asc'}">▲</c:when>
@@ -138,7 +133,18 @@
                                                 </a>
                                             </td>
                                             <td>${farm.location}</td>
-                                            <td>${farm.offerCount}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${farm.offerCount > 0}">
+                                                        <a href="my-offers?farmId=${farm.farmID}" class="text-primary">
+                                                            ${farm.offerCount}
+                                                        </a>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${farm.offerCount}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td>${farm.orderCount}</td>
                                             <td>${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</td>
                                             <td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
@@ -214,7 +220,6 @@
                 </div>
             </div>
         </c:forEach>
-        <jsp:include page="component/footer.jsp"></jsp:include>
-        <jsp:include page="component/footer.jsp" />
+        <jsp:include page="component/footer.jsp"/>
     </body>
 </html>
