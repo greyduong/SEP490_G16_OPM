@@ -71,7 +71,7 @@
                             <table class="table table-bordered w-100" style="min-width: 1000px;">
                                 <thead class="thead-dark text-center">
                                     <tr>
-                                        <th style="width: 5%;">ID</th>
+                                        <th style="width: 5%;">#</th>
                                         <th style="width: 15%;">Tên</th>
                                         <th style="width: 15%;">Trại</th>
                                         <th style="width: 9%;">SL 
@@ -119,7 +119,7 @@
                                 <tbody>
                                     <c:forEach var="offer" items="${page.data}">
                                         <tr class="text-center align-middle">
-                                            <td>${offer.offerID}</td>
+                                            <td>${(page.pageNumber - 1) * page.pageSize + 1}</td>
                                             <td class="text-left" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${offer.name}">
                                                 <a href="#" title="${offer.name}" data-toggle="modal" data-target="#offerModal${offer.offerID}">
                                                     ${offer.name}

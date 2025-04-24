@@ -14,19 +14,22 @@ import java.io.IOException;
     "/createFarm",
     "/my-farms",
     "/updateFarm",
+    "/my-offers",
     "/CustomerOrderPageController"
 })
 public class OnlySellerFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        new NeedLoginFilter().doFilter(request, response, chain);
-        if (response.isCommitted()) {
+        if (request.getSession().getAttribute("user") == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         User user = (User) request.getSession().getAttribute("user");
+        System.out.println(user.getRoleID());
         if (user.getRoleID() != 4) {
             response.sendRedirect(request.getContextPath() + "/home?error=403");
+            return;
         }
         chain.doFilter(request, response);
     }

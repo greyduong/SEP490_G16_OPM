@@ -109,7 +109,7 @@
                                 <tbody>
                                     <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
                                         <tr>
-                                            <td>${farm.farmID}</td>
+                                            <td>${(pagedFarms.pageNumber - 1) * pagedFarms.pageSize + loop.index + 1}</td>
                                             <td>
                                                 <a href="#" class="text-primary" data-toggle="modal" data-target="#farmModal${farm.farmID}">
                                                     ${farm.farmName}

@@ -68,11 +68,6 @@ public class ViewMyOffersController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         String msg = request.getParameter("msg");
         if (msg != null && !msg.isEmpty()) {
             request.setAttribute("msg", msg);
