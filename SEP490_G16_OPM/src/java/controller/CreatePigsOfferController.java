@@ -4,28 +4,31 @@
  */
 package controller;
 
-import static config.UploadConfig.PIGS_UPLOAD_PATH;
+import dao.CategoryDAO;
+import dao.FarmDAO;
+import dao.PigsOfferDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
-import java.io.File;
-import java.nio.file.Paths;
 import java.sql.Date;
-import java.util.UUID;
+import java.util.List;
+import model.Category;
+import model.Farm;
 import model.PigsOffer;
-import dao.PigsOfferDAO;
+import model.User;
+import service.ImageService;
 
 /**
  *
  * @author duong
  */
-// xử lý file upload qua form có enctype="multipart/form-data"
-@MultipartConfig
+@WebServlet(name = "CreatePigsOfferController", urlPatterns = {"/createOffer"})
 public class CreatePigsOfferController extends HttpServlet {
 
     /**
@@ -66,7 +69,24 @@ public class CreatePigsOfferController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
+        if (user == null || user.getRoleID() != 4) {
+            response.sendRedirect("login-register.jsp");
+            return;
+        }
+
+        int userId = user.getUserID();
+        FarmDAO farmDAO = new FarmDAO();
+        CategoryDAO categoryDAO = new CategoryDAO();
+
+        List<Farm> myFarms = farmDAO.getFarmsBySellerId(userId);
+        List<Category> categories = categoryDAO.getAllCategories();
+
+        request.setAttribute("myFarms", myFarms);
+        request.setAttribute("categories", categories);
+        request.getRequestDispatcher("createpigsoffer.jsp").forward(request, response);
     }
 
     /**
@@ -80,62 +100,66 @@ public class CreatePigsOfferController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        PigsOffer offer = new PigsOffer();
-        offer.setSellerID(1); // Hardcode hoặc lấy theo session user
-        offer.setFarmID(1);
-        offer.setCategoryID(1);
-        offer.setName(request.getParameter("name"));
-        offer.setPigBreed(request.getParameter("pigBreed"));
-        offer.setQuantity(Integer.parseInt(request.getParameter("quantity")));
-        offer.setMinQuantity(Integer.parseInt(request.getParameter("minQuantity")));
-        offer.setMinDeposit(Double.parseDouble(request.getParameter("minDeposit")));
-        offer.setRetailPrice(Double.parseDouble(request.getParameter("retailPrice")));
-        offer.setTotalOfferPrice(Double.parseDouble(request.getParameter("totalOfferPrice")));
-        offer.setDescription(request.getParameter("description"));
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
 
-        // Xử lý upload ảnh
-        String uploadPath = PIGS_UPLOAD_PATH;
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        Part filePart = request.getPart("imageFile");
-        String fileName = null;
-        if (filePart != null && filePart.getSize() > 0) {
-            // Lấy tên file an toàn
-            fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-
-            fileName = UUID.randomUUID() + "_" + fileName;
-            String filePath = uploadPath + File.separator + fileName;
-            filePart.write(filePath);
-
-            // Chỉ lưu tên file vào DB
-            offer.setImageURL(fileName);
-        } else {
-            // Nếu không upload ảnh thì lưu null hoặc giá trị mặc định
-            offer.setImageURL(null);
-        }
-
-        // Xử lý ngày
-        try {
-            offer.setStartDate(Date.valueOf(request.getParameter("startDate")));
-            offer.setEndDate(Date.valueOf(request.getParameter("endDate")));
-        } catch (IllegalArgumentException e) {
-            response.getWriter().println("Ngày không đúng định dạng yyyy-MM-dd");
+        if (user == null || user.getRoleID() != 4) {
+            response.sendRedirect("login-register.jsp");
             return;
         }
 
-        offer.setStatus("Active");
+        int sellerId = user.getUserID();
+        int farmId = Integer.parseInt(request.getParameter("farmId"));
 
-        PigsOfferDAO dao = new PigsOfferDAO();
-        boolean check = dao.createPigsOffer(offer);
-        if (check) {
-            response.sendRedirect("homepage.jsp");
-        } else {
-            response.getWriter().print("Create Failed!");
+        FarmDAO farmDAO = new FarmDAO();
+        Farm farm = farmDAO.getFarmById(farmId);
+        if (farm == null || farm.getSellerID() != sellerId) {
+            response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Bạn không có quyền truy cập farm này", "UTF-8"));
+            return;
         }
 
+        String name = request.getParameter("name");
+        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        String pigBreed = request.getParameter("pigBreed");
+        int quantity = Integer.parseInt(request.getParameter("quantity"));
+        int minQuantity = Integer.parseInt(request.getParameter("minQuantity"));
+        double minDeposit = Double.parseDouble(request.getParameter("minDeposit"));
+        double retailPrice = Double.parseDouble(request.getParameter("retailPrice"));
+        double totalOfferPrice = Double.parseDouble(request.getParameter("totalOfferPrice"));
+        Date startDate = Date.valueOf(request.getParameter("startDate"));
+        Date endDate = Date.valueOf(request.getParameter("endDate"));
+        String description = request.getParameter("description");
+
+        Part imagePart = request.getPart("image");
+        ImageService imageService = new ImageService();
+        String imageURL = imageService.upload(imagePart);
+
+        if (imageURL == null) {
+            response.sendRedirect("createpigsoffer.jsp?msg=" + java.net.URLEncoder.encode("Không thể tải ảnh lên, vui lòng thử lại", "UTF-8"));
+            return;
+        }
+
+        PigsOffer offer = new PigsOffer();
+        offer.setName(name);
+        offer.setCategoryID(categoryId);
+        offer.setFarmID(farmId);
+        offer.setSellerID(sellerId);
+        offer.setPigBreed(pigBreed);
+        offer.setQuantity(quantity);
+        offer.setMinQuantity(minQuantity);
+        offer.setMinDeposit(minDeposit);
+        offer.setRetailPrice(retailPrice);
+        offer.setTotalOfferPrice(totalOfferPrice);
+        offer.setStartDate(startDate);
+        offer.setEndDate(endDate);
+        offer.setDescription(description);
+        offer.setImageURL(imageURL);
+        offer.setStatus("Available");
+
+        PigsOfferDAO offerDAO = new PigsOfferDAO();
+        offerDAO.createPigsOffer(offer);
+
+        response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Tạo chào hàng thành công!", "UTF-8"));
     }
 
     /**

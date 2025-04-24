@@ -42,7 +42,7 @@
 
                 <form action="createFarm" method="post">
                     <div class="form-group">
-                        <label for="farmName">Tên trang trại</label>
+                        <label for="farmName">Tên trang trại<span style="color: red">*</span></label>
                         <input type="text" class="form-control" id="farmName" name="farmName" 
                                value="${farmName}" required>
                         <c:if test="${not empty nameError}">
@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Vị trí</label>
+                        <label for="location">Vị trí<span style="color: red">*</span></label>
                         <input type="text" class="form-control" id="location" name="location" 
                                value="${location}" required>
                         <c:if test="${not empty locationError}">
@@ -60,7 +60,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="description">Mô tả</label>
+                        <label for="description">Mô tả<span style="color: red">*</span></label>
                         <textarea class="form-control" id="description" name="description" rows="4" required>${description}</textarea>
                         <c:if test="${not empty descriptionError}">
                             <small class="text-danger">${descriptionError}</small>

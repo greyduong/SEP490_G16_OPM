@@ -192,13 +192,13 @@ VALUES
 
 INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note)
 VALUES
-(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
-(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
-(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
-(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
-(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',''),
-(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',''),
-(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','');
+(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
+(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
+(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
+(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
+(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Waiting'),
+(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Waiting'),
+(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Waiting');
 
  
 INSERT INTO Category (Name, Description) 

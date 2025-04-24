@@ -34,7 +34,7 @@
             <div class="container">
                 <div class="d-flex justify-content-between mb-3">
                     <h4>Danh sách chào bán của bạn</h4>
-                    <a href="create-offer.jsp" class="btn btn-success">+ Tạo chào bán mới</a>
+                    <a href="createOffer" class="btn btn-success">+ Tạo chào bán mới</a>
                 </div>
 
                 <c:if test="${not empty msg}">
