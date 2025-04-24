@@ -65,4 +65,62 @@ public class Validation {
     public static boolean isValidFullName(String fullname) {
         return fullname != null && fullname.matches("^[\\p{L} ]{2,50}$");
     }
+
+    // Kiểm tra không chứa ký tự đặc biệt và không có 2 dấu cách liên tiếp
+    private static boolean isValidTextFormat(String input) {
+        return input.matches("^(?!.* {2})[\\p{L}\\d ]+$");
+    }
+
+    // Viết hoa chữ cái đầu của mỗi từ, còn lại viết thường
+    private static String toTitleCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        StringBuilder result = new StringBuilder();
+        for (String word : input.trim().toLowerCase().split("\\s+")) {
+            if (!word.isEmpty()) {
+                result.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1)).append(" ");
+            }
+        }
+        return result.toString().trim();
+    }
+
+    public static String validateFarmName(String name) {
+        if (isEmpty(name)) {
+            return "Tên trang trại không được để trống.";
+        }
+        if (name.length() > 100) {
+            return "Tên trang trại không vượt quá 100 ký tự.";
+        }
+        if (!isValidTextFormat(name)) {
+            return "Tên không chứa ký tự đặc biệt hoặc 2 dấu cách liên tiếp.";
+        }
+        return null;
+    }
+
+    public static String validateFarmLocation(String location) {
+        if (isEmpty(location)) {
+            return "Vị trí không được để trống.";
+        }
+        if (location.length() > 255) {
+            return "Vị trí không vượt quá 255 ký tự.";
+        }
+        if (!isValidTextFormat(location)) {
+            return "Vị trí không chứa ký tự đặc biệt hoặc 2 dấu cách liên tiếp.";
+        }
+        return null;
+    }
+
+    public static String validateFarmDescription(String description) {
+        if (description != null && description.length() > 1000) {
+            return "Mô tả không vượt quá 1000 ký tự.";
+        }
+        return null;
+    }
+
+    public static String formatToTitleCase(String input) {
+        return toTitleCase(input);
+
+    }
 }

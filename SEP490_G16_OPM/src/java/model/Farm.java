@@ -3,6 +3,7 @@ package model;
 import java.sql.Timestamp;
 
 public class Farm {
+
     private Integer farmID;
     private Integer sellerID;
     private User seller;
@@ -12,7 +13,35 @@ public class Farm {
     private String status;
     private Timestamp createdAt;
 
+    //Dem so luong offer
+    private int offerCount;
+    private int orderCount;
+
     public Farm() {
+    }
+
+    public Farm(Integer farmID, Integer sellerID, User seller, String farmName, String location, String description, String status, Timestamp createdAt) {
+        this.farmID = farmID;
+        this.sellerID = sellerID;
+        this.seller = seller;
+        this.farmName = farmName;
+        this.location = location;
+        this.description = description;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
+
+    public Farm(Integer farmID, Integer sellerID, User seller, String farmName, String location, String description, String status, Timestamp createdAt, int offerCount, int orderCount) {
+        this.farmID = farmID;
+        this.sellerID = sellerID;
+        this.seller = seller;
+        this.farmName = farmName;
+        this.location = location;
+        this.description = description;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.offerCount = offerCount;
+        this.orderCount = orderCount;
     }
 
     public int getFarmID() {
@@ -78,6 +107,22 @@ public class Farm {
     public void setSeller(User seller) {
         this.seller = seller;
     }
+
+    public int getOfferCount() {
+        return offerCount;
+    }
+
+    public void setOfferCount(int offerCount) {
+        this.offerCount = offerCount;
+    }
+
+    public int getOrderCount() {
+        return orderCount;
+    }
+
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }   
 
     @Override
     public String toString() {

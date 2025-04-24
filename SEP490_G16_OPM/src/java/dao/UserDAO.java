@@ -6,8 +6,43 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDAO extends DBContext {
+
+    public static Mapper<User> mapper() {
+        return (rs) -> {
+            int userID = rs.getInt("UserID");
+            int roleID = rs.getInt("RoleID");
+            String fullName = rs.getString("FullName");
+            String password = rs.getString("Password");
+            String email = rs.getString("Email");
+            String phone = rs.getString("Phone");
+            String address = rs.getString("Address");
+            double wallet = rs.getDouble("Wallet");
+            String status = rs.getString("Status");
+            User user = new User(userID, roleID, fullName, fullName, password, email, phone, address, wallet, status);
+            return user;
+        };
+    }
+
+    public Optional<User> findById(int id) {
+        return Optional.ofNullable(fetchOne(mapper(), "SELECT * FROM UserAccount WHERE UserID = ?", id));
+    }
+
+    public int countSearch(String pattern) {
+        return count("SELECT COUNT(*) FROM UserAccount WHERE Username LIKE ?", "%" + pattern + "%");
+    }
+
+    public List<User> search(String pattern, int page, int size) {
+        long offset = (page - 1) * size;
+        return fetchAll(
+                mapper(),
+                "SELECT * FROM UserAccount WHERE Username LIKE ? ORDER BY UserID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY",
+                "%" + pattern + "%",
+                offset,
+                size);
+    }
 
     PreparedStatement stm;
     ResultSet rs;
