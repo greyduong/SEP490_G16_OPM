@@ -7,13 +7,9 @@
         <meta charset="UTF-8">
         <title>View Application - Online Pig Market</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- Include necessary styles and JS -->
-        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-        <script src="js/jquery-3.3.1.min.js"></script>
+        <jsp:include page="component/library.jsp" />
     </head>
     <body>
-
-        <jsp:include page="component/library.jsp" />
         <jsp:include page="component/header.jsp" />
 
         <!-- Breadcrumb Section Begin -->
@@ -73,11 +69,6 @@
                 </table>
             </div>
         </section>
-
         <jsp:include page="component/footer.jsp" />
-
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/main.js"></script>
-
     </body>
 </html>

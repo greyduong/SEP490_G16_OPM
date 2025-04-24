@@ -4,6 +4,9 @@
  */
 package model;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+
 /**
  *
  * @author dangtuong
@@ -27,6 +30,11 @@ public class PigsOffer {
     private java.sql.Date endDate;
     private String status;
     private java.sql.Timestamp createdAt;
+
+    private Farm farm;
+    private User seller;
+    private Category category;
+    private int orderCount;
 
     public PigsOffer() {
     }
@@ -52,6 +60,30 @@ public class PigsOffer {
         this.endDate = endDate;
         this.status = status;
         this.createdAt = createdAt;
+    }
+
+    public PigsOffer(int offerID, int sellerID, int farmID, int categoryID, String name, String pigBreed, int quantity, int minQuantity, double minDeposit, double retailPrice, double totalOfferPrice, String description, String imageURL, Date startDate, Date endDate, String status, Timestamp createdAt, Farm farm, User seller, Category category, int orderCount) {
+        this.offerID = offerID;
+        this.sellerID = sellerID;
+        this.farmID = farmID;
+        this.categoryID = categoryID;
+        this.name = name;
+        this.pigBreed = pigBreed;
+        this.quantity = quantity;
+        this.minQuantity = minQuantity;
+        this.minDeposit = minDeposit;
+        this.retailPrice = retailPrice;
+        this.totalOfferPrice = totalOfferPrice;
+        this.description = description;
+        this.imageURL = imageURL;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.farm = farm;
+        this.seller = seller;
+        this.category = category;
+        this.orderCount = orderCount;
     }
 
     public int getOfferID() {
@@ -189,4 +221,37 @@ public class PigsOffer {
     public void setCreatedAt(java.sql.Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+
+    public Farm getFarm() {
+        return farm;
+    }
+
+    public void setFarm(Farm farm) {
+        this.farm = farm;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public void setSeller(User seller) {
+        this.seller = seller;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public int getOrderCount() {
+        return orderCount;
+    }
+
+    public void setOrderCount(int orderCount) {
+        this.orderCount = orderCount;
+    }
+
 }

@@ -21,8 +21,8 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "EditFarmController", urlPatterns = {"/editFarm"})
-public class EditFarmController extends HttpServlet {
+@WebServlet(name = "UpdateFarmController", urlPatterns = {"/updateFarm"})
+public class UpdateFarmController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +41,10 @@ public class EditFarmController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet EditFarmController</title>");
+            out.println("<title>Servlet UpdateFarmController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet EditFarmController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateFarmController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -86,7 +86,7 @@ public class EditFarmController extends HttpServlet {
         String idParam = request.getParameter("id");
         if (idParam == null) {
             String msg = java.net.URLEncoder.encode("Thiếu ID trang trại", "UTF-8");
-            response.sendRedirect("ViewMyFarmsController?msg=" + msg + "&" + queryParams);
+            response.sendRedirect("my-farms?msg=" + msg + "&" + queryParams);
             return;
         }
 
@@ -96,12 +96,12 @@ public class EditFarmController extends HttpServlet {
 
         if (farm == null || farm.getSellerID() != user.getUserID()) {
             String msg = java.net.URLEncoder.encode("Không tìm thấy hoặc không có quyền sửa trang trại này", "UTF-8");
-            response.sendRedirect("ViewMyFarmsController?msg=" + msg + "&" + queryParams);
+            response.sendRedirect("my-farms?msg=" + msg + "&" + queryParams);
             return;
         }
 
         request.setAttribute("farm", farm);
-        request.getRequestDispatcher("editfarm.jsp").forward(request, response);
+        request.getRequestDispatcher("updatefarm.jsp").forward(request, response);
     }
 
     /**
@@ -160,7 +160,7 @@ public class EditFarmController extends HttpServlet {
             request.setAttribute("nameError", nameError);
             request.setAttribute("locationError", locationError);
             request.setAttribute("descriptionError", descriptionError);
-            request.getRequestDispatcher("editfarm.jsp").forward(request, response);
+            request.getRequestDispatcher("updatefarm.jsp").forward(request, response);
             return;
         }
 
@@ -180,14 +180,14 @@ public class EditFarmController extends HttpServlet {
                 && oldFarm.getLocation().equals(farm.getLocation())
                 && oldFarm.getDescription().equals(farm.getDescription())) {
             String msg = java.net.URLEncoder.encode("Thông tin cập nhật giống như cũ, không cần thay đổi!", "UTF-8");
-            response.sendRedirect("ViewMyFarmsController?msg=" + msg + "&" + queryParams);
+            response.sendRedirect("my-farms?msg=" + msg + "&" + queryParams);
             return;
         }
 
         boolean success = dao.updateOldFarm(farm);
         if (success) {
             String msg = java.net.URLEncoder.encode("Cập nhật trang trại thành công", "UTF-8");
-            response.sendRedirect("ViewMyFarmsController?msg=" + msg + "&" + queryParams);
+            response.sendRedirect("my-farms?msg=" + msg + "&" + queryParams);
         } else {
             request.setAttribute("page", page);
             request.setAttribute("sort", sort);
@@ -195,7 +195,7 @@ public class EditFarmController extends HttpServlet {
             request.setAttribute("status", status);
             request.setAttribute("msg", "Cập nhật không thành công");
             request.setAttribute("farm", farm);
-            request.getRequestDispatcher("editfarm.jsp").forward(request, response);
+            request.getRequestDispatcher("updatefarm.jsp").forward(request, response);
 
         }
     }

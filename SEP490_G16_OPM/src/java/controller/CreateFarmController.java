@@ -127,7 +127,7 @@ public class CreateFarmController extends HttpServlet {
         FarmDAO farmDAO = new FarmDAO();
         if (farmDAO.createNewFarm(farm)) {
             String msg = java.net.URLEncoder.encode("Tạo trang trại thành công", "UTF-8");
-            response.sendRedirect("ViewMyFarmsController?msg=" + msg);
+            response.sendRedirect("my-farms?msg=" + msg);
         } else {
             request.setAttribute("msg", "Tạo trang trại không thành công");
             request.getRequestDispatcher("createfarm.jsp").forward(request, response);

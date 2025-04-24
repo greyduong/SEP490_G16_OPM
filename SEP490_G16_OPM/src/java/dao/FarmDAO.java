@@ -22,6 +22,7 @@ public class FarmDAO extends DBContext {
             farm.setLocation(rs.getString("Location"));
             farm.setSellerID(rs.getInt("SellerID"));
             farm.setStatus(rs.getString("Status"));
+            farm.setNote(rs.getString("Note"));
             return farm;
         };
     }
@@ -85,7 +86,7 @@ public class FarmDAO extends DBContext {
         return page;
     }
 
-    public Page<Farm> getFarmsByFilter(int userId, String search, String status, int pageNumber, int pageSize, String sort) {
+    public Page<Farm> getFarmsByFilterbySellerId(int userId, String search, String status, int pageNumber, int pageSize, String sort) {
         Page<Farm> page = new Page<>();
         if (pageNumber < 1) {
             pageNumber = 1;
@@ -129,7 +130,8 @@ public class FarmDAO extends DBContext {
         }
 
         String selectQuery = """
-        SELECT f.*, u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID,
+        SELECT f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt,
+               u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID,
                COUNT(DISTINCT po.OfferID) AS OfferCount,
                COUNT(DISTINCT o.OrderID) AS OrderCount
         FROM Farm f
@@ -137,7 +139,7 @@ public class FarmDAO extends DBContext {
         LEFT JOIN PigsOffer po ON f.FarmID = po.FarmID
         LEFT JOIN Orders o ON f.FarmID = o.FarmID
         """ + whereClause + """
-        GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Status, f.CreatedAt,
+        GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt,
                  u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID
         ORDER BY """ + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -146,6 +148,7 @@ public class FarmDAO extends DBContext {
         List<Farm> farms = new ArrayList<>();
         try (
                 PreparedStatement stm = connection.prepareStatement(selectQuery); PreparedStatement countStm = connection.prepareStatement(countQuery)) {
+
             for (int i = 0; i < params.size(); i++) {
                 stm.setObject(i + 1, params.get(i));
             }
@@ -160,6 +163,7 @@ public class FarmDAO extends DBContext {
                     farm.setFarmName(rs.getString("FarmName"));
                     farm.setLocation(rs.getString("Location"));
                     farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
                     farm.setStatus(rs.getString("Status"));
                     farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
                     farm.setOfferCount(rs.getInt("OfferCount"));
@@ -204,8 +208,8 @@ public class FarmDAO extends DBContext {
 
     public boolean createNewFarm(Farm farm) {
         String sql = """
-        INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, CreatedAt)
-        VALUES (?, ?, ?, ?, ?, GETDATE())
+        INSERT INTO Farm (SellerID, FarmName, Location, Description, Note, Status, CreatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, GETDATE())
     """;
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -213,7 +217,8 @@ public class FarmDAO extends DBContext {
             stm.setString(2, farm.getFarmName());
             stm.setString(3, farm.getLocation());
             stm.setString(4, farm.getDescription());
-            stm.setString(5, "Pending");
+            stm.setString(5, "Waiting");
+            stm.setString(6, "Pending");
             return stm.executeUpdate() > 0;
         } catch (Exception e) {
             System.out.println("createFarm: " + e.getMessage());
@@ -233,6 +238,7 @@ public class FarmDAO extends DBContext {
                     farm.setFarmName(rs.getString("FarmName"));
                     farm.setLocation(rs.getString("Location"));
                     farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
                     farm.setStatus(rs.getString("Status"));
                     farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
                     return farm;
@@ -272,6 +278,37 @@ public class FarmDAO extends DBContext {
             System.out.println("deleteOldFarm: " + e.getMessage());
         }
         return false;
+    }
+
+    public List<Farm> getFarmsBySellerId(int sellerId) {
+        List<Farm> farms = new ArrayList<>();
+        String sql = """
+        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt
+        FROM Farm f
+        WHERE f.SellerID = ?
+        ORDER BY f.FarmName
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farms.add(farm);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return farms;
     }
 
 }

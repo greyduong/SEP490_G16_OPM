@@ -1,7 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css"/>
 <div class="p-2 border-b border-slate-300 flex items-center gap-6 mb-5 sticky top-0 bg-white z-100">
     <a href="${pageContext.request.contextPath}/home"><img class="w-10 h-10" src="img/logo.svg"></a>
     <div class="flex items-center gap-6">
@@ -9,11 +7,11 @@
             <span class="mdi mdi-home"></span>
             Trang chủ
         </a>
-        <a href="${pageContext.request.contextPath}/ViewMyFarmsController" class="!font-bold !text-slate-600 hover:!text-green-600">
+        <a href="${pageContext.request.contextPath}/my-farms" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-barn"></span>
             Trang trại
         </a>
-        <a href="${pageContext.request.contextPath}/offers" class="!font-bold !text-slate-600 hover:!text-green-600">
+        <a href="${pageContext.request.contextPath}/my-offers" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-offer"></span>
             Chào bán
         </a>
@@ -64,7 +62,7 @@
     </div>
 </div>
 <script>
-    document.getElementById("logout").addEventListener("click", function (e) {
+    $("#logout").on("click", function (e) {
         e.preventDefault();
         if (!confirm("Do you want to logout?")) {
             return;
