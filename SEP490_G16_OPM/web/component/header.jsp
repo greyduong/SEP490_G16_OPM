@@ -40,21 +40,21 @@
     </div>
     <div class="ml-auto flex items-center gap-2">
         <c:if test="${empty sessionScope.user}">
-            <a href="${pageContext.request.contextPath}/login" class="border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
+            <a href="${pageContext.request.contextPath}/login" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-login"></span>
-                Login
+                Đăng nhập
             </a>
-            <a href="${pageContext.request.contextPath}/register" class="border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
+            <a href="${pageContext.request.contextPath}/register" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-account-plus"></span>
-                Register
+                Đăng ký
             </a>
         </c:if>
         <c:if test="${not empty sessionScope.user}">
-            <a href="${pageContext.request.contextPath}/profile" class="border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
+            <a href="${pageContext.request.contextPath}/profile" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-account"></span>
                 ${user.fullName}
             </a>
-            <button id="logout" class="border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
+            <button id="logout" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-logout"></span>
                 Logout
             </button>
