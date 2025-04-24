@@ -223,7 +223,7 @@
                 </section>
                  Blog Section End -->
 
-        <jsp:include page="component/footer.jsp"></jsp:include>
+        <jsp:include page="component/footer.jsp" />
 
         <!-- Modal Add to Cart -->
         <div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog">
@@ -286,5 +286,8 @@
                 });
             });
         </script>
+        <c:if test="${not empty param.error and param.error == '403'}">
+            alert("Bạn không có quyền thực hiện việc này");
+        </c:if>
     </body>
 </html>
