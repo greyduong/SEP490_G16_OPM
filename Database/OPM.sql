@@ -61,6 +61,7 @@ CREATE TABLE Farm (
     FarmName NVARCHAR(100) NOT NULL,
     Location NVARCHAR(255),
     Description NVARCHAR(MAX),
+    Note NVARCHAR(MAX),
     Status NVARCHAR(20) DEFAULT 'Active',
     CreatedAt DATETIME DEFAULT GETDATE()
 );
@@ -193,15 +194,15 @@ VALUES
 (5, N'Tường', 'dealer1', 'dealer123', 'duongquocdagtuong@gmail.com', '0909567890', N'789 Đường Cách Mạng, TP.HCM', 200000);
 
 
-INSERT INTO Farm (SellerID, FarmName, Location, Description, Status)
+INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note)
 VALUES
-(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active'),
-(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active'),
-(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active'),
-(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active'),
-(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending'),
-(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending'),
-(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending');
+(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
+(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
+(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
+(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',''),
+(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',''),
+(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',''),
+(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','');
 
  
 INSERT INTO Category (Name, Description) 

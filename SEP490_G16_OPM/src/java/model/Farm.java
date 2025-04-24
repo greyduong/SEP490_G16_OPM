@@ -10,6 +10,7 @@ public class Farm {
     private String farmName;
     private String location;
     private String description;
+    private String note;
     private String status;
     private Timestamp createdAt;
 
@@ -38,6 +39,20 @@ public class Farm {
         this.farmName = farmName;
         this.location = location;
         this.description = description;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.offerCount = offerCount;
+        this.orderCount = orderCount;
+    }
+
+    public Farm(Integer farmID, Integer sellerID, User seller, String farmName, String location, String description, String note, String status, Timestamp createdAt, int offerCount, int orderCount) {
+        this.farmID = farmID;
+        this.sellerID = sellerID;
+        this.seller = seller;
+        this.farmName = farmName;
+        this.location = location;
+        this.description = description;
+        this.note = note;
         this.status = status;
         this.createdAt = createdAt;
         this.offerCount = offerCount;
@@ -122,7 +137,15 @@ public class Farm {
 
     public void setOrderCount(int orderCount) {
         this.orderCount = orderCount;
-    }   
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 
     @Override
     public String toString() {

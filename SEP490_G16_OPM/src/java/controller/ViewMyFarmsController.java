@@ -21,7 +21,7 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "ViewMyFarmsController", urlPatterns = {"/ViewMyFarmsController"})
+@WebServlet(name = "ViewMyFarmsController", urlPatterns = {"/my-farms"})
 public class ViewMyFarmsController extends HttpServlet {
 
     /**
@@ -94,7 +94,7 @@ public class ViewMyFarmsController extends HttpServlet {
         }
 
         FarmDAO farmDAO = new FarmDAO();
-        Page<Farm> pagedFarms = farmDAO.getFarmsByFilter(userId, search, status, pageNumber, pageSize, sort);
+        Page<Farm> pagedFarms = farmDAO.getFarmsByFilterbySellerId(userId, search, status, pageNumber, pageSize, sort);
 
         request.setAttribute("pagedFarms", pagedFarms);
         request.setAttribute("search", search);

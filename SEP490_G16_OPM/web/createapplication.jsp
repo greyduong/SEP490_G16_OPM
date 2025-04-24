@@ -16,15 +16,10 @@
         <meta charset="UTF-8">
         <title>Create Application - Online Pig Market</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- Include necessary CSS and JS for the template -->
-        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <jsp:include page="component/library.jsp" />
     </head>
     <body>
-
-        <jsp:include page="component/library.jsp" />
         <jsp:include page="component/header.jsp" />
-
         <!-- Breadcrumb Section Begin -->
         <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
             <div class="container text-center">
@@ -63,13 +58,6 @@
             </c:if>
         </section>
         <!-- Application Form Section End -->
-
         <jsp:include page="component/footer.jsp" />
-
-        <!-- Include necessary JS -->
-        <script src="js/jquery-3.3.1.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/main.js"></script>
-
     </body>
 </html>

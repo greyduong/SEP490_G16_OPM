@@ -5,6 +5,7 @@
 package controller;
 
 import dao.FarmDAO;
+import dao.PigsOfferDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,15 +14,18 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import model.Farm;
+import model.Page;
+import model.PigsOffer;
 import model.User;
 
 /**
  *
  * @author duong
  */
-@WebServlet(name = "DeleteFarmController", urlPatterns = {"/deleteFarm"})
-public class DeleteFarmController extends HttpServlet {
+@WebServlet(name = "ViewMyOffersController", urlPatterns = {"/my-offers"})
+public class ViewMyOffersController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +44,10 @@ public class DeleteFarmController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet DeleteFarmController</title>");
+            out.println("<title>Servlet ViewMyOffersController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet DeleteFarmController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ViewMyOffersController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -69,46 +73,45 @@ public class DeleteFarmController extends HttpServlet {
             return;
         }
 
-        // Giữ các tham số truy vấn để không mất khi redirect
-        String page = request.getParameter("page");
+        String msg = request.getParameter("msg");
+        if (msg != null && !msg.isEmpty()) {
+            request.setAttribute("msg", msg);
+        }
+
+        int userId = user.getUserID();
+        int pageNumber = 1;
+        int pageSize = 5;
+
+        try {
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                pageNumber = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException e) {
+            pageNumber = 1;
+        }
+
         String sort = request.getParameter("sort");
         String search = request.getParameter("search");
         String status = request.getParameter("status");
+        String farmId = request.getParameter("farmId");
 
-        String baseRedirectURL = "my-farms"
-                + (page != null ? "?page=" + page : "")
-                + (sort != null ? "&sort=" + sort : "")
-                + (search != null ? "&search=" + java.net.URLEncoder.encode(search, "UTF-8") : "")
-                + (status != null ? "&status=" + status : "");
+        request.setAttribute("sort", sort);
+        request.setAttribute("search", search);
+        request.setAttribute("status", status);
+        request.setAttribute("farmId", farmId);
 
-        String idParam = request.getParameter("id");
-        if (idParam == null) {
-            String msg = java.net.URLEncoder.encode("Thiếu ID trang trại để xóa", "UTF-8");
-            response.sendRedirect(baseRedirectURL + "&msg=" + msg);
-            return;
-        }
+        PigsOfferDAO offerDAO = new PigsOfferDAO();
+        FarmDAO farmDAO = new FarmDAO();
 
-        try {
-            int farmId = Integer.parseInt(idParam);
-            FarmDAO dao = new FarmDAO();
-            Farm farm = dao.getFarmById(farmId);
+        Page<PigsOffer> page = offerDAO.getOffersBySeller(userId, pageNumber, pageSize, sort, search, status, farmId);
+        List<Farm> myFarms = farmDAO.getFarmsBySellerId(userId);
 
-            if (farm == null || farm.getSellerID() != user.getUserID()) {
-                String msg = java.net.URLEncoder.encode("Không tìm thấy hoặc không có quyền xóa trang trại này", "UTF-8");
-                response.sendRedirect(baseRedirectURL + "&msg=" + msg);
-                return;
-            }
+        request.setAttribute("myFarms", myFarms);
+        request.setAttribute("page", page);
+        request.setAttribute("currentPage", pageNumber);
 
-            boolean deleted = dao.deleteOldFarm(farmId, user.getUserID());
-            String msg = java.net.URLEncoder.encode(deleted
-                    ? "Đã xóa trang trại thành công"
-                    : "Xóa trang trại thất bại", "UTF-8");
-            response.sendRedirect(baseRedirectURL + "&msg=" + msg);
-
-        } catch (NumberFormatException e) {
-            String msg = java.net.URLEncoder.encode("ID không hợp lệ", "UTF-8");
-            response.sendRedirect(baseRedirectURL + "&msg=" + msg);
-        }
+        request.getRequestDispatcher("myoffers.jsp").forward(request, response);
     }
 
     /**
