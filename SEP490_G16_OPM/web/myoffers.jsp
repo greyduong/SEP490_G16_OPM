@@ -11,24 +11,6 @@
     <body>
         <jsp:include page="component/header.jsp"/>
 
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Chào bán</h2>
-                            <div class="breadcrumb__option">
-                                <a href="home">Trang chủ</a>
-                                <span>Chào bán</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
-
         <!-- Offer List Section Begin -->
         <section class="product spad" style="padding-top: 30px;">
             <div class="container">
@@ -155,10 +137,10 @@
                                             <td>
                                                 <c:choose>
                                                     <c:when test="${offer.status == 'Available'}">
-                                                        <span class="text-success small" style="font-size: 0.9rem;">🟢 Available</span>
+                                                        <span class="text-success small" style="font-size: 0.9rem;">🟢 Hoạt động</span>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <span class="text-danger small" style="font-size: 0.9rem;">🔴 Unavailable</span>
+                                                        <span class="text-danger small" style="font-size: 0.9rem;">🔴 Không hoạt động</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
@@ -171,6 +153,24 @@
                                     </c:forEach>
                                 </tbody>
                             </table>
+                            <div class="mt-2 text-right">
+                                <small>
+                                    Từ <strong>${(page.pageNumber - 1) * page.pageSize + 1}</strong>
+                                    đến 
+                                    <strong>
+                                        <c:choose>
+                                            <c:when test="${page.pageNumber * page.pageSize < page.totalData}">
+                                                ${page.pageNumber * page.pageSize}
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${page.totalData}
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </strong>
+                                    trong <strong>${page.totalData}</strong> Chào bán
+                                </small>
+                            </div>
+
                         </div>
 
                         <!-- Pagination -->
@@ -248,10 +248,10 @@
                                                 <p><strong>Trạng thái:</strong>
                                                     <c:choose>
                                                         <c:when test="${offer.status == 'Available'}">
-                                                            <span class="text-success small" style="font-size: 0.9rem;">🟢 Available</span>
+                                                            <span class="text-success small" style="font-size: 0.9rem;">🟢 Hoạt động</span>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <span class="text-danger small" style="font-size: 0.9rem;">🔴 Unavailable</span>
+                                                            <span class="text-danger small" style="font-size: 0.9rem;">🔴 Không hoạt động</span>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </p>

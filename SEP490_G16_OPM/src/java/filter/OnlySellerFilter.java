@@ -12,13 +12,18 @@ import java.io.IOException;
 
 @WebFilter(urlPatterns = {
     "/createFarm",
+    "/my-farms",
+    "/updateFarm",
     "/CustomerOrderPageController"
 })
 public class OnlySellerFilter extends HttpFilter {
+
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         new NeedLoginFilter().doFilter(request, response, chain);
-        if (response.isCommitted()) return;
+        if (response.isCommitted()) {
+            return;
+        }
         User user = (User) request.getSession().getAttribute("user");
         if (user.getRoleID() != 4) {
             response.sendRedirect(request.getContextPath() + "/home?error=403");

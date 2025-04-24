@@ -65,11 +65,6 @@ public class UpdateFarmController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         // Preserve query params
         String page = request.getParameter("page");
         String sort = request.getParameter("sort");
@@ -117,11 +112,6 @@ public class UpdateFarmController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
 
         int farmId = Integer.parseInt(request.getParameter("farmId"));
         String farmName = request.getParameter("farmName");

@@ -72,11 +72,6 @@ public class CreatePigsOfferController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         int userId = user.getUserID();
         FarmDAO farmDAO = new FarmDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
@@ -102,11 +97,6 @@ public class CreatePigsOfferController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
 
         int sellerId = user.getUserID();
         int farmId = Integer.parseInt(request.getParameter("farmId"));

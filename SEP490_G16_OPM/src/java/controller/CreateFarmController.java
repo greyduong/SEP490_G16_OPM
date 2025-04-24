@@ -65,11 +65,6 @@ public class CreateFarmController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         request.getRequestDispatcher("createfarm.jsp").forward(request, response);
     }
 
@@ -86,11 +81,6 @@ public class CreateFarmController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
 
         String farmName = request.getParameter("farmName");
         String location = request.getParameter("location");

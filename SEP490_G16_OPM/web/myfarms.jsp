@@ -12,23 +12,6 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp"/>
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Trang trại</h2>
-                            <div class="breadcrumb__option">
-                                <a href="home">Trang chủ</a>
-                                <span>Trang trại</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
 
         <!-- Farm Management Table Begin -->
         <section class="spad" style="padding-top: 30px;">

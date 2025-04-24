@@ -204,7 +204,7 @@ public class PigsOfferDAO extends DBContext {
             case "enddate_desc" ->
                 orderClause = " p.EndDate DESC, p.Quantity DESC, ISNULL(o.OrderCount, 0) DESC, p.OfferID DESC ";
             default ->
-                orderClause = " p.CreatedAt DESC, p.OfferID DESC ";
+                orderClause = " p.CreatedAt ASC, p.OfferID ASC ";
         }
 
         String sql = """
