@@ -7,7 +7,7 @@
     <a href="${pageContext.request.contextPath}/home"><img class="w-10 h-10" src="img/logo.svg"></a>
     <div class="flex items-center gap-6">
         <a href="${pageContext.request.contextPath}/home"
-           class="!no-underline !font-medium !text-slate-600 hover:!text-green-600">
+           class="!no-underline !font-medium !text-slate-600 hover:!text-lime-600">
             <span class="mdi mdi-home"></span>
             Trang chủ
         </a>
@@ -82,7 +82,7 @@
                 marginLeft: "0px"
             }, 300);
         } else {
-            $("body > *:not(#header):not(#sidebar)").animate({
+            $("body > *:not(#header):not(#sidebar):not(.modal)").animate({
                 marginLeft: $("#sidebar").width() + "px"
             }, 300);
         }
@@ -95,6 +95,6 @@
         window.location.href = "${pageContext.request.contextPath}/logout";
     });
     $(window).on("load", function () {
-        $("body > *:not(#header):not(#sidebar)").css("margin-left", $("#sidebar").width() + "px")
+        $("body > *:not(#header):not(#sidebar):not(.modal)").css("margin-left", $("#sidebar").width() + "px")
     })
 </script>
