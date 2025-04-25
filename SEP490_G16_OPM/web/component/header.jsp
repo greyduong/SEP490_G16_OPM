@@ -39,8 +39,7 @@
         </c:if>
     </div>
 </div>
-<div id="sidebar"
-     class="z-99 w-55 duration-500 transition-all fixed top-0 pt-13 left-0 border-r border-slate-300 h-full bg-white overflow-y-auto">
+<div id="sidebar" class="z-99 w-60 duration-500 transition-all fixed top-0 pt-13 left-0 border-r border-slate-300 h-full bg-white overflow-y-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
     <div class="mt-2 flex flex-col gap-2 p-2 *:overflow-x-hidden *:whitespace-nowrap *:transition-all *:font-medium *:text-md *:hover:!bg-slate-100 *:p-2 *:rounded-lg *:!text-slate-600 *:hover:!text-slate-700 *:!no-underline *:flex *:gap-2">
         <a href="${pageContext.request.contextPath}/my-farms">
             <span class="mdi mdi-barn"></span>
@@ -81,11 +80,11 @@
         if ($("#sidebar").hasClass("-translate-x-full")) {
             $("body > *:not(#header):not(#sidebar)").animate({
                 marginLeft: "0px"
-            }, 500);
+            }, 300);
         } else {
             $("body > *:not(#header):not(#sidebar)").animate({
                 marginLeft: $("#sidebar").width() + "px"
-            }, 500);
+            }, 300);
         }
     });
     $("#logout").on("click", function (e) {
