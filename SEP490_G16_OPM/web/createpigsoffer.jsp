@@ -15,7 +15,10 @@
         <section class="product spad">
             <div class="container">
                 <h4 class="mb-4">🐖 Tạo chào bán mới</h4>
-                <form action="create-offer" method="post" enctype="multipart/form-data">
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">${error}</div>
+                </c:if>
+                <form action="createOffer" method="post" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

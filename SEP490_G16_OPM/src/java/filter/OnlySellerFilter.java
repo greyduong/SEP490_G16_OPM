@@ -11,6 +11,7 @@ import model.User;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = {
+    "/seller",
     "/createFarm",
     "/my-farms",
     "/updateFarm",

@@ -311,4 +311,43 @@ public class FarmDAO extends DBContext {
         return farms;
     }
 
+    public int countFarmsBySeller(int sellerId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM Farm
+            WHERE SellerID = ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countActiveFarmsBySeller(int sellerId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM Farm
+            WHERE SellerID = ?
+              AND Status = 'Active'
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 }

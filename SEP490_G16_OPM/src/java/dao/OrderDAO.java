@@ -126,6 +126,49 @@ public class OrderDAO extends DBContext {
         return orders;
     }
 
+    public int countOrdersBySeller(int sellerId) {
+        String sql = """
+                SELECT COUNT(*) 
+                FROM Orders o
+                JOIN PigsOffer po ON o.OfferID = po.OfferID
+                WHERE po.SellerID = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public double calculateTotalConfirmedOrDepositedOrdersBySeller(int sellerId) {
+        String sql = """
+            SELECT COALESCE(SUM(o.TotalPrice), 0)
+            FROM Orders o
+            JOIN PigsOffer po ON o.OfferID = po.OfferID
+            WHERE po.SellerID = ?
+              AND (o.Status = 'Confirmed' OR o.Status = 'Deposited')
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
     public List<Order> getOrdersExcludingPending(int sellerID) {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
