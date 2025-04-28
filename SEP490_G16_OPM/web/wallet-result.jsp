@@ -1,5 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="author" content="">
-        <title>Wallet Topup | Online Pig Market</title>
+        <title>Nạp ví | Online Pig Market</title>
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
@@ -16,8 +15,9 @@
         <main class="container mb-5">
             <div class="w-25 mx-auto">
                 <h4 class="font-weight-bold">Wallet Result</h4>
-                <p class="text-danger">${error}</p>
-                <c:if test="${success != null}"><p class="text-success">Success topup ${vnp_Amount} VND</p></c:if>
+                <c:if test="${not empty requestScope.error}"><p class="text-success">${requestScope.error}</p></c:if>
+                <c:if test="${not empty requestScope.success}"><p class="text-success">Thành công nạp ${requestScope.vnp_Amount} VND vào ví!</p></c:if>
+                <c:if test="${not empty requestScope.fail}"><p class="text-success">Giao dịch thất bại</p></c:if>
             </div>
         </main>
         <jsp:include page="component/footer.jsp" />     

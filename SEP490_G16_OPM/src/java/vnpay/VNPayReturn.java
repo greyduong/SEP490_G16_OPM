@@ -1,49 +1,36 @@
 package vnpay;
 
-import dal.DBContext;
 import dao.WalletTopupHistoryDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.WalletTopupHistory;
+
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import model.WalletTopupHistory;
 
 @WebServlet("/vnpay")
 public class VNPayReturn extends HttpServlet {
 
     /**
      * VNPay redirect back to app
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException 
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Map fields = new HashMap();
-        for (Enumeration params = req.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
-            String fieldValue = URLEncoder.encode(req.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                fields.put(fieldName, fieldValue);
-            }
-        }
+        final Map<String, String> fields = new HashMap<>();
+        req.getParameterNames().asIterator().forEachRemaining(param -> fields.put(param, req.getParameter(param)));
         String vnp_SecureHash = req.getParameter("vnp_SecureHash");
-        if (fields.containsKey("vnp_SecureHashType")) {
-            fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHash");
+        String hashed = Config.hashAllFields(fields);
+        if (!hashed.equals(vnp_SecureHash)) {
+            req.setAttribute("error", "Invalid hash!");
+            req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
         }
-        if (fields.containsKey("vnp_SecureHash")) {
-            fields.remove("vnp_SecureHash");
-        }
-        String signValue = Config.hashAllFields(fields);
         String vnp_TxnRef = req.getParameter("vnp_TxnRef");
         req.setAttribute("vnp_TxnRef", req.getParameter("vnp_TxnRef"));
         req.setAttribute("vnp_Amount", req.getParameter("vnp_Amount"));
@@ -53,32 +40,25 @@ public class VNPayReturn extends HttpServlet {
         req.setAttribute("vnp_ResponseCode", req.getParameter("vnp_ResponseCode"));
         req.setAttribute("vnp_OfferInfo", req.getParameter("vnp_OfferInfo"));
 
-        if (signValue.equals(vnp_SecureHash)) {
-            boolean result = "00".equals(req.getParameter("vnp_TransactionStatus"));
-            if (result) {
-                try {
-                    WalletTopupHistoryDAO dao = new WalletTopupHistoryDAO();
-                    WalletTopupHistory history = dao.getByTxnRef(vnp_TxnRef).orElseThrow();
-                    dao.updateStatusByTxnRef(vnp_TxnRef, "Success");
-                    new DBContext().update("UPDATE UserAccount SET wallet = wallet + ? WHERE UserID = ?",
-                            history.getAmount(),
-                            history.getUserID());
-                    req.setAttribute("success", "Success");
-                } catch (NoSuchElementException e) {
-                    req.setAttribute("error", "TxnRef not exist!");
-                }
-            } else {
-                try {
-                    WalletTopupHistoryDAO dao = new WalletTopupHistoryDAO();
-                    WalletTopupHistory history = dao.getByTxnRef(vnp_TxnRef).orElseThrow();
-                    dao.updateStatusByTxnRef(vnp_TxnRef, "Cancel");
-                    req.setAttribute("error", "Transaction cancelled");
-                } catch (NoSuchElementException e) {
-                    req.setAttribute("error", "TxnRef not exist!");
-                }
-            }
+        boolean isSuccess = "00".equals(req.getParameter("vnp_TransactionStatus"));
+
+        var db = new WalletTopupHistoryDAO();
+        WalletTopupHistory history;
+        try {
+            history = db.getByTxnRef(vnp_TxnRef).orElseThrow();
+        } catch (NoSuchElementException e) {
+            req.setAttribute("error", "TxnRef not exist!");
+            req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
+            return;
+        }
+
+        if (isSuccess) {
+            db.updateStatusByTxnRef(vnp_TxnRef, "Success");
+            db.update("UPDATE UserAccount SET wallet = wallet + ? WHERE UserID = ?", history.getAmount(), history.getUserID());
+            req.setAttribute("success", true);
         } else {
-            req.setAttribute("error", "Invalid signature");
+            db.updateStatusByTxnRef(vnp_TxnRef, "Fail");
+            req.setAttribute("fail", true);
         }
         req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
     }

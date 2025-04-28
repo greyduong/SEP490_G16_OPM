@@ -6,54 +6,57 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.User;
+import model.WalletTopupHistory;
+
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.Calendar;
-import java.util.Optional;
-import java.util.TimeZone;
-import model.User;
-import model.WalletTopupHistory;
+import java.util.UUID;
 
 @WebServlet("/wallet")
 public class VNPayRedirect extends HttpServlet {
 
+    /**
+     * Show wallet topup page
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<Integer> logged = Optional.ofNullable(req.getSession().getAttribute("user")).map(obj -> (User) obj).map(u -> u.getUserID());
-        if (logged.isEmpty()) {
-            resp.sendRedirect("login-register.jsp");
-            return;
-        }
         req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
     }
-    
 
     /**
      * Create order and redirect to VNPay checkout
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<Integer> logged = Optional.ofNullable(req.getSession().getAttribute("user")).map(obj -> (User) obj).map(u -> u.getUserID());
-        if (logged.isEmpty()) {
-            resp.sendRedirect("login-register.jsp");
+        User user = (User) req.getSession().getAttribute("user");
+        int userID = user.getUserID();
+        long amount;
+        // validate amount
+        try {
+            amount = Long.parseLong(req.getParameter("amount")) * 100;
+        } catch (NumberFormatException e) {
+            req.setAttribute("error", "Invalid amount");
+            req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
             return;
         }
-        int userID = logged.get();
-        long amount = Integer.parseInt(req.getParameter("amount")) * 100;
+        // generate random txnRef
+        String txnRef = UUID.randomUUID().toString().replaceAll("-", "");
+
+        // Add to database
+        WalletTopupHistory history = new WalletTopupHistory();
+        history.setUserID(userID);
+        history.setTxnRef(txnRef);
+        history.setAmount(amount);
+        history.setStatus("Pending");
+        new WalletTopupHistoryDAO().create(history);
+
+        // build payment url
         VNPayParams params = new VNPayParams();
         params.add("vnp_Version", "2.1.0");
         params.add("vnp_Command", "pay");
-        String txnRef = Config.getRandomNumber(8);
         params.add("vnp_TxnRef", txnRef);
         params.add("vnp_IpAddr", "127.0.0.1");
         params.add("vnp_OrderType", "other");
@@ -67,22 +70,13 @@ public class VNPayRedirect extends HttpServlet {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(now);
         params.add("vnp_CreateDate", vnp_CreateDate);
-        ZonedDateTime expire = now.plus(15, ChronoUnit.MINUTES);
+        ZonedDateTime expire = now.plusMinutes(15);
         String vnp_ExpireDate = formatter.format(expire);
         params.add("vnp_ExpireDate", vnp_ExpireDate);
         String queryUrl = params.build();
         String vnp_SecureHash = Config.hmacSHA512(Config.vnp_HashSecret, queryUrl);
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
-        System.out.println(paymentUrl);
-        
-        WalletTopupHistory history = new WalletTopupHistory();
-        history.setUserID(userID);
-        history.setTxnRef(txnRef);
-        history.setAmount(amount);
-        history.setStatus("Pending");
-        new WalletTopupHistoryDAO().create(history);
-        
         resp.sendRedirect(paymentUrl);
     }
 }
