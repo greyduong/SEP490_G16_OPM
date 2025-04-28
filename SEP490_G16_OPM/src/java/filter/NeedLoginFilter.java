@@ -10,7 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = {
-
+        "/wallet",
+        "/wallet-result"
 })
 public class NeedLoginFilter extends HttpFilter {
     @Override
