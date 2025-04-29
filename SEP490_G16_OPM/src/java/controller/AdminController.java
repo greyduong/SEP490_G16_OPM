@@ -9,7 +9,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "AdminController", urlPatterns = {"/admin"})
+@WebServlet(name = "AdminController", urlPatterns = {"/CreateAccountAdmin"})
 public class AdminController extends HttpServlet {
 
     @Override

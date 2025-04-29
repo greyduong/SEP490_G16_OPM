@@ -84,8 +84,7 @@
                 OTP will expire in <span id="countdown">5:00</span>
             </div>
 
-            <form action="auth" method="post" style="margin-top: 15px;">
-                <input type="hidden" name="action" value="resend-otp" />
+            <form action="resend-otp" method="post" style="margin-top: 15px;">
                 <button id="resendBtn" type="submit" disabled>Resend OTP (30s)</button>
             </form>
         </div>

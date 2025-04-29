@@ -203,4 +203,42 @@ public class UserDAO extends DBContext {
         return false;
     }
 
+    public User getUserByEmail(String email) {
+        User user = null;
+        try {
+            String sql = "SELECT * FROM UserAccount WHERE Email = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                user = new User();
+                user.setUserID(rs.getInt("UserID"));
+                user.setRoleID(rs.getInt("RoleID"));
+                user.setFullName(rs.getString("FullName"));
+                user.setUsername(rs.getString("Username"));
+                user.setPassword(rs.getString("Password"));
+                user.setEmail(rs.getString("Email"));
+                user.setPhone(rs.getString("Phone"));
+                user.setAddress(rs.getString("Address"));
+                user.setWallet(rs.getDouble("Wallet"));
+                user.setStatus(rs.getString("Status"));
+            }
+        } catch (Exception e) {
+            System.out.println("getUserByEmail: " + e.getMessage());
+        }
+        return user;
+    }
+
+    public boolean updatePassword(String username, String newPassword) {
+        String sql = "UPDATE UserAccount SET Password = ? WHERE Username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, username);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("updatePassword: " + e.getMessage());
+        }
+        return false;
+    }
+
 }

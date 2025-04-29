@@ -9,6 +9,10 @@ import java.io.IOException;
 
 @WebServlet(name = "VerifyOTPServlet", urlPatterns = {"/verify-otp"})
 public class VerifyOTPServlet extends HttpServlet {
+
+    private static final long OTP_VALID_DURATION = 5 * 60 * 1000; // 5 phút
+    private static final long RESEND_COOLDOWN = 30 * 1000; // 30 giây
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -18,53 +22,63 @@ public class VerifyOTPServlet extends HttpServlet {
         String sessionOtp = (String) session.getAttribute("otp");
         Long otpTime = (Long) session.getAttribute("otpTime");
         User tempUser = (User) session.getAttribute("tempUser");
+        String otpPurpose = (String) session.getAttribute("otpPurpose"); // 🆕 Lấy mục đích OTP
 
         long currentTime = System.currentTimeMillis();
-        long fiveMinutes = 5 * 60 * 1000;
 
-        // ✅ Check if OTP has expired
-        if (otpTime == null || currentTime - otpTime > fiveMinutes) {
+        // ✅ Check OTP hết hạn
+        if (otpTime == null || currentTime - otpTime > OTP_VALID_DURATION) {
             session.removeAttribute("otp");
             session.removeAttribute("otpTime");
             session.removeAttribute("tempUser");
+            session.removeAttribute("otpPurpose");
 
-            request.setAttribute("msg", "OTP has expired. Please sign up again.");
-            request.getRequestDispatcher("login-register.jsp").forward(request, response);
+            request.setAttribute("msg", "OTP đã hết hạn. Vui lòng thực hiện lại.");
+            request.getRequestDispatcher("forgot-password.jsp").forward(request, response);
             return;
         }
 
-        // ✅ If OTP is valid and not expired
+        // ✅ Nếu OTP đúng
         if (sessionOtp != null && inputOtp != null && inputOtp.equals(sessionOtp)) {
-            boolean added = new UserDAO().addNewUser(tempUser);
 
-            session.removeAttribute("otp");
-            session.removeAttribute("otpTime");
-            session.removeAttribute("tempUser");
+            if ("signup".equals(otpPurpose)) {
+                // 🔵 Xử lý đăng ký tài khoản mới
+                boolean added = new UserDAO().addNewUser(tempUser);
 
-            if (added) {
-                request.setAttribute("successMsg", "Signup successful. Please log in.");
+                // Xóa session tạm
+                session.removeAttribute("otp");
+                session.removeAttribute("otpTime");
+                session.removeAttribute("tempUser");
+                session.removeAttribute("otpPurpose");
+
+                if (added) {
+                    request.setAttribute("successMsg", "Đăng ký thành công. Vui lòng đăng nhập.");
+                } else {
+                    request.setAttribute("msg", "Đăng ký thất bại. Vui lòng thử lại.");
+                }
+                request.getRequestDispatcher("login-register.jsp").forward(request, response);
+
+            } else if ("forgot-password".equals(otpPurpose)) {
+                // 🟢 Xử lý quên mật khẩu: chuyển tới form đổi mật khẩu
+                request.getRequestDispatcher("reset-password.jsp").forward(request, response);
             } else {
-                request.setAttribute("msg", "Registration failed. Please try again.");
+                // ❌ Nếu otpPurpose null hoặc sai
+                session.invalidate();
+                response.sendRedirect("login-register.jsp");
             }
-            request.getRequestDispatcher("login-register.jsp").forward(request, response);
+
         } else {
-            // ❌ KHÔNG reset otpTime
+            // ❌ Nếu OTP sai
+            long otpRemainingSeconds = (OTP_VALID_DURATION - (currentTime - otpTime)) / 1000;
+            if (otpRemainingSeconds < 0) otpRemainingSeconds = 0;
 
-            // ✅ Tính thời gian còn lại cho OTP countdown
-            long otpRemainingSeconds = 0;
-            if (otpTime != null && currentTime - otpTime < fiveMinutes) {
-                otpRemainingSeconds = (fiveMinutes - (currentTime - otpTime)) / 1000;
-            }
-
-            // ✅ Tính thời gian còn lại cho resend cooldown
             Long lastResendTime = (Long) session.getAttribute("lastResendTime");
-            long resendCooldown = 30 * 1000;
             long resendCooldownLeft = 0;
-            if (lastResendTime != null && currentTime - lastResendTime < resendCooldown) {
-                resendCooldownLeft = (resendCooldown - (currentTime - lastResendTime)) / 1000;
+            if (lastResendTime != null && currentTime - lastResendTime < RESEND_COOLDOWN) {
+                resendCooldownLeft = (RESEND_COOLDOWN - (currentTime - lastResendTime)) / 1000;
             }
 
-            request.setAttribute("msg", "Invalid OTP. Please try again.");
+            request.setAttribute("msg", "OTP không chính xác. Vui lòng thử lại.");
             request.setAttribute("otpRemainingSeconds", otpRemainingSeconds);
             request.setAttribute("resendCooldownLeft", resendCooldownLeft);
             request.getRequestDispatcher("otp-verification.jsp").forward(request, response);
