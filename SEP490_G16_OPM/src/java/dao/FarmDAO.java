@@ -311,4 +311,47 @@ public class FarmDAO extends DBContext {
         return farms;
     }
 
+    public List<Farm> getAllFarmsWithPagination(int offset, int limit) {
+        List<Farm> farms = new ArrayList<>();
+        String sql = """
+        SELECT FarmID, FarmName, Location, Description, Note, Status, CreatedAt
+        FROM Farm
+        ORDER BY CreatedAt DESC
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Farm f = new Farm();
+                    f.setFarmID(rs.getInt("FarmID"));
+                    f.setFarmName(rs.getString("FarmName"));
+                    f.setLocation(rs.getString("Location"));
+                    f.setDescription(rs.getString("Description"));
+                    f.setNote(rs.getString("Note"));
+                    f.setStatus(rs.getString("Status"));
+                    f.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farms.add(f);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("getAllFarmsWithPagination: " + e.getMessage());
+        }
+        return farms;
+    }
+
+    public int countAllFarms() {
+        String sql = "SELECT COUNT(*) FROM Farm";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            System.out.println("countAllFarms: " + e.getMessage());
+        }
+        return 0;
+    }
+
 }
