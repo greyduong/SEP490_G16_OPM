@@ -66,12 +66,12 @@
                                             ${param.categoryName}
                                         </c:when>
                                         <c:otherwise>
-                                            Categories
+                                            Loại Heo
                                         </c:otherwise>
                                     </c:choose></span>
                             </div>
                             <ul>
-                                <li><a href="home">All Categories</a></li>
+                                <li><a href="home">Tất cả</a></li>
                                     <c:forEach var="c" items="${categoryList}">
                                     <li><a href="home?categoryName=${c.name}">${c.name}</a></li>
                                     </c:forEach>

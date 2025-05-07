@@ -44,6 +44,7 @@ public class ImageService {
                     .POST(BodyPublishers.ofString("image=" + base64)).build();
             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
             JSONObject obj = new JSONObject(response.body());
+            System.out.println((String) response.body());
             return obj.getJSONObject("data").getString("url");
         } catch (URISyntaxException | IOException | InterruptedException | JSONException ex) {
             Logger.getLogger(ImageService.class.getName()).log(Level.SEVERE, null, ex);

@@ -268,6 +268,18 @@ VALUES
 (5, 4, 2, 5, 7, 24600000, 'Pending'),
 (5, 4, 2, 6, 10, 24600000, 'Deposited');
 
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt)
+VALUES
+(5, 4, 2, 3, 3, 15000000, 'Confirmed', '2025-01-10'),
+(5, 4, 2, 4, 4, 18000000, 'Pending',   '2025-02-20'),
+(5, 4, 2, 5, 2, 10000000, 'Deposited', '2025-03-01'),
+(5, 4, 2, 6, 8, 30000000, 'Confirmed', '2025-03-21'),
+(5, 4, 2, 7, 6, 24000000, 'Confirmed', '2025-04-05'),
+(5, 4, 2, 8, 9, 29000000, 'Pending',   '2025-04-25'),
+(5, 4, 2, 9, 5, 27500000, 'Deposited', '2025-05-03'),
+(5, 4, 2, 10, 7, 26500000, 'Confirmed','2025-05-20'),
+(5, 4, 2, 11, 4, 25500000, 'Pending',  '2025-06-15');
+
 
 -- Insert Delivery records for different order statuses
 INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Quantity, TotalPrice, Comments)

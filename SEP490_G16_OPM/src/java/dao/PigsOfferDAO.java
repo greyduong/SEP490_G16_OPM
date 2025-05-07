@@ -317,28 +317,27 @@ public class PigsOfferDAO extends DBContext {
         }
         return 0;
     }
-    
+
     public int countAvailableOffersBySeller(int sellerId) {
-    String sql = """
+        String sql = """
             SELECT COUNT(*)
             FROM PigsOffer
             WHERE SellerID = ?
               AND Status = 'Available'
             """;
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-        ps.setInt(1, sellerId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getInt(1);
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        return 0;
     }
-    return 0;
-}
-
 
     public int countAllOffers() {
         int count = 0;
