@@ -20,8 +20,8 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "DeleteFarmController", urlPatterns = {"/deleteFarm"})
-public class DeleteFarmController extends HttpServlet {
+@WebServlet(name = "DeactivateFarmController", urlPatterns = {"/deactivateFarm"})
+public class DeactivateFarmController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -69,7 +69,6 @@ public class DeleteFarmController extends HttpServlet {
             return;
         }
 
-        // Giữ các tham số truy vấn để không mất khi redirect
         String page = request.getParameter("page");
         String sort = request.getParameter("sort");
         String search = request.getParameter("search");
@@ -83,7 +82,7 @@ public class DeleteFarmController extends HttpServlet {
 
         String idParam = request.getParameter("id");
         if (idParam == null) {
-            String msg = java.net.URLEncoder.encode("Thiếu ID trang trại để xóa", "UTF-8");
+            String msg = java.net.URLEncoder.encode("Thiếu ID trang trại để xử lý", "UTF-8");
             response.sendRedirect(baseRedirectURL + "&msg=" + msg);
             return;
         }
@@ -94,15 +93,22 @@ public class DeleteFarmController extends HttpServlet {
             Farm farm = dao.getFarmById(farmId);
 
             if (farm == null || farm.getSellerID() != user.getUserID()) {
-                String msg = java.net.URLEncoder.encode("Không tìm thấy hoặc không có quyền xóa trang trại này", "UTF-8");
+                String msg = java.net.URLEncoder.encode("Không tìm thấy hoặc không có quyền thao tác trang trại này", "UTF-8");
                 response.sendRedirect(baseRedirectURL + "&msg=" + msg);
                 return;
             }
 
-            boolean deleted = dao.deleteOldFarm(farmId, user.getUserID());
-            String msg = java.net.URLEncoder.encode(deleted
-                    ? "Đã xóa trang trại thành công"
-                    : "Xóa trang trại thất bại", "UTF-8");
+            if (!dao.canDeactivateFarm(farmId)) {
+                String msg = java.net.URLEncoder.encode("Không thể dừng hoạt động vì còn offer khả dụng hoặc đơn hàng chưa hoàn tất", "UTF-8");
+                response.sendRedirect(baseRedirectURL + "&msg=" + msg);
+                return;
+            }
+
+            // Cập nhật trạng thái sang Inactive
+            boolean updated = dao.setFarmStatus(farmId, "Inactive");
+            String msg = java.net.URLEncoder.encode(updated
+                    ? "Đã chuyển trạng thái trang trại thành không hoạt động"
+                    : "Cập nhật trạng thái thất bại", "UTF-8");
             response.sendRedirect(baseRedirectURL + "&msg=" + msg);
 
         } catch (NumberFormatException e) {

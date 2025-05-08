@@ -11,21 +11,6 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Customer Order Detail</h2>
-                            <div class="breadcrumb__option">
-                                <a href="home">Home</a>
-                                <span>Customer Order Detail</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Display error or success message -->
         <c:if test="${not empty msg}">
             <div class="alert alert-info" role="alert">

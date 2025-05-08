@@ -128,4 +128,26 @@ public class DeliveryDAO extends DBContext {
         return -1;
     }
 
+    public double calculateTotalRevenueFromDeliveryBySeller(int sellerId) {
+    String sql = """
+            SELECT COALESCE(SUM(d.TotalPrice), 0)
+            FROM Delivery d
+            JOIN Orders o ON d.OrderID = o.OrderID
+            JOIN PigsOffer po ON o.OfferID = po.OfferID
+            WHERE po.SellerID = ?
+            """;
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        ps.setInt(1, sellerId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getDouble(1);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0.0;
+}
+
 }

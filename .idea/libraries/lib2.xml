@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="lib2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/jakarta.servlet.jsp.jstl-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/org.json.20250107.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/hamcrest-3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/jaxb-api-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/jakarta.mail-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/sqljdbc42.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/jakarta.servlet.jsp.jstl-api-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/junit-4.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/jakarta.activation-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/build/web/WEB-INF/lib/jakarta.activation-api-2.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

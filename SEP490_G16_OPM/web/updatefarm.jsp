@@ -12,23 +12,7 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Trang trại</h2>
-                            <div class="breadcrumb__option">
-                                <a href="home">Trang chủ</a>
-                                <span>Trang trại</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
+
         <section class="spad" style="padding-top: 30px;">
             <div class="container">
                 <h4 class="mb-4">Chỉnh sửa trang trại</h4>
@@ -37,12 +21,13 @@
                         ${msg}
                     </div>
                 </c:if>
-                <form action="updateFarm" method="post">
+                <form action="updateFarm" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="farmId" value="${farm.farmID}" />
                     <input type="hidden" name="page" value="${page != null ? page : param.page}" />
                     <input type="hidden" name="sort" value="${sort != null ? sort : param.sort}" />
                     <input type="hidden" name="search" value="${search != null ? search : param.search}" />
                     <input type="hidden" name="status" value="${status != null ? status : param.status}" />
+
                     <div class="form-group">
                         <label for="farmName">Tên trang trại</label>
                         <input type="text" class="form-control" id="farmName" name="farmName"
@@ -60,6 +45,7 @@
                             <small class="text-danger">${locationError}</small>
                         </c:if>
                     </div>
+
                     <div class="form-group">
                         <label for="description">Mô tả</label>
                         <textarea class="form-control" id="description" name="description" rows="4" required>${farm.description}</textarea>
@@ -67,6 +53,23 @@
                             <small class="text-danger">${descriptionError}</small>
                         </c:if>
                     </div>
+
+                    <div class="form-group">
+                        <label for="status">Trạng thái hoạt động</label>
+                        <select name="statusOption" id="status" class="form-control" required>
+                            <option value="Active" ${farm.status == 'Active' ? 'selected' : ''}>Hoạt động</option>
+                            <option value="Inactive" ${farm.status == 'Inactive' ? 'selected' : ''}>Dừng hoạt động</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Ảnh trang trại</label><br>
+                        <c:if test="${not empty farm.imageURL}">
+                            <img src="${farm.imageURL}" alt="Ảnh hiện tại" style="width: 150px; height: auto; margin-bottom: 10px;" /><br>
+                        </c:if>
+                        <input type="file" class="form-control-file" name="image" accept="image/*">
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
                     <a href="my-farms?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
                 </form>

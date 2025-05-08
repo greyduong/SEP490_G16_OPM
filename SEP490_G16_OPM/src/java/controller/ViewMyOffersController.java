@@ -68,11 +68,6 @@ public class ViewMyOffersController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         String msg = request.getParameter("msg");
         if (msg != null && !msg.isEmpty()) {
             request.setAttribute("msg", msg);
@@ -95,6 +90,23 @@ public class ViewMyOffersController extends HttpServlet {
         String search = request.getParameter("search");
         String status = request.getParameter("status");
         String farmId = request.getParameter("farmId");
+
+        if (farmId != null && !farmId.isEmpty()) {
+            try {
+                int farmIdInt = Integer.parseInt(farmId);
+                FarmDAO farmDAO = new FarmDAO();
+                Farm farm = farmDAO.getFarmById(farmIdInt);
+
+                // Kiểm tra user hiện tại có phải là chủ của farm không
+                if (farm == null || farm.getSellerID() != userId) {
+                    response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Bạn không có quyền truy cập farm này", "UTF-8"));
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("ID farm không hợp lệ", "UTF-8"));
+                return;
+            }
+        }
 
         request.setAttribute("sort", sort);
         request.setAttribute("search", search);

@@ -17,23 +17,6 @@
                 ${msg}  <!-- This will display the message set in the controller -->
             </div>
         </c:if>  
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Customer Order Page</h2>
-                            <div class="breadcrumb__option">
-                                <a href="./index.html">Home</a>
-                                <span>Customer Order Page</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
 
         <!-- Order List Section Begin -->
         <div class="container mt-5">

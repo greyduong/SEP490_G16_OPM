@@ -11,10 +11,11 @@ public class Farm {
     private String location;
     private String description;
     private String note;
+    private String imageURL;
     private String status;
     private Timestamp createdAt;
 
-    //Dem so luong offer
+    // Đếm số lượng offer và order
     private int offerCount;
     private int orderCount;
 
@@ -33,19 +34,12 @@ public class Farm {
     }
 
     public Farm(Integer farmID, Integer sellerID, User seller, String farmName, String location, String description, String status, Timestamp createdAt, int offerCount, int orderCount) {
-        this.farmID = farmID;
-        this.sellerID = sellerID;
-        this.seller = seller;
-        this.farmName = farmName;
-        this.location = location;
-        this.description = description;
-        this.status = status;
-        this.createdAt = createdAt;
+        this(farmID, sellerID, seller, farmName, location, description, status, createdAt);
         this.offerCount = offerCount;
         this.orderCount = orderCount;
     }
 
-    public Farm(Integer farmID, Integer sellerID, User seller, String farmName, String location, String description, String note, String status, Timestamp createdAt, int offerCount, int orderCount) {
+    public Farm(Integer farmID, Integer sellerID, User seller, String farmName, String location, String description, String note, String imageURL, String status, Timestamp createdAt, int offerCount, int orderCount) {
         this.farmID = farmID;
         this.sellerID = sellerID;
         this.seller = seller;
@@ -53,12 +47,14 @@ public class Farm {
         this.location = location;
         this.description = description;
         this.note = note;
+        this.imageURL = imageURL;
         this.status = status;
         this.createdAt = createdAt;
         this.offerCount = offerCount;
         this.orderCount = orderCount;
     }
 
+    // Getter và Setter cho tất cả các thuộc tính
     public int getFarmID() {
         return farmID;
     }
@@ -147,6 +143,14 @@ public class Farm {
         this.note = note;
     }
 
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
     @Override
     public String toString() {
         return """
@@ -156,9 +160,10 @@ public class Farm {
                \tFarmName = %s
                \tLocation = %s
                \tDescription = %s
+               \tImageURL = %s
                \tStatus = %s
                \tCreatedAt = %s
                }
-               """.formatted(farmID, sellerID, farmName, location, description, status, createdAt == null ? "null" : createdAt.toString());
+               """.formatted(farmID, sellerID, farmName, location, description, imageURL, status, createdAt == null ? "null" : createdAt.toString());
     }
 }
