@@ -59,20 +59,12 @@ CREATE TABLE Farm (
     FarmID INT PRIMARY KEY IDENTITY(1,1),
     SellerID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     FarmName NVARCHAR(100) NOT NULL,
-    Location NVARCHAR(255),
+    Location NVARCHAR(255),	
     Description NVARCHAR(MAX),
     Note NVARCHAR(MAX),
+	ImageURL NVARCHAR(500),
     Status NVARCHAR(20) DEFAULT 'Active',
     CreatedAt DATETIME DEFAULT GETDATE()
-);
-
-CREATE TABLE FarmRequest (
-    RequestID INT PRIMARY KEY IDENTITY(1,1),
-    FarmID INT FOREIGN KEY REFERENCES Farm(FarmID),
-    RequestedBy INT FOREIGN KEY REFERENCES UserAccount(UserID),
-    Status NVARCHAR(20) DEFAULT 'Pending',
-    Note NVARCHAR(MAX),
-    RequestedAt DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Category (
@@ -190,17 +182,16 @@ VALUES
 (4, N'Tuấn', 'seller1', 'seller123', 'duongquocdagtuong@gmail.com', '0909345678', N'456 Đường Nguyễn Huệ, TP.HCM', 500000),
 (5, N'Tường', 'dealer1', 'dealer123', 'duongquocdagtuong@gmail.com', '0909567890', N'789 Đường Cách Mạng, TP.HCM', 200000);
 
-INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note)
+INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note, ImageURL)
 VALUES
-(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
-(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
-(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
-(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Confirmed'),
-(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Waiting'),
-(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Waiting'),
-(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Waiting');
+(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
+(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
+(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
+(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active','Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
+(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Đang chờ', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
+(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Đang chờ', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
+(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending','Đang chờ', 'https://i.ibb.co/YBzCbyk/default-farm.jpg');
 
- 
 INSERT INTO Category (Name, Description) 
 VALUES
 (N'Heo Thịt', N'Heo được nuôi để lấy thịt'),

@@ -12,23 +12,6 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Trang trại</h2>
-                            <div class="breadcrumb__option">
-                                <a href="home">Trang chủ</a>
-                                <span>Trang trại</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
 
         <section class="spad" style="padding-top: 30px;">
             <div class="container">
@@ -40,7 +23,7 @@
                     </div>
                 </c:if>
 
-                <form action="createFarm" method="post">
+                <form action="createFarm" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="farmName">Tên trang trại<span style="color: red">*</span></label>
                         <input type="text" class="form-control" id="farmName" name="farmName" 
@@ -67,9 +50,18 @@
                         </c:if>
                     </div>
 
+                    <div class="form-group">
+                        <label for="imageURL">Ảnh trang trại</label>
+                        <input type="file" name="image" accept="image/*" class="form-control">
+                        <c:if test="${not empty imageURLError}">
+                            <small class="text-danger">${imageURLError}</small>
+                        </c:if>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Tạo trang trại</button>
                     <a href="my-farms?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
                 </form>
+
             </div>
         </section>
         <jsp:include page="component/footer.jsp" />
