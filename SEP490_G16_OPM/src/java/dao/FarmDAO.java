@@ -330,6 +330,37 @@ public class FarmDAO extends DBContext {
         return 0;
     }
 
+    public List<Farm> getActiveFarmsBySellerId(int sellerId) {
+        List<Farm> farms = new ArrayList<>();
+        String sql = """
+        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt
+        FROM Farm f
+        WHERE f.SellerID = ? AND f.Status = 'Active'
+        ORDER BY f.FarmName
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farms.add(farm);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return farms;
+    }
+
     public int countActiveFarmsBySeller(int sellerId) {
         String sql = """
             SELECT COUNT(*)
@@ -348,6 +379,20 @@ public class FarmDAO extends DBContext {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public boolean isActiveFarm(int farmId) {
+        String sql = "SELECT 1 FROM Farm WHERE FarmID = ? AND Status = 'Active'";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, farmId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // Trả về true nếu có ít nhất 1 kết quả
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

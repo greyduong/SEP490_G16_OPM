@@ -9,10 +9,6 @@
         <servlet-class>controller.PigsOfferDetailsController</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>UpdatePigsOfferController</servlet-name>
-        <servlet-class>controller.UpdatePigsOfferController</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ImageServlet</servlet-name>
         <servlet-class>controller.ImageServlet</servlet-class>
     </servlet>
@@ -23,10 +19,6 @@
     <servlet-mapping>
         <servlet-name>PigsOfferDetailsController</servlet-name>
         <url-pattern>/PigsOfferDetails</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>UpdatePigsOfferController</servlet-name>
-        <url-pattern>/UpdatePigsOffer</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageServlet</servlet-name>

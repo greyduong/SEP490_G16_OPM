@@ -18,19 +18,24 @@
                 <c:if test="${not empty error}">
                     <div class="alert alert-danger">${error}</div>
                 </c:if>
+
                 <form action="createOffer" method="post" enctype="multipart/form-data">
                     <div class="row">
+                        <!-- Cột trái -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="name">Tên chào bán <span style="color: red">*</span></label>
-                                <input type="text" class="form-control" id="name" name="name" required>
+                                <input type="text" class="form-control" id="name" name="name" value="${name}" required>
+                                <c:if test="${not empty error_name}">
+                                    <small class="text-danger">${error_name}</small>
+                                </c:if>
                             </div>
 
                             <div class="form-group">
                                 <label for="categoryId">Danh mục <span style="color: red">*</span></label>
                                 <select class="form-control" id="categoryId" name="categoryId" required>
                                     <c:forEach var="cat" items="${categories}">
-                                        <option value="${cat.categoryID}">${cat.name}</option>
+                                        <option value="${cat.categoryID}" ${cat.categoryID == categoryId ? "selected" : ""}>${cat.name}</option>
                                     </c:forEach>
                                 </select>
                             </div>
@@ -39,19 +44,25 @@
                                 <label for="farmId">Trang trại <span style="color: red">*</span></label>
                                 <select class="form-control" id="farmId" name="farmId" required>
                                     <c:forEach var="farm" items="${myFarms}">
-                                        <option value="${farm.farmID}">${farm.farmName}</option>
+                                        <option value="${farm.farmID}" ${farm.farmID == farmId ? "selected" : ""}>${farm.farmName}</option>
                                     </c:forEach>
                                 </select>
                             </div>
 
                             <div class="form-group">
                                 <label for="pigBreed">Giống heo <span style="color: red">*</span></label>
-                                <input type="text" class="form-control" id="pigBreed" name="pigBreed" required>
+                                <input type="text" class="form-control" id="pigBreed" name="pigBreed" value="${pigBreed}" required>
+                                <c:if test="${not empty error_breed}">
+                                    <small class="text-danger">${error_breed}</small>
+                                </c:if>
                             </div>
 
                             <div class="form-group">
                                 <label for="description">Mô tả <span style="color: red">*</span></label>
-                                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                                <textarea class="form-control" id="description" name="description" rows="5" required>${description}</textarea>
+                                <c:if test="${not empty error_description}">
+                                    <small class="text-danger">${error_description}</small>
+                                </c:if>
                             </div>
 
                             <div class="form-group">
@@ -60,45 +71,63 @@
                             </div>
                         </div>
 
+                        <!-- Cột phải -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="quantity">Số lượng <span style="color: red">*</span></label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" required min="1">
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="${quantity}" required min="1">
                             </div>
 
                             <div class="form-group">
                                 <label for="minQuantity">Số lượng tối thiểu <span style="color: red">*</span></label>
-                                <input type="number" class="form-control" id="minQuantity" name="minQuantity" required min="1">
+                                <input type="number" class="form-control" id="minQuantity" name="minQuantity" value="${minQuantity}" required min="1">
+                                <c:if test="${not empty error_quantity}">
+                                    <small class="text-danger">${error_quantity}</small>
+                                </c:if>
                             </div>
 
                             <div class="form-group">
                                 <label for="minDeposit">Tiền cọc (VNĐ) <span style="color: red">*</span></label>
-                                <input type="number" class="form-control" id="minDeposit" name="minDeposit" required min="0">
+                                <input type="number" class="form-control" id="minDeposit" name="minDeposit" value="${minDeposit}" required min="0">
                             </div>
 
                             <div class="form-group">
                                 <label for="retailPrice">Giá lẻ (VNĐ) <span style="color: red">*</span></label>
-                                <input type="number" class="form-control" id="retailPrice" name="retailPrice" required min="0">
+                                <input type="number" class="form-control" id="retailPrice" name="retailPrice" value="${retailPrice}" required min="0">
                             </div>
 
                             <div class="form-group">
                                 <label for="totalOfferPrice">Tổng giá (VNĐ) <span style="color: red">*</span></label>
-                                <input type="number" class="form-control" id="totalOfferPrice" name="totalOfferPrice" required min="0">
+                                <input type="number" class="form-control" id="totalOfferPrice" name="totalOfferPrice" value="${totalOfferPrice}" required min="0">
+                                <c:if test="${not empty error_price}">
+                                    <small class="text-danger">${error_price}</small>
+                                </c:if>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label for="startDate">Ngày bắt đầu <span style="color: red">*</span></label>
-                                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" value="${startDate}" required>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="endDate">Ngày kết thúc <span style="color: red">*</span></label>
-                                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" value="${endDate}" required>
                                 </div>
+                                <c:if test="${not empty error_date}">
+                                    <div class="col-md-12">
+                                        <small class="text-danger">${error_date}</small>
+                                    </div>
+                                </c:if>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 mt-4">📤 Tạo chào bán</button>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="my-offers?page=${page}&farmId=${farmIdParam}&search=${search}&status=${status}&sort=${sort}"
+                           class="btn btn-outline-secondary">
+                            ⬅ Quay lại danh sách
+                        </a>
+                        <button type="submit" class="btn btn-primary">📤 Tạo chào bán</button>
+                    </div>
                 </form>
             </div>
         </section>

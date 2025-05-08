@@ -411,8 +411,8 @@ public class PigsOfferDAO extends DBContext {
     //create offer
     public boolean createPigsOffer(PigsOffer offer) {
         String sql = "INSERT INTO PigsOffer (SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, "
-                + "MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status, CreatedAt) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
+                + "MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, offer.getSellerID());
             stm.setInt(2, offer.getFarmID());
@@ -429,7 +429,6 @@ public class PigsOfferDAO extends DBContext {
             stm.setDate(13, offer.getStartDate());
             stm.setDate(14, offer.getEndDate());
             stm.setString(15, offer.getStatus());
-            stm.setTimestamp(16, offer.getCreatedAt());
             return stm.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -652,6 +651,18 @@ public class PigsOfferDAO extends DBContext {
         }
 
         return count;
+    }
+
+    public boolean updateStatus(PigsOffer offer) {
+        String sql = "UPDATE PigsOffer SET Status = ? WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, offer.getStatus());
+            ps.setInt(2, offer.getOfferID());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

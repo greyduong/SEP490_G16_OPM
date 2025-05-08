@@ -16,7 +16,10 @@
             <div class="container">
                 <div class="d-flex justify-content-between mb-3">
                     <h4>Danh sách chào bán của bạn</h4>
-                    <a href="createOffer" class="btn btn-success">+ Tạo chào bán mới</a>
+                    <a href="createOffer?page=${page.pageNumber}&farmId=${param.farmId}&search=${param.search}&status=${param.status}&sort=${param.sort}" 
+                       class="btn btn-success">
+                        + Tạo chào bán mới
+                    </a>
                 </div>
 
                 <c:if test="${not empty msg}">
@@ -45,6 +48,7 @@
                         <option value="">Tất cả trạng thái</option>
                         <option value="Available" ${param.status == 'Available' ? 'selected' : ''}>Còn hàng</option>
                         <option value="Unavailable" ${param.status == 'Unavailable' ? 'selected' : ''}>Ngưng bán</option>
+                        <option value="Upcoming" ${param.status == 'Upcoming' ? 'selected' : ''}>Sắp mở bán</option>
                     </select>
 
                     <!-- Giữ sort hiện tại -->
@@ -117,9 +121,9 @@
 
 
                                 <tbody>
-                                    <c:forEach var="offer" items="${page.data}">
+                                    <c:forEach var="offer" items="${page.data}" varStatus="loop">
                                         <tr class="text-center align-middle">
-                                            <td>${(page.pageNumber - 1) * page.pageSize + 1}</td>
+                                            <td>${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</td>
                                             <td class="text-left" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${offer.name}">
                                                 <a href="#" title="${offer.name}" data-toggle="modal" data-target="#offerModal${offer.offerID}">
                                                     ${offer.name}
@@ -139,15 +143,22 @@
                                                     <c:when test="${offer.status == 'Available'}">
                                                         <span class="text-success small" style="font-size: 0.9rem;">🟢 Hoạt động</span>
                                                     </c:when>
+                                                    <c:when test="${offer.status == 'Upcoming'}">
+                                                        <span class="text-warning small" style="font-size: 0.9rem;">🕓 Sắp mở bán</span>
+                                                    </c:when>
                                                     <c:otherwise>
-                                                        <span class="text-danger small" style="font-size: 0.9rem;">🔴 Không hoạt động</span>
+                                                        <span class="text-danger small" style="font-size: 0.9rem;">🔴 Ngưng bán</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
                                             <td>
-                                                <a href="edit-offer?id=${offer.offerID}" class="btn btn-sm btn-primary mb-1">Sửa</a>
-                                                <a href="delete-offer?id=${offer.offerID}" class="btn btn-sm btn-danger"
-                                                   onclick="return confirm('Bạn có chắc chắn muốn xóa chào bán này?');">Xóa</a>
+                                                <a href="updateOffer?id=${offer.offerID}&page=${page.pageNumber}&farmId=${param.farmId}&search=${param.search}&status=${param.status}&sort=${param.sort}"
+                                                   class="btn btn-sm btn-primary mb-1">Sửa</a>
+                                                <a href="updateOfferStatus?id=${offer.offerID}&status=Unavailable&page=${page.pageNumber}&farmId=${param.farmId}&search=${param.search}&status=${param.status}&sort=${param.sort}" 
+                                                   class="btn btn-sm btn-outline-danger" title="Ngưng bán"
+                                                   onclick="return confirm('Bạn có chắc chắn muốn ngưng bán chào bán này không?');">
+                                                    🛑
+                                                </a>
                                             </td>
                                         </tr>                              
                                     </c:forEach>

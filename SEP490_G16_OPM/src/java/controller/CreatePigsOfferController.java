@@ -7,6 +7,7 @@ package controller;
 import dao.CategoryDAO;
 import dao.FarmDAO;
 import dao.PigsOfferDAO;
+import dao.Validation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -78,11 +79,18 @@ public class CreatePigsOfferController extends HttpServlet {
         FarmDAO farmDAO = new FarmDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
 
-        List<Farm> myFarms = farmDAO.getFarmsBySellerId(userId);
+        List<Farm> myFarms = farmDAO.getActiveFarmsBySellerId(userId);
         List<Category> categories = categoryDAO.getAllCategories();
 
         request.setAttribute("myFarms", myFarms);
         request.setAttribute("categories", categories);
+
+        request.setAttribute("page", request.getParameter("page"));
+        request.setAttribute("farmIdParam", request.getParameter("farmId"));
+        request.setAttribute("search", request.getParameter("search"));
+        request.setAttribute("status", request.getParameter("status"));
+        request.setAttribute("sort", request.getParameter("sort"));
+
         request.getRequestDispatcher("createpigsoffer.jsp").forward(request, response);
     }
 
@@ -106,11 +114,18 @@ public class CreatePigsOfferController extends HttpServlet {
 
             FarmDAO farmDAO = new FarmDAO();
             Farm farm = farmDAO.getFarmById(farmId);
-            if (farm == null || farm.getSellerID() != sellerId) {
+            if (farm == null) {
+                response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Trang trại này không tồn tại", "UTF-8"));
+                return;
+            } else if (farm.getSellerID() != sellerId) {
                 response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Bạn không có quyền truy cập farm này", "UTF-8"));
+                return;
+            } else if (!farmDAO.isActiveFarm(farmId)) {
+                response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Trang trại bạn chọn không còn hoạt động", "UTF-8"));
                 return;
             }
 
+            // Lấy dữ liệu từ form
             String name = request.getParameter("name");
             int categoryId = Integer.parseInt(request.getParameter("categoryId"));
             String pigBreed = request.getParameter("pigBreed");
@@ -123,16 +138,84 @@ public class CreatePigsOfferController extends HttpServlet {
             Date endDate = Date.valueOf(request.getParameter("endDate"));
             String description = request.getParameter("description");
 
-            Part imagePart = request.getPart("image");
-            ImageService imageService = new ImageService();
-            String imageURL = imageService.upload(imagePart);
+            // Validate
+            String nameError = Validation.validateOfferName(name);
+            String breedError = Validation.validatePigBreed(pigBreed);
+            String quantityError = Validation.validateQuantity(quantity, minQuantity);
+            String priceError = Validation.validatePrices(retailPrice, totalOfferPrice, minDeposit);
+            String dateError = Validation.validateDates(startDate, endDate);
+            String descriptionError = Validation.validateOfferDescription(description);
 
-            if (imageURL == null) {
-                request.setAttribute("error", "Không thể tải ảnh lên, vui lòng thử lại.");
-                doGet(request, response); // nạp lại farm/category + forward luôn
+            if (nameError != null || breedError != null || quantityError != null
+                    || priceError != null || dateError != null || descriptionError != null) {
+
+                // Set lỗi để hiển thị trên JSP
+                request.setAttribute("error_name", nameError);
+                request.setAttribute("error_breed", breedError);
+                request.setAttribute("error_quantity", quantityError);
+                request.setAttribute("error_price", priceError);
+                request.setAttribute("error_date", dateError);
+                request.setAttribute("error_description", descriptionError);
+
+                // Giữ lại dữ liệu đã nhập
+                request.setAttribute("name", name);
+                request.setAttribute("categoryId", categoryId);
+                request.setAttribute("farmId", farmId);
+                request.setAttribute("pigBreed", pigBreed);
+                request.setAttribute("quantity", quantity);
+                request.setAttribute("minQuantity", minQuantity);
+                request.setAttribute("minDeposit", minDeposit);
+                request.setAttribute("retailPrice", retailPrice);
+                request.setAttribute("totalOfferPrice", totalOfferPrice);
+                request.setAttribute("startDate", request.getParameter("startDate"));
+                request.setAttribute("endDate", request.getParameter("endDate"));
+                request.setAttribute("description", description);
+
+                request.setAttribute("page", request.getParameter("page"));
+                request.setAttribute("farmIdParam", request.getParameter("farmId"));
+                request.setAttribute("search", request.getParameter("search"));
+                request.setAttribute("status", request.getParameter("status"));
+                request.setAttribute("sort", request.getParameter("sort"));
+
+                // Load lại farm và category
+                CategoryDAO categoryDAO = new CategoryDAO();
+                request.setAttribute("myFarms", farmDAO.getActiveFarmsBySellerId(sellerId));
+                request.setAttribute("categories", categoryDAO.getAllCategories());
+
+                request.getRequestDispatcher("createpigsoffer.jsp").forward(request, response);
                 return;
             }
 
+            // Xử lý ảnh
+            Part imagePart = request.getPart("image");
+            ImageService imageService = new ImageService();
+            String imageURL = imageService.upload(imagePart);
+            if (imageURL == null) {
+                request.setAttribute("error", "Không thể tải ảnh lên, vui lòng thử lại.");
+
+                // Giữ lại dữ liệu và reload farm + category
+                request.setAttribute("name", name);
+                request.setAttribute("categoryId", categoryId);
+                request.setAttribute("farmId", farmId);
+                request.setAttribute("pigBreed", pigBreed);
+                request.setAttribute("quantity", quantity);
+                request.setAttribute("minQuantity", minQuantity);
+                request.setAttribute("minDeposit", minDeposit);
+                request.setAttribute("retailPrice", retailPrice);
+                request.setAttribute("totalOfferPrice", totalOfferPrice);
+                request.setAttribute("startDate", request.getParameter("startDate"));
+                request.setAttribute("endDate", request.getParameter("endDate"));
+                request.setAttribute("description", description);
+
+                CategoryDAO categoryDAO = new CategoryDAO();
+                request.setAttribute("myFarms", farmDAO.getActiveFarmsBySellerId(sellerId));
+                request.setAttribute("categories", categoryDAO.getAllCategories());
+
+                request.getRequestDispatcher("createpigsoffer.jsp").forward(request, response);
+                return;
+            }
+
+            // Tạo đối tượng offer
             PigsOffer offer = new PigsOffer();
             offer.setName(name);
             offer.setCategoryID(categoryId);
@@ -148,23 +231,62 @@ public class CreatePigsOfferController extends HttpServlet {
             offer.setEndDate(endDate);
             offer.setDescription(description);
             offer.setImageURL(imageURL);
-            offer.setStatus("Available");
-            offer.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+            // Tự động set trạng thái theo ngày bắt đầu
+            java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
+            if (!startDate.after(currentDate)) {
+                offer.setStatus("Available");
+            } else {
+                offer.setStatus("Upcoming");
+            }
 
             PigsOfferDAO offerDAO = new PigsOfferDAO();
             boolean success = offerDAO.createPigsOffer(offer);
 
             if (success) {
-                response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Tạo chào bán thành công!", "UTF-8"));
+                String encodedName = java.net.URLEncoder.encode(name, "UTF-8");
+                String encodedMsg = java.net.URLEncoder.encode("Tạo chào bán thành công!", "UTF-8");
+                response.sendRedirect("my-offers?farmId=" + farmId + "&search=" + encodedName + "&status=" + offer.getStatus() + "&msg=" + encodedMsg);
             } else {
                 request.setAttribute("error", "Không thể lưu chào bán, vui lòng thử lại.");
-                doGet(request, response); // Gọi lại doGet để load farm + category
+
+                // Giữ lại dữ liệu và reload farm + category
+                request.setAttribute("name", name);
+                request.setAttribute("categoryId", categoryId);
+                request.setAttribute("farmId", farmId);
+                request.setAttribute("pigBreed", pigBreed);
+                request.setAttribute("quantity", quantity);
+                request.setAttribute("minQuantity", minQuantity);
+                request.setAttribute("minDeposit", minDeposit);
+                request.setAttribute("retailPrice", retailPrice);
+                request.setAttribute("totalOfferPrice", totalOfferPrice);
+                request.setAttribute("startDate", request.getParameter("startDate"));
+                request.setAttribute("endDate", request.getParameter("endDate"));
+                request.setAttribute("description", description);
+
+                CategoryDAO categoryDAO = new CategoryDAO();
+                request.setAttribute("myFarms", farmDAO.getActiveFarmsBySellerId(sellerId));
+                request.setAttribute("categories", categoryDAO.getAllCategories());
+
+                request.getRequestDispatcher("createpigsoffer.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Có lỗi xảy ra. Vui lòng kiểm tra lại dữ liệu.");
-            doGet(request, response); // Gọi lại doGet để load farm + category
+
+            // Load lại farm + category để tránh lỗi NullPointer trong JSP
+            FarmDAO farmDAO = new FarmDAO();
+            CategoryDAO categoryDAO = new CategoryDAO();
+            request.setAttribute("myFarms", farmDAO.getFarmsBySellerId(user.getUserID()));
+            request.setAttribute("categories", categoryDAO.getAllCategories());
+
+            request.setAttribute("page", request.getParameter("page"));
+            request.setAttribute("farmIdParam", request.getParameter("farmId"));
+            request.setAttribute("search", request.getParameter("search"));
+            request.setAttribute("status", request.getParameter("status"));
+            request.setAttribute("sort", request.getParameter("sort"));
+
+            request.getRequestDispatcher("createpigsoffer.jsp").forward(request, response);
         }
     }
 

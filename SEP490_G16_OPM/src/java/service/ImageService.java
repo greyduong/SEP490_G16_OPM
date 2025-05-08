@@ -4,11 +4,13 @@ import jakarta.servlet.http.Part;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 import java.util.logging.Level;
@@ -41,10 +43,9 @@ public class ImageService {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(API_URL + "?key=" + API_KEY))
                     .header("Content-Type", "application/x-www-form-urlencoded")
-                    .POST(BodyPublishers.ofString("image=" + base64)).build();
+                    .POST(BodyPublishers.ofString("image=" + URLEncoder.encode(base64, StandardCharsets.UTF_8))).build();
             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
             JSONObject obj = new JSONObject(response.body());
-            System.out.println((String) response.body());
             return obj.getJSONObject("data").getString("url");
         } catch (URISyntaxException | IOException | InterruptedException | JSONException ex) {
             Logger.getLogger(ImageService.class.getName()).log(Level.SEVERE, null, ex);

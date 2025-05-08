@@ -16,6 +16,8 @@ import java.io.IOException;
     "/my-farms",
     "/updateFarm",
     "/my-offers",
+    "/createOffer",
+    "/updateOffer",
     "/CustomerOrderPageController"
 })
 public class OnlySellerFilter extends HttpFilter {
