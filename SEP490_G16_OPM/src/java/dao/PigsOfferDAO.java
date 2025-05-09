@@ -719,19 +719,19 @@ public class PigsOfferDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
-            for(int id : ids) {
+        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
+            for (int id : ids) {
                 String message = "Chào bán id %s đã sẵn sàng".formatted(id);
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 pstm.setString(1, message);
                 pstm.addBatch();
             }
             pstm.executeBatch();
-        } catch(Exception e) {
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }
-    
+
     public void updateExpiredOffers() {
         String updateQuery = """
                        UPDATE PigsOffer
@@ -747,15 +747,15 @@ public class PigsOfferDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
-            for(int id : ids) {
+        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
+            for (int id : ids) {
                 String message = "Chào bán id %s đã hết hạn".formatted(id);
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 pstm.setString(1, message);
                 pstm.addBatch();
             }
             pstm.executeBatch();
-        } catch(Exception e) {
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }
