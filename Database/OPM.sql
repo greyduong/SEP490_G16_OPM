@@ -93,11 +93,13 @@ CREATE TABLE PigsOffer (
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 
+
 CREATE TABLE Cart (
     CartID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT FOREIGN KEY REFERENCES UserAccount(UserID),
     OfferID INT FOREIGN KEY REFERENCES PigsOffer(OfferID),
     Quantity INT
+
 );
 
 CREATE TABLE Payment (
@@ -256,6 +258,7 @@ VALUES
 (5, 1, 10),  
 (5, 2, 2);  
 
+
 INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status)
 VALUES
 (5, 4, 2, 2, 5, 25000000, 'Confirmed'), 
@@ -288,6 +291,7 @@ VALUES
 
 
  
+
 INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)
 VALUES
 (1, 'Request to expand farm capacity', 'Your request has been approved. You may proceed with the expansion.', 'Approved', GETDATE(), GETDATE(), 'expand_farm.pdf'),
@@ -296,4 +300,6 @@ VALUES
 (4, 'Request for additional feed stock', NULL, 'Rejected', GETDATE(), GETDATE(), NULL),
 (5, 'Request for marketing support', NULL, 'Pending', GETDATE(), NULL, 'marketing_support.pdf'),
 (5, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);
+
  
+

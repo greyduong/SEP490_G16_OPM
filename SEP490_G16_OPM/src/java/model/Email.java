@@ -50,4 +50,18 @@ public class Email {
         Transport.send(msg);
     }
 
+    public static boolean sendOtpEmail(String toEmail, String otp) {
+        String subject = "Mã OTP xác thực của bạn";
+        String messageContent = "Xin chào,\n\nMã OTP xác thực của bạn là: " + otp
+                + "\n\nOTP có hiệu lực trong 5 phút.\n\nOnline Pig Market.";
+
+        try {
+            Email.sendEmail(toEmail, subject, messageContent);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

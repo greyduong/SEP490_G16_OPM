@@ -286,8 +286,10 @@
                 });
             });
         </script>
+
         <c:if test="${not empty param.error and param.error == '403'}">
             alert("Bạn không có quyền thực hiện việc này");
         </c:if>
+
     </body>
 </html>

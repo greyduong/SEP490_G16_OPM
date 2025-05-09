@@ -31,6 +31,9 @@
                         </label>
                         <input value="${password}" id="password" name="password" type="password" class="focus:!border-slate-400 transition-all rounded-lg border border-slate-300 py-1 px-3">
                     </div>
+                    <div class="text-right text-sm mb-3">
+                        <a class="!text-slate-500 hover:!text-slate-800" href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a>
+                    </div>
                     <div class="text-center mb-3">Chưa có tài khoản? <a class="!text-slate-500 hover:!text-slate-800" href="${pageContext.request.contextPath}/register">Đăng ký</a></div>
                     <button class="!bg-gray-700 hover:!bg-gray-800 text-white w-full rounded-lg py-1">Đăng nhập</button>
                 </form>

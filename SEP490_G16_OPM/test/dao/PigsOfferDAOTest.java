@@ -3,7 +3,6 @@ package dao;
 import org.junit.Test;
 
 public class PigsOfferDAOTest {
-
     /**
      * Test of updateUpcomingOffers method, of class PigsOfferDAO.
      */
@@ -21,5 +20,4 @@ public class PigsOfferDAOTest {
         PigsOfferDAO dao = new PigsOfferDAO();
         dao.updateExpiredOffers();
     }
-
 }

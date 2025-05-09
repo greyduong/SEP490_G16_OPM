@@ -1,6 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%
+    // Access control: Only allow Staff (2) and Manager (3)
+    model.User user = (model.User) session.getAttribute("user");
+    if (user == null || (user.getRoleID() != 2 && user.getRoleID() != 3)) {
+        response.sendRedirect("login-register.jsp?error=access-denied");
+        return;
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -127,17 +137,17 @@
         </div>
         <jsp:include page="component/footer.jsp" />
         <script>
-            $('#editCategoryModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);  // Button that triggered the modal
-                var categoryID = button.data('id');
-                var name = button.data('name');
-                var description = button.data('description');
+                $('#editCategoryModal').on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var categoryID = button.data('id');
+                    var name = button.data('name');
+                    var description = button.data('description');
 
-                var modal = $(this);
-                modal.find('#editCategoryID').val(categoryID);
-                modal.find('#editName').val(name);
-                modal.find('#editDescription').val(description);
-            });
+                    var modal = $(this);
+                    modal.find('#editCategoryID').val(categoryID);
+                    modal.find('#editName').val(name);
+                    modal.find('#editDescription').val(description);
+                });
         </script>
 
     </body>

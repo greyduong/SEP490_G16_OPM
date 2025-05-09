@@ -653,6 +653,44 @@ public class PigsOfferDAO extends DBContext {
         return count;
     }
 
+    public List<PigsOffer> getOffersByFarmId(int farmId) {
+        List<PigsOffer> offers = new ArrayList<>();
+        String sql = "SELECT * FROM PigsOffer WHERE FarmID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, farmId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PigsOffer offer = new PigsOffer();
+                    offer.setOfferID(rs.getInt("OfferID"));
+                    offer.setSellerID(rs.getInt("SellerID"));
+                    offer.setFarmID(rs.getInt("FarmID"));
+                    offer.setCategoryID(rs.getInt("CategoryID"));
+                    offer.setName(rs.getString("Name"));
+                    offer.setPigBreed(rs.getString("PigBreed"));
+                    offer.setQuantity(rs.getInt("Quantity"));
+                    offer.setMinQuantity(rs.getInt("MinQuantity"));
+                    offer.setMinDeposit(rs.getBigDecimal("MinDeposit").doubleValue());
+                    offer.setRetailPrice(rs.getBigDecimal("RetailPrice").doubleValue());
+                    offer.setTotalOfferPrice(rs.getBigDecimal("TotalOfferPrice").doubleValue());
+                    offer.setDescription(rs.getString("Description"));
+                    offer.setImageURL(rs.getString("ImageURL"));
+                    offer.setStartDate(rs.getDate("StartDate"));
+                    offer.setEndDate(rs.getDate("EndDate"));
+                    offer.setStatus(rs.getString("Status"));
+                    offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    offers.add(offer);
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("getOffersByFarmId: " + e.getMessage());
+        }
+
+        return offers;
+    }
+
     public boolean updateStatus(PigsOffer offer) {
         String sql = "UPDATE PigsOffer SET Status = ? WHERE OfferID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -663,6 +701,7 @@ public class PigsOfferDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+
     }
 
     public void updateUpcomingOffers() {
