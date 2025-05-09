@@ -43,23 +43,29 @@
 <c:if test="${not empty sessionScope.user}">
     <div id="sidebar" class="z-99 w-60 duration-500 transition-all fixed top-0 pt-13 left-0 border-r border-slate-300 h-full bg-white overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
         <div class="mt-2 flex flex-col gap-2 p-2 *:overflow-x-hidden *:whitespace-nowrap *:transition-all *:font-medium *:text-md *:hover:!bg-slate-100 *:p-2 *:rounded-lg *:!text-slate-600 *:hover:!text-slate-700 *:!no-underline *:flex *:gap-2">
-            <a href="${pageContext.request.contextPath}/my-farms">
-                <span class="mdi mdi-barn"></span>
-                Trang trại
-            </a>
-            <a href="${pageContext.request.contextPath}/my-offers">
-                <span class="mdi mdi-offer"></span>
-                Chào bán
-            </a>
-            <a href="${pageContext.request.contextPath}/CustomerOrderPageController">
-                <span class="mdi mdi-invoice-list"></span>
-                Hóa đơn của khách
-            </a>
-            <a href="${pageContext.request.contextPath}/OrdersRequestController">
-                <span class="mdi mdi-invoice-list"></span>
-                Hóa đơn chờ duyệt
-            </a>
-            <c:if test="${not empty sessionScope.user}">
+            <c:if test="${sessionScope.user.roleID == 4}">
+                <a href="${pageContext.request.contextPath}/my-farms">
+                    <span class="mdi mdi-barn"></span>
+                    Trang trại
+                </a>
+                <a href="${pageContext.request.contextPath}/my-offers">
+                    <span class="mdi mdi-offer"></span>
+                    Chào bán
+                </a>
+                <a href="${pageContext.request.contextPath}/CustomerOrderPageController">
+                    <span class="mdi mdi-invoice-list"></span>
+                    Hóa đơn của khách
+                </a>
+                <a href="${pageContext.request.contextPath}/OrdersRequestController">
+                    <span class="mdi mdi-invoice-list"></span>
+                    Hóa đơn chờ duyệt
+                </a>
+                <a href="${pageContext.request.contextPath}/application">
+                    <span class="mdi mdi-invoice-list-outline"></span>
+                    Đơn đề nghị
+                </a>
+            </c:if>
+            <c:if test="${sessionScope.user.roleID == 3}">
                 <a href="${pageContext.request.contextPath}/cart">
                     <span class="mdi mdi-cart"></span>
                     Giỏ hàng
@@ -73,6 +79,12 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
+            </c:if>
+            <c:if test="${sessionScope.user.roleID == 2}">
+                <a href="${pageContext.request.contextPath}/cart">
+                    <span class="mdi mdi-barn"></span>
+                    Trang trại chờ duyệt
+                </a>              
             </c:if>
         </div>
     </div>
