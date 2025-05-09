@@ -189,13 +189,13 @@ VALUES
 
 INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note, ImageURL)
 VALUES
-(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
-(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
-(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
-(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
-(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
-(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/YBzCbyk/default-farm.jpg'),
-(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/YBzCbyk/default-farm.jpg');
+(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
+(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
+(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
+(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
+(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
+(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
+(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/27gqbwCY/farm-default.jpg');
 
 INSERT INTO Category (Name, Description) 
 VALUES
