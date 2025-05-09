@@ -1,0 +1,13 @@
+services:
+  opm-sql:
+    image: opm-sql:latest
+    build: ./Database
+    network_mode: host
+    ports:
+      - "1433:1433"
+  opm-web:
+    image: opm-web:latest
+    build: ./SEP490_G16_OPM
+    network_mode: host
+    ports:
+      - "8080:8080"
