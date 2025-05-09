@@ -228,6 +228,50 @@ public class FarmDAO extends DBContext {
         return null;
     }
 
+    public Farm getFarmWithSellerById(int farmId) {
+        String sql = """
+        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Status, f.Note, f.ImageURL, f.CreatedAt,
+               u.UserID, u.FullName, u.Email, u.Phone, u.Address,
+               (SELECT COUNT(*) FROM Farm WHERE SellerID = f.SellerID) AS TotalFarms,
+               (SELECT COUNT(*) FROM PigsOffer WHERE SellerID = f.SellerID) AS TotalOffers
+        FROM Farm f
+        JOIN UserAccount u ON f.SellerID = u.UserID
+        WHERE f.FarmID = ?
+    """;
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, farmId);
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setImageURL(rs.getString("ImageURL"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
+                    User seller = new User();
+                    seller.setUserID(rs.getInt("UserID"));
+                    seller.setFullName(rs.getString("FullName"));
+                    seller.setEmail(rs.getString("Email"));
+                    seller.setPhone(rs.getString("Phone"));
+                    seller.setAddress(rs.getString("Address"));
+                    seller.setTotalFarms(rs.getInt("TotalFarms"));
+                    seller.setTotalOffers(rs.getInt("TotalOffers"));
+
+                    farm.setSeller(seller);
+                    return farm;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("getFarmWithSellerById: " + e.getMessage());
+        }
+        return null;
+    }
+
     public boolean updateOldFarm(Farm farm) {
         String sql = """
         UPDATE Farm 
@@ -501,6 +545,118 @@ public class FarmDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public Page<Farm> getFarmsForManager(String search, String status, int pageNumber, int pageSize, String sort) {
+        Page<Farm> page = new Page<>();
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        if (pageSize < 1) {
+            pageSize = 10;
+        }
+        int offset = (pageNumber - 1) * pageSize;
+
+        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            whereClause.append(" AND f.FarmName LIKE ? ");
+            params.add("%" + search.trim() + "%");
+        }
+        if (status != null && !status.isEmpty()) {
+            whereClause.append(" AND f.Status = ? ");
+            params.add(status);
+        }
+
+        String orderClause;
+        switch (sort != null ? sort : "") {
+            case "date_asc" ->
+                orderClause = " f.CreatedAt ASC ";
+            case "date_desc" ->
+                orderClause = " f.CreatedAt DESC ";
+            default ->
+                orderClause = " f.FarmID DESC ";
+        }
+
+        String selectQuery = """
+            SELECT f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.ImageURL, f.CreatedAt,
+                   u.FullName, u.Email, u.Phone, u.Address,
+                   (SELECT COUNT(*) FROM Farm WHERE SellerID = f.SellerID) AS TotalFarms,
+                   (SELECT COUNT(*) FROM PigsOffer WHERE SellerID = f.SellerID) AS TotalOffers
+            FROM Farm f
+            JOIN UserAccount u ON f.SellerID = u.UserID
+        """ + whereClause + " ORDER BY " + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        String countQuery = "SELECT COUNT(*) FROM Farm f " + whereClause;
+
+        List<Farm> farms = new ArrayList<>();
+        try (
+                PreparedStatement stm = connection.prepareStatement(selectQuery); PreparedStatement countStm = connection.prepareStatement(countQuery)) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+                countStm.setObject(i + 1, params.get(i));
+            }
+            stm.setInt(params.size() + 1, offset);
+            stm.setInt(params.size() + 2, pageSize);
+
+            try (ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setSellerID(rs.getInt("SellerID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farm.setImageURL(rs.getString("ImageURL"));
+
+                    User seller = new User();
+                    seller.setUserID(rs.getInt("SellerID"));
+                    seller.setFullName(rs.getString("FullName"));
+                    seller.setEmail(rs.getString("Email"));
+                    seller.setPhone(rs.getString("Phone"));
+                    seller.setAddress(rs.getString("Address"));
+                    seller.setTotalFarms(rs.getInt("TotalFarms"));
+                    seller.setTotalOffers(rs.getInt("TotalOffers"));
+
+                    farm.setSeller(seller);
+                    farms.add(farm);
+                }
+            }
+
+            try (ResultSet rs = countStm.executeQuery()) {
+                if (rs.next()) {
+                    int totalRows = rs.getInt(1);
+                    int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
+                    page.setTotalPage(totalPages);
+                    page.setTotalData(totalRows);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("getFarmsForManager: " + e.getMessage());
+            return null;
+        }
+
+        page.setPageNumber(pageNumber);
+        page.setPageSize(pageSize);
+        page.setData(farms);
+        return page;
+    }
+
+    public boolean updateStatusAndNote(Farm farm) {
+        String sql = "UPDATE Farm SET Status = ?, Note = ? WHERE FarmID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, farm.getStatus());
+            stm.setString(2, farm.getNote());
+            stm.setInt(3, farm.getFarmID());
+            return stm.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.out.println("updateStatusAndNote: " + e.getMessage());
+            return false;
+        }
     }
 
 }

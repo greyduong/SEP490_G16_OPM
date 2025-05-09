@@ -9,6 +9,7 @@ package model;
  * @author dangtuong
  */
 public class User {
+
     private int userID;
     private int roleID;
     private String fullName;
@@ -20,11 +21,15 @@ public class User {
     private double wallet;
     private String status;
 
+    private int TotalFarms;
+    private int TotalOffers;
+
     // Constructors
-    public User() {}
+    public User() {
+    }
 
     public User(int userID, int roleID, String fullName, String username, String password,
-                String email, String phone, String address, double wallet, String status) {
+            String email, String phone, String address, double wallet, String status) {
         this.userID = userID;
         this.roleID = roleID;
         this.fullName = fullName;
@@ -117,4 +122,21 @@ public class User {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public int getTotalFarms() {
+        return TotalFarms;
+    }
+
+    public void setTotalFarms(int TotalFarms) {
+        this.TotalFarms = TotalFarms;
+    }
+
+    public int getTotalOffers() {
+        return TotalOffers;
+    }
+
+    public void setTotalOffers(int TotalOffers) {
+        this.TotalOffers = TotalOffers;
+    }
+
 }
