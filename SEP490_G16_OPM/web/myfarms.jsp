@@ -12,23 +12,6 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp"/>
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <div class="breadcrumb__text">
-                            <h2>Trang trại</h2>
-                            <div class="breadcrumb__option">
-                                <a href="home">Trang chủ</a>
-                                <span>Trang trại</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
 
         <!-- Farm Management Table Begin -->
         <section class="spad" style="padding-top: 30px;">
@@ -55,6 +38,8 @@
                         <option value="">Tất cả trạng thái</option>
                         <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>Hoạt động</option>
                         <option value="Pending" ${param.status == 'Pending' ? 'selected' : ''}>Đang chờ</option>
+                        <option value="Inactive" ${param.status == 'Inactive' ? 'selected' : ''}>Không hoạt động</option>
+                        <option value="Cancel" ${param.status == 'Cancel' ? 'selected' : ''}>Bị từ chối</option>
                     </select>
 
                     <!-- Hidden giữ sort -->
@@ -126,7 +111,7 @@
                                 <tbody>
                                     <c:forEach var="farm" items="${pagedFarms.data}" varStatus="loop">
                                         <tr>
-                                            <td>${farm.farmID}</td>
+                                            <td>${(pagedFarms.pageNumber - 1) * pagedFarms.pageSize + loop.index + 1}</td>
                                             <td>
                                                 <a href="#" class="text-primary" data-toggle="modal" data-target="#farmModal${farm.farmID}">
                                                     ${farm.farmName}
@@ -146,12 +131,23 @@
                                                 </c:choose>
                                             </td>
                                             <td>${farm.orderCount}</td>
-                                            <td>${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${farm.status == 'Active'}">Hoạt động</c:when>
+                                                    <c:when test="${farm.status == 'Pending'}">Đang chờ</c:when>
+                                                    <c:when test="${farm.status == 'Inactive'}">Không hoạt động</c:when>
+                                                    <c:when test="${farm.status == 'Cancel'}">Bị từ chối</c:when>
+                                                    <c:otherwise>Không xác định</c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                             <td>
                                                 <a href="updateFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-primary">Sửa</a>
-                                                <a href="deleteFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-danger"
-                                                   onclick="return confirm('Bạn có chắc chắn muốn xóa trang trại này?');">Xóa</a>
+                                                <c:if test="${farm.status != 'Inactive'}">
+                                                    <a href="deactivateFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-warning"
+                                                       onclick="return confirm('Bạn có chắc chắn muốn dừng hoạt động trang trại này?');">Dừng hoạt động</a>
+                                                </c:if>
+
                                             </td>
                                         </tr>
 
@@ -203,12 +199,30 @@
                         </div>
                         <div class="modal-body">
                             <table class="table table-bordered">
+                                <tr>
+                                    <th>Ảnh</th>
+                                    <td>
+                                        <img src="${farm.imageURL}" alt="Ảnh trang trại" style="max-width: 100%; height: auto;" />
+                                    </td>
+                                </tr>
+
                                 <tr><th>Tên trang trại</th><td>${farm.farmName}</td></tr>
                                 <tr><th>Vị trí</th><td>${farm.location}</td></tr>
                                 <tr><th>Mô tả</th><td>${farm.description}</td></tr>
                                 <tr><th>Số lượng chào bán</th><td>${farm.offerCount}</td></tr>
                                 <tr><th>Số lượng đơn hàng</th><td>${farm.orderCount}</td></tr>
-                                <tr><th>Trạng thái</th><td>${farm.status == 'Active' ? 'Hoạt động' : farm.status == 'Pending' ? 'Đang chờ' : 'Không xác định'}</td></tr>
+                                <tr>
+                                    <th>Trạng thái</th>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${farm.status == 'Active'}">Hoạt động</c:when>
+                                            <c:when test="${farm.status == 'Pending'}">Đang chờ</c:when>
+                                            <c:when test="${farm.status == 'Inactive'}">Không hoạt động</c:when>
+                                            <c:when test="${farm.status == 'Cancel'}">Bị từ chối</c:when>
+                                            <c:otherwise>Không xác định</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
                                 <tr><th>Ghi chú</th><td>${farm.note}</td></tr>
                                 <tr><th>Ngày tạo</th><td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td></tr>
                             </table>

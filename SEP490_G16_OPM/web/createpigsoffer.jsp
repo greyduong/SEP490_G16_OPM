@@ -6,61 +6,132 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Online Pig Market</title>
+        <title>Tạo chào bán | Online Pig Market</title>
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <section class="product-details spad">
+
+        <section class="product spad">
             <div class="container">
-                <h2 class="text-center mb-5">Create New Pigs Offer</h2>
-                <form action="CreatePigsOffer" method="post" enctype="multipart/form-data">
+                <h4 class="mb-4">🐖 Tạo chào bán mới</h4>
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">${error}</div>
+                </c:if>
+
+                <form action="createOffer" method="post" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-lg-6">
-                            <label>Name</label>
-                            <input type="text" name="name" class="form-control" required>
+                        <!-- Cột trái -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="name">Tên chào bán <span style="color: red">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" value="${name}" required>
+                                <c:if test="${not empty error_name}">
+                                    <small class="text-danger">${error_name}</small>
+                                </c:if>
+                            </div>
 
-                            <label>Pig Breed</label>
-                            <input type="text" name="pigBreed" class="form-control" required>
+                            <div class="form-group">
+                                <label for="categoryId">Danh mục <span style="color: red">*</span></label>
+                                <select class="form-control" id="categoryId" name="categoryId" required>
+                                    <c:forEach var="cat" items="${categories}">
+                                        <option value="${cat.categoryID}" ${cat.categoryID == categoryId ? "selected" : ""}>${cat.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
 
-                            <label>Quantity</label>
-                            <input type="number" name="quantity" class="form-control" required>
+                            <div class="form-group">
+                                <label for="farmId">Trang trại <span style="color: red">*</span></label>
+                                <select class="form-control" id="farmId" name="farmId" required>
+                                    <c:forEach var="farm" items="${myFarms}">
+                                        <option value="${farm.farmID}" ${farm.farmID == farmId ? "selected" : ""}>${farm.farmName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
 
-                            <label>Minimum Quantity</label>
-                            <input type="number" name="minQuantity" class="form-control" required>
+                            <div class="form-group">
+                                <label for="pigBreed">Giống heo <span style="color: red">*</span></label>
+                                <input type="text" class="form-control" id="pigBreed" name="pigBreed" value="${pigBreed}" required>
+                                <c:if test="${not empty error_breed}">
+                                    <small class="text-danger">${error_breed}</small>
+                                </c:if>
+                            </div>
 
-                            <label>Retail Price (VND)</label>
-                            <input type="number" name="retailPrice" step="0.01" class="form-control" required>
+                            <div class="form-group">
+                                <label for="description">Mô tả <span style="color: red">*</span></label>
+                                <textarea class="form-control" id="description" name="description" rows="5" required>${description}</textarea>
+                                <c:if test="${not empty error_description}">
+                                    <small class="text-danger">${error_description}</small>
+                                </c:if>
+                            </div>
 
-                            <label>Total Offer Price (VND)</label>
-                            <input type="number" name="totalOfferPrice" step="0.01" class="form-control" required>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <label>Minimum Deposit (VND)</label>
-                            <input type="number" name="minDeposit" step="0.01" class="form-control" required>
-
-                            <label>Start Date</label>
-                            <input type="date" name="startDate" class="form-control" required>
-
-                            <label>End Date</label>
-                            <input type="date" name="endDate" class="form-control" required>
-
-                            <label>Description</label>
-                            <textarea name="description" class="form-control" rows="4" required></textarea>
-
-                            <label>Upload Image</label>
-                            <input type="file" name="imageFile" class="form-control" required>
-
-                            <div class="mt-4 text-center">
-                                <button type="submit" class="btn btn-success">Create Offer</button>
-                                <a href="offerList.jsp" class="btn btn-secondary">Cancel</a>
+                            <div class="form-group">
+                                <label for="image">Hình ảnh <span style="color: red">*</span></label>
+                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
                             </div>
                         </div>
+
+                        <!-- Cột phải -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quantity">Số lượng <span style="color: red">*</span></label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="${quantity}" required min="1">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="minQuantity">Số lượng tối thiểu <span style="color: red">*</span></label>
+                                <input type="number" class="form-control" id="minQuantity" name="minQuantity" value="${minQuantity}" required min="1">
+                                <c:if test="${not empty error_quantity}">
+                                    <small class="text-danger">${error_quantity}</small>
+                                </c:if>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="minDeposit">Tiền cọc (VNĐ) <span style="color: red">*</span></label>
+                                <input type="number" class="form-control" id="minDeposit" name="minDeposit" value="${minDeposit}" required min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="retailPrice">Giá lẻ (VNĐ) <span style="color: red">*</span></label>
+                                <input type="number" class="form-control" id="retailPrice" name="retailPrice" value="${retailPrice}" required min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="totalOfferPrice">Tổng giá (VNĐ) <span style="color: red">*</span></label>
+                                <input type="number" class="form-control" id="totalOfferPrice" name="totalOfferPrice" value="${totalOfferPrice}" required min="0">
+                                <c:if test="${not empty error_price}">
+                                    <small class="text-danger">${error_price}</small>
+                                </c:if>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="startDate">Ngày bắt đầu <span style="color: red">*</span></label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" value="${startDate}" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="endDate">Ngày kết thúc <span style="color: red">*</span></label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" value="${endDate}" required>
+                                </div>
+                                <c:if test="${not empty error_date}">
+                                    <div class="col-md-12">
+                                        <small class="text-danger">${error_date}</small>
+                                    </div>
+                                </c:if>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="my-offers?page=${page}&farmId=${farmIdParam}&search=${search}&status=${status}&sort=${sort}"
+                           class="btn btn-outline-secondary">
+                            ⬅ Quay lại danh sách
+                        </a>
+                        <button type="submit" class="btn btn-primary">📤 Tạo chào bán</button>
                     </div>
                 </form>
             </div>
         </section>
+
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>

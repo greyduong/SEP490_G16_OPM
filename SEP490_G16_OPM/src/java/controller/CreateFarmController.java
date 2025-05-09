@@ -9,19 +9,23 @@ import dao.Validation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import model.Farm;
 import model.User;
+import service.ImageService;
 
 /**
  *
  * @author duong
  */
 @WebServlet(name = "CreateFarmController", urlPatterns = {"/createFarm"})
+@MultipartConfig(maxFileSize = 5 * 1024 * 1024)
 public class CreateFarmController extends HttpServlet {
 
     /**
@@ -65,11 +69,6 @@ public class CreateFarmController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         request.getRequestDispatcher("createfarm.jsp").forward(request, response);
     }
 
@@ -84,13 +83,9 @@ public class CreateFarmController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
 
         String farmName = request.getParameter("farmName");
         String location = request.getParameter("location");
@@ -114,15 +109,24 @@ public class CreateFarmController extends HttpServlet {
             return;
         }
 
-        // Chuyển format đầu vào về Title Case nếu hợp lệ
+        // Format Title Case
         farmName = Validation.formatToTitleCase(farmName);
         location = Validation.formatToTitleCase(location);
+
+        // Upload ảnh nếu có
+        Part imagePart = request.getPart("image");
+        String imageUrl = null;
+        if (imagePart != null && imagePart.getSize() > 0) {
+            ImageService imageService = new ImageService();
+            imageUrl = imageService.upload(imagePart);
+        }
 
         Farm farm = new Farm();
         farm.setFarmName(farmName);
         farm.setLocation(location);
         farm.setDescription(description);
         farm.setSellerID(user.getUserID());
+        farm.setImageURL(imageUrl);
 
         FarmDAO farmDAO = new FarmDAO();
         if (farmDAO.createNewFarm(farm)) {

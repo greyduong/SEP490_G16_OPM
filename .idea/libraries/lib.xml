@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/jakarta.mail-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/jakarta.servlet.jsp.jstl-api-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/org.json.20250107.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/jakarta.activation-api-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/jakarta.activation-2.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/jaxb-api-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/junit-4.13.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/hamcrest-3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/jakarta.servlet.jsp.jstl-2.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/SEP490_G16_OPM/lib/sqljdbc42.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

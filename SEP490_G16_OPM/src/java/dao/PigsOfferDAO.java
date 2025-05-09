@@ -1,6 +1,6 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+     * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+     * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package dao;
 
@@ -144,8 +144,6 @@ public class PigsOfferDAO extends DBContext {
                 if (stm != null) {
                     stm.close();
                 }
-                // ⚠️ KHÔNG ĐÓNG connection ở đây nếu còn dùng tiếp
-                // if (connection != null) connection.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -204,25 +202,25 @@ public class PigsOfferDAO extends DBContext {
             case "enddate_desc" ->
                 orderClause = " p.EndDate DESC, p.Quantity DESC, ISNULL(o.OrderCount, 0) DESC, p.OfferID DESC ";
             default ->
-                orderClause = " p.CreatedAt DESC, p.OfferID DESC ";
+                orderClause = " p.CreatedAt ASC, p.OfferID ASC ";
         }
 
         String sql = """
-        SELECT p.*, 
-               u.UserID AS SellerUserID, u.FullName AS SellerName,
-               f.FarmID AS FarmID, f.FarmName, f.Location, f.Status AS FarmStatus,
-               c.CategoryID AS CatID, c.Name AS CategoryName,
-               ISNULL(o.OrderCount, 0) AS OrderCount
-        FROM PigsOffer p
-        JOIN UserAccount u ON p.SellerID = u.UserID
-        JOIN Farm f ON p.FarmID = f.FarmID
-        JOIN Category c ON p.CategoryID = c.CategoryID
-        LEFT JOIN (
-            SELECT OfferID, COUNT(*) AS OrderCount
-            FROM Orders
-            GROUP BY OfferID
-        ) o ON p.OfferID = o.OfferID
-        """ + whereClause + " ORDER BY " + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            SELECT p.*, 
+                   u.UserID AS SellerUserID, u.FullName AS SellerName,
+                   f.FarmID AS FarmID, f.FarmName, f.Location, f.Status AS FarmStatus,
+                   c.CategoryID AS CatID, c.Name AS CategoryName,
+                   ISNULL(o.OrderCount, 0) AS OrderCount
+            FROM PigsOffer p
+            JOIN UserAccount u ON p.SellerID = u.UserID
+            JOIN Farm f ON p.FarmID = f.FarmID
+            JOIN Category c ON p.CategoryID = c.CategoryID
+            LEFT JOIN (
+                SELECT OfferID, COUNT(*) AS OrderCount
+                FROM Orders
+                GROUP BY OfferID
+            ) o ON p.OfferID = o.OfferID
+            """ + whereClause + " ORDER BY " + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         String countSql = "SELECT COUNT(*) FROM PigsOffer p " + whereClause;
 
@@ -304,6 +302,43 @@ public class PigsOfferDAO extends DBContext {
         return page;
     }
 
+    public int countOffersBySeller(int sellerId) {
+        String sql = "SELECT COUNT(*) FROM PigsOffer WHERE SellerID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countAvailableOffersBySeller(int sellerId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM PigsOffer
+            WHERE SellerID = ?
+              AND Status = 'Available'
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public int countAllOffers() {
         int count = 0;
         try {
@@ -376,8 +411,8 @@ public class PigsOfferDAO extends DBContext {
     //create offer
     public boolean createPigsOffer(PigsOffer offer) {
         String sql = "INSERT INTO PigsOffer (SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, "
-                + "MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status, CreatedAt) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
+                + "MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, offer.getSellerID());
             stm.setInt(2, offer.getFarmID());
@@ -654,6 +689,19 @@ public class PigsOfferDAO extends DBContext {
         }
 
         return offers;
+    }
+
+    public boolean updateStatus(PigsOffer offer) {
+        String sql = "UPDATE PigsOffer SET Status = ? WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, offer.getStatus());
+            ps.setInt(2, offer.getOfferID());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+
     }
 
 }

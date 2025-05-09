@@ -123,4 +123,73 @@ public class Validation {
         return toTitleCase(input);
 
     }
+
+    // Validate tên chào bán
+    public static String validateOfferName(String name) {
+        if (isEmpty(name)) {
+            return "Tên chào bán không được để trống.";
+        }
+        if (name.length() > 100) {
+            return "Tên chào bán không vượt quá 100 ký tự.";
+        }
+        if (!isValidTextFormat(name)) {
+            return "Tên chào bán không được chứa ký tự đặc biệt hoặc 2 dấu cách liên tiếp.";
+        }
+        return null;
+    }
+
+    // Validate giống heo
+    public static String validatePigBreed(String breed) {
+        if (isEmpty(breed)) {
+            return "Giống heo không được để trống.";
+        }
+        if (breed.length() > 100) {
+            return "Giống heo không vượt quá 100 ký tự.";
+        }
+        if (!isValidTextFormat(breed)) {
+            return "Giống heo không hợp lệ.";
+        }
+        return null;
+    }
+
+    // Validate số lượng và số lượng tối thiểu
+    public static String validateQuantity(int quantity, int minQuantity) {
+        if (quantity <= 0) {
+            return "Số lượng phải lớn hơn 0.";
+        }
+        if (minQuantity <= 0 || minQuantity > quantity) {
+            return "Số lượng tối thiểu phải lớn hơn 0 và nhỏ hơn hoặc bằng số lượng.";
+        }
+        return null;
+    }
+
+    // Validate giá
+    public static String validatePrices(double retailPrice, double totalPrice, double deposit) {
+        if (retailPrice < 0 || totalPrice < 0 || deposit < 0) {
+            return "Giá trị không được âm.";
+        }
+        if (deposit > totalPrice) {
+            return "Tiền đặt cọc không được vượt quá tổng giá chào bán.";
+        }
+        return null;
+    }
+
+    // Validate ngày bắt đầu và kết thúc
+    public static String validateDates(java.sql.Date start, java.sql.Date end) {
+        if (start == null || end == null) {
+            return "Ngày bắt đầu và kết thúc không được để trống.";
+        }
+        if (end.before(start)) {
+            return "Ngày kết thúc phải sau ngày bắt đầu.";
+        }
+        return null;
+    }
+
+    // Validate mô tả
+    public static String validateOfferDescription(String description) {
+        if (description != null && description.length() > 1000) {
+            return "Mô tả không vượt quá 1000 ký tự.";
+        }
+        return null;
+    }
 }

@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import model.Order;
+import model.OrderStat;
 import model.PigsOffer;
 import model.User;
 
@@ -235,6 +236,153 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public int countOrdersBySeller(int sellerId) {
+        String sql = """
+                SELECT COUNT(*) 
+                FROM Orders o
+                JOIN PigsOffer po ON o.OfferID = po.OfferID
+                WHERE po.SellerID = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public double calculateTotalConfirmedOrDepositedOrdersBySeller(int sellerId) {
+        String sql = """
+            SELECT COALESCE(SUM(o.TotalPrice), 0)
+            FROM Orders o
+            JOIN PigsOffer po ON o.OfferID = po.OfferID
+            WHERE po.SellerID = ?
+              AND (o.Status = 'Confirmed' OR o.Status = 'Deposited')
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    public List<OrderStat> getOrderStatsFlexible(String type, Integer year, Integer month, Integer day, int sellerId) {
+        List<OrderStat> list = new ArrayList<>();
+        String selectField, groupBy, orderBy;
+
+        switch (type) {
+            case "year":
+                selectField = "YEAR(o.CreatedAt) AS Label";
+                groupBy = "YEAR(o.CreatedAt)";
+                orderBy = "YEAR(o.CreatedAt)";
+                break;
+            case "month":
+                selectField = "MONTH(o.CreatedAt) AS Label";
+                groupBy = "MONTH(o.CreatedAt)";
+                orderBy = "MONTH(o.CreatedAt)";
+                break;
+            case "day":
+                selectField = "DAY(o.CreatedAt) AS Label";
+                groupBy = "DAY(o.CreatedAt)";
+                orderBy = "DAY(o.CreatedAt)";
+                break;
+            case "hour":
+                // Sửa dùng DATEPART cho SQL Server
+                selectField = "DATEPART(HOUR, o.CreatedAt) AS Label";
+                groupBy = "DATEPART(HOUR, o.CreatedAt)";
+                orderBy = "DATEPART(HOUR, o.CreatedAt)";
+                break;
+            default:
+                // fallback: thống kê theo tháng
+                selectField = "MONTH(o.CreatedAt) AS Label";
+                groupBy = "MONTH(o.CreatedAt)";
+                orderBy = "MONTH(o.CreatedAt)";
+                break;
+        }
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ").append(selectField).append(", COUNT(*) AS Total ")
+                .append("FROM Orders o ")
+                .append("JOIN PigsOffer po ON o.OfferID = po.OfferID ")
+                .append("WHERE po.SellerID = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(sellerId);
+
+        // Gắn thêm điều kiện theo mức độ filter
+        if (type.equals("month") || type.equals("day") || type.equals("hour")) {
+            if (year != null) {
+                sql.append("AND YEAR(o.CreatedAt) = ? ");
+                params.add(year);
+            }
+        }
+
+        if (type.equals("day") || type.equals("hour")) {
+            if (month != null) {
+                sql.append("AND MONTH(o.CreatedAt) = ? ");
+                params.add(month);
+            }
+        }
+
+        if (type.equals("hour") && day != null) {
+            sql.append("AND DAY(o.CreatedAt) = ? ");
+            params.add(day);
+        }
+
+        sql.append("GROUP BY ").append(groupBy).append(" ORDER BY ").append(orderBy);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new OrderStat(rs.getString("Label"), rs.getInt("Total")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public static void main(String[] args) {
+        OrderDAO dao = new OrderDAO();
+
+        // Thử nghiệm với từng loại thống kê
+        int sellerId = 4; // ⚠️ Thay bằng ID người bán hợp lệ trong database
+
+        System.out.println("📊 Thống kê theo năm:");
+        List<OrderStat> statsByYear = dao.getOrderStatsFlexible("year", null, null, null, sellerId);
+        statsByYear.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
+
+        System.out.println("\n📊 Thống kê theo tháng trong năm 2024:");
+        List<OrderStat> statsByMonth = dao.getOrderStatsFlexible("month", 2024, null, null, sellerId);
+        statsByMonth.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
+
+        System.out.println("\n📊 Thống kê theo ngày trong tháng 4/2025:");
+        List<OrderStat> statsByDay = dao.getOrderStatsFlexible("day", 2025, 4, null, sellerId);
+        statsByDay.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
+
+        System.out.println("\n📊 Thống kê theo giờ trong ngày 24/4/2025:");
+        List<OrderStat> statsByHour = dao.getOrderStatsFlexible("hour", 2025, 4, 24, sellerId);
+        statsByHour.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
     }
 
     public int getOrderQuantity(int orderId) {

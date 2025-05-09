@@ -24,6 +24,7 @@ public class FarmDAO extends DBContext {
             farm.setSellerID(rs.getInt("SellerID"));
             farm.setStatus(rs.getString("Status"));
             farm.setNote(rs.getString("Note"));
+            farm.setImageURL(rs.getString("ImageURL"));
             return farm;
         };
     }
@@ -32,33 +33,6 @@ public class FarmDAO extends DBContext {
         return fetchOne(
                 mapper(),
                 "SELECT * FROM Farm WHERE FarmID = ?",
-                id);
-    }
-
-    public int create(Farm farm) {
-        return insert(
-                "INSERT INTO Farm(FarmID, SellerID, FarmName, Location, Description, Status) VALUES (?, ?, ?, ?, ?, ?)",
-                farm.getFarmID(),
-                farm.getFarmName(),
-                farm.getLocation(),
-                farm.getDescription(),
-                farm.getStatus());
-    }
-
-    public void update(Farm farm) {
-        update(
-                "UPDATE Farm SET FarmName = ?, Location = ?, Description = ?, Status = ? WHERE FarmID = ?",
-                farm.getFarmName(),
-                farm.getLocation(),
-                farm.getDescription(),
-                farm.getStatus(),
-                farm.getFarmID());
-    }
-
-    public void delete(int id) {
-        update(
-                "UPDATE Farm SET Status = ? WHERE FarmID = ?",
-                "Inactive",
                 id);
     }
 
@@ -131,7 +105,7 @@ public class FarmDAO extends DBContext {
         }
 
         String selectQuery = """
-        SELECT f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt,
+        SELECT f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL,
                u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID,
                COUNT(DISTINCT po.OfferID) AS OfferCount,
                COUNT(DISTINCT o.OrderID) AS OrderCount
@@ -140,7 +114,7 @@ public class FarmDAO extends DBContext {
         LEFT JOIN PigsOffer po ON f.FarmID = po.FarmID
         LEFT JOIN Orders o ON f.FarmID = o.FarmID
         """ + whereClause + """
-        GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt,
+        GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL,
                  u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID
         ORDER BY """ + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -167,6 +141,7 @@ public class FarmDAO extends DBContext {
                     farm.setNote(rs.getString("Note"));
                     farm.setStatus(rs.getString("Status"));
                     farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farm.setImageURL(rs.getString("ImageURL"));
                     farm.setOfferCount(rs.getInt("OfferCount"));
                     farm.setOrderCount(rs.getInt("OrderCount"));
 
@@ -209,9 +184,9 @@ public class FarmDAO extends DBContext {
 
     public boolean createNewFarm(Farm farm) {
         String sql = """
-        INSERT INTO Farm (SellerID, FarmName, Location, Description, Note, Status, CreatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, GETDATE())
-    """;
+        INSERT INTO Farm (SellerID, FarmName, Location, Description, Note, ImageURL, Status, CreatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())
+        """;
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, farm.getSellerID());
@@ -219,7 +194,8 @@ public class FarmDAO extends DBContext {
             stm.setString(3, farm.getLocation());
             stm.setString(4, farm.getDescription());
             stm.setString(5, "Waiting");
-            stm.setString(6, "Pending");
+            stm.setString(6, farm.getImageURL());
+            stm.setString(7, "Pending");
             return stm.executeUpdate() > 0;
         } catch (Exception e) {
             System.out.println("createFarm: " + e.getMessage());
@@ -242,6 +218,7 @@ public class FarmDAO extends DBContext {
                     farm.setNote(rs.getString("Note"));
                     farm.setStatus(rs.getString("Status"));
                     farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farm.setImageURL(rs.getString("ImageURL"));
                     return farm;
                 }
             }
@@ -254,19 +231,53 @@ public class FarmDAO extends DBContext {
     public boolean updateOldFarm(Farm farm) {
         String sql = """
         UPDATE Farm 
-        SET FarmName = ?, Location = ?, Description = ?
+        SET FarmName = ?, Location = ?, Description = ?, ImageURL = ?, Status = ?
         WHERE FarmID = ?
     """;
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, farm.getFarmName());
             stm.setString(2, farm.getLocation());
             stm.setString(3, farm.getDescription());
-            stm.setInt(4, farm.getFarmID());
+            stm.setString(4, farm.getImageURL());
+            stm.setString(5, farm.getStatus());
+            stm.setInt(6, farm.getFarmID());
             return stm.executeUpdate() > 0;
         } catch (Exception e) {
             System.out.println("updateOldFarm: " + e.getMessage());
             return false;
         }
+    }
+
+    public boolean canDeactivateFarm(int farmId) {
+        String offerQuery = "SELECT COUNT(*) FROM PigsOffer WHERE FarmID = ? AND Status = 'Available'";
+        String orderQuery = "SELECT COUNT(*) FROM Orders WHERE FarmID = ? AND Status != 'Done'";
+
+        try (
+                PreparedStatement offerStm = connection.prepareStatement(offerQuery); PreparedStatement orderStm = connection.prepareStatement(orderQuery)) {
+            offerStm.setInt(1, farmId);
+            orderStm.setInt(1, farmId);
+
+            try (ResultSet offerRs = offerStm.executeQuery(); ResultSet orderRs = orderStm.executeQuery()) {
+                boolean hasAvailableOffer = offerRs.next() && offerRs.getInt(1) > 0;
+                boolean hasUnfinishedOrder = orderRs.next() && orderRs.getInt(1) > 0;
+                return !hasAvailableOffer && !hasUnfinishedOrder;
+            }
+        } catch (Exception e) {
+            System.out.println("canDeactivateFarm: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean setFarmStatus(int farmId, String status) {
+        String sql = "UPDATE Farm SET Status = ? WHERE FarmID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, status);
+            stm.setInt(2, farmId);
+            return stm.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public boolean deleteOldFarm(int farmId, int userId) {
@@ -284,7 +295,7 @@ public class FarmDAO extends DBContext {
     public List<Farm> getFarmsBySellerId(int sellerId) {
         List<Farm> farms = new ArrayList<>();
         String sql = """
-        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt
+        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL
         FROM Farm f
         WHERE f.SellerID = ?
         ORDER BY f.FarmName
@@ -302,6 +313,7 @@ public class FarmDAO extends DBContext {
                     farm.setNote(rs.getString("Note"));
                     farm.setStatus(rs.getString("Status"));
                     farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farm.setImageURL(rs.getString("ImageURL"));
                     farms.add(farm);
                 }
             }
@@ -355,6 +367,25 @@ public class FarmDAO extends DBContext {
         return 0;
     }
 
+    public int countFarmsBySeller(int sellerId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM Farm
+            WHERE SellerID = ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public List<Farm> searchAllFarmsWithPagination(String keyword, int offset, int limit) {
         List<Farm> farms = new ArrayList<>();
         String sql = """
@@ -404,6 +435,70 @@ public class FarmDAO extends DBContext {
         return 0;
     }
 
-    
+    public List<Farm> getActiveFarmsBySellerId(int sellerId) {
+        List<Farm> farms = new ArrayList<>();
+        String sql = """
+        SELECT f.FarmID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL
+        FROM Farm f
+        WHERE f.SellerID = ? AND f.Status = 'Active'
+        ORDER BY f.FarmName
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farm.setImageURL(rs.getString("ImageURL"));
+                    farms.add(farm);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return farms;
+    }
+
+    public int countActiveFarmsBySeller(int sellerId) {
+        String sql = """
+            SELECT COUNT(*)
+            FROM Farm
+            WHERE SellerID = ?
+              AND Status = 'Active'
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public boolean isActiveFarm(int farmId) {
+        String sql = "SELECT 1 FROM Farm WHERE FarmID = ? AND Status = 'Active'";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, farmId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 }

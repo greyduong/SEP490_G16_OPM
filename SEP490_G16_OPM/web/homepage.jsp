@@ -66,12 +66,12 @@
                                             ${param.categoryName}
                                         </c:when>
                                         <c:otherwise>
-                                            Categories
+                                            Loại Heo
                                         </c:otherwise>
                                     </c:choose></span>
                             </div>
                             <ul>
-                                <li><a href="home">All Categories</a></li>
+                                <li><a href="home">Tất cả</a></li>
                                     <c:forEach var="c" items="${categoryList}">
                                     <li><a href="home?categoryName=${c.name}">${c.name}</a></li>
                                     </c:forEach>
@@ -223,7 +223,7 @@
                 </section>
                  Blog Section End -->
 
-        <jsp:include page="component/footer.jsp"></jsp:include>
+        <jsp:include page="component/footer.jsp" />
 
         <!-- Modal Add to Cart -->
         <div class="modal fade" id="addToCartModal" tabindex="-1" role="dialog">
@@ -287,15 +287,9 @@
             });
         </script>
 
-
-        <script>
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get("error") === "access-denied") {
-                alert("You do not have permission to access that page.");
-                window.history.replaceState({}, document.title, window.location.pathname); // Clean URL
-            }
-        </script>
-
+        <c:if test="${not empty param.error and param.error == '403'}">
+            alert("Bạn không có quyền thực hiện việc này");
+        </c:if>
 
     </body>
 </html>
