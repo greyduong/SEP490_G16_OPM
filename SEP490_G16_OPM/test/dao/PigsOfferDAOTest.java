@@ -20,5 +20,4 @@ public class PigsOfferDAOTest {
         PigsOfferDAO dao = new PigsOfferDAO();
         dao.updateExpiredOffers();
     }
-    
 }
