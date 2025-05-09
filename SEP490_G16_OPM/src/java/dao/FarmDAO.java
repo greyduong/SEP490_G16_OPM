@@ -327,7 +327,7 @@ public class FarmDAO extends DBContext {
     public List<Farm> getAllFarmsWithPagination(int offset, int limit) {
         List<Farm> farms = new ArrayList<>();
         String sql = """
-        SELECT FarmID, FarmName, Location, Description, Note, Status, CreatedAt
+        SELECT FarmID, FarmName, Location, Description, Note, Status, CreatedAt, ImageURL
         FROM Farm
         ORDER BY CreatedAt DESC
         OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
@@ -346,6 +346,7 @@ public class FarmDAO extends DBContext {
                     f.setNote(rs.getString("Note"));
                     f.setStatus(rs.getString("Status"));
                     f.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    f.setImageURL(rs.getString("ImageURL"));
                     farms.add(f);
                 }
             }
@@ -389,7 +390,7 @@ public class FarmDAO extends DBContext {
     public List<Farm> searchAllFarmsWithPagination(String keyword, int offset, int limit) {
         List<Farm> farms = new ArrayList<>();
         String sql = """
-        SELECT FarmID, FarmName, Location, Description, Note, Status, CreatedAt
+        SELECT FarmID, FarmName, Location, Description, Note, Status, CreatedAt, ImageURL
         FROM Farm
         WHERE FarmName LIKE ?
         ORDER BY CreatedAt DESC
@@ -410,6 +411,7 @@ public class FarmDAO extends DBContext {
                     f.setNote(rs.getString("Note"));
                     f.setStatus(rs.getString("Status"));
                     f.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    f.setImageURL(rs.getString("ImageURL"));
                     farms.add(f);
                 }
             }

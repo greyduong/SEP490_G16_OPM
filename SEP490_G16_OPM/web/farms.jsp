@@ -33,7 +33,7 @@
                     <c:forEach var="f" items="${farmList}">
                         <div class="col-lg-3 col-md-4 col-sm-6 mix">
                             <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="img/default-farm.jpg">
+                                <div class="featured__item__pic set-bg" data-setbg="${f.imageURL}">
                                     <ul class="featured__item__pic__hover">
                                         <li>
                                             <a href="farm-detail?id=${f.farmID}">
