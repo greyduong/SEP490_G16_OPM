@@ -97,7 +97,7 @@
                 </a>
             </c:if>
             <c:if test="${sessionScope.user.roleID == 2}">
-                <a href="${pageContext.request.contextPath}/cart">
+                <a href="${pageContext.request.contextPath}/pending-farms">
                     <span class="mdi mdi-barn"></span>
                     Trang trại chờ duyệt
                 </a>              
