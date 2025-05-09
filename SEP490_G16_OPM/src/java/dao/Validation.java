@@ -61,6 +61,11 @@ public class Validation {
         return null;
     }
 
+    // Kiểm tra họ tên hợp lệ: chỉ chữ cái (unicode) và khoảng trắng, tối thiểu 2 ký tự
+    public static boolean isValidFullName(String fullname) {
+        return fullname != null && fullname.matches("^[\\p{L} ]{2,50}$");
+    }
+
     // Kiểm tra không chứa ký tự đặc biệt và không có 2 dấu cách liên tiếp
     private static boolean isValidTextFormat(String input) {
         return input.matches("^(?!.* {2})[\\p{L}\\d ]+$");
@@ -116,6 +121,7 @@ public class Validation {
 
     public static String formatToTitleCase(String input) {
         return toTitleCase(input);
+
     }
 
     // Validate tên chào bán

@@ -33,30 +33,38 @@
                     <input type="hidden" name="action" value="signup" />
                     <input type="text" name="fullname" placeholder="Full name" value="${fullname != null ? fullname : ''}" required />
                     <input type="text" name="username" placeholder="Username" value="${username != null ? username : ''}" required />
+                    <input type="email" name="email" placeholder="Email" value="${email}" required />
                     <select name="role">
                         <option value="Choose Role" selected>Choose Role</option>
                         <option value="Seller" ${role == 'Seller' ? 'selected' : ''}>Seller</option>
                         <option value="Dealer" ${role == 'Dealer' ? 'selected' : ''}>Dealer</option>
                     </select>
                     <input type="password" name="password" placeholder="Password" required />
-                    <input type="password" name="cfpassword" placeholder="Confirm Password" required>
+                    <input type="password" name="cfpassword" placeholder="Confirm Password" required />
+
+                    <!-- ✅ Checkbox điều khoản -->
                     <div class="checkbox">
-                        <input type="checkbox" id="signupCheck" />
-                        <label for="signupCheck">I accept all terms & conditions</label>
-                    </div>
+                        <input type="checkbox" id="signupCheck" name="terms" value="accepted"
+                               <c:if test="${param.terms == 'accepted'}">checked</c:if> />
+                               <label for="signupCheck">
+                                   I accept all <a href="terms.jsp" target="_blank">terms & conditions</a>
+                               </label>
+                        </div>
+
+                        <!-- Hiển thị lỗi -->
                     <c:if test="${not empty msg}">
                         <div style="color: white; font-weight: bold; margin-top: 10px;">${msg}</div>
                     </c:if>
 
-                    <!-- Display success message -->
+                    <!-- Hiển thị thành công -->
                     <c:if test="${not empty successMsg}">
                         <div style="color: white; font-weight: bold; margin-top: 10px;">${successMsg}</div>
                     </c:if>
+
                     <input type="submit" value="Signup" />
-                    <!-- Display error message -->
-                    
                 </form>
             </div>
+
 
             <!-- LOGIN FORM -->
             <div class="form login">
@@ -87,6 +95,15 @@
                 });
             </script>
         </section>
+        <script>
+            // Check for access denied via query string
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("error") === "access-denied") {
+                alert("You do not have permission to access that page.");
+                // Remove the query param so it doesn't alert again on refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        </script>
     </body>
 </html>
 
