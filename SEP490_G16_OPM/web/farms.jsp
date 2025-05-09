@@ -15,6 +15,20 @@
                 <div class="section-title">
                     <h2>Danh sách trang trại</h2>
                 </div>
+                <div class="container mb-4">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="hero__search">
+                                <div class="hero__search__form">
+                                    <form action="dealer-farms" method="get">
+                                        <input type="text" name="search" placeholder="Tìm kiếm tên trang trại..." value="${param.search}">
+                                        <button type="submit" class="site-btn">SEARCH</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row featured__filter">
                     <c:forEach var="f" items="${farmList}">
                         <div class="col-lg-3 col-md-4 col-sm-6 mix">
@@ -22,19 +36,23 @@
                                 <div class="featured__item__pic set-bg" data-setbg="img/default-farm.jpg">
                                     <ul class="featured__item__pic__hover">
                                         <li>
-                                            <a href="FarmDetailController?farmId=${f.farmID}">
+                                            <a href="farm-detail?id=${f.farmID}">
                                                 <i class="fa fa-eye"></i>
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="featured__item__text">
-                                    <h6><a href="FarmDetailController?farmId=${f.farmID}">${f.farmName}</a></h6>
+                                    <h6><a href="farm-detail?id=${f.farmID}">${f.farmName}</a></h6>
                                     <p>Địa điểm: ${f.location}</p>
                                 </div>
                             </div>
                         </div>
                     </c:forEach>
+
+                    <c:if test="${empty farmList}">
+                        <div class="col-12 text-center text-muted">Không tìm thấy trang trại nào.</div>
+                    </c:if>
                 </div>
 
                 <c:if test="${not empty totalPages}">

@@ -7,10 +7,21 @@
             <span class="mdi mdi-home"></span>
             Trang chủ
         </a>
-        <a href="${pageContext.request.contextPath}/my-farms" class="!font-bold !text-slate-600 hover:!text-green-600">
-            <span class="mdi mdi-barn"></span>
-            Trang trại
-        </a>
+        <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
+            <!-- Seller -->
+            <a href="${pageContext.request.contextPath}/my-farms" class="!font-bold !text-slate-600 hover:!text-green-600">
+                <span class="mdi mdi-barn"></span>
+                Trang trại của tôi
+            </a>
+        </c:if>
+
+        <c:if test="${sessionScope.user == null || sessionScope.user.roleID != 4}">
+            <!-- Guest, Dealer, Admin... -->
+            <a href="${pageContext.request.contextPath}/farms" class="!font-bold !text-slate-600 hover:!text-green-600">
+                <span class="mdi mdi-barn"></span>
+                Trang trại
+            </a>
+        </c:if>
         <a href="${pageContext.request.contextPath}/my-offers" class="!font-bold !text-slate-600 hover:!text-green-600">
             <span class="mdi mdi-offer"></span>
             Chào bán

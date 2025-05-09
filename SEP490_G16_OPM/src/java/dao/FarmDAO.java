@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Farm;
 import model.Page;
+import model.PigsOffer;
 import model.User;
 
 public class FarmDAO extends DBContext {
@@ -353,5 +354,56 @@ public class FarmDAO extends DBContext {
         }
         return 0;
     }
+
+    public List<Farm> searchAllFarmsWithPagination(String keyword, int offset, int limit) {
+        List<Farm> farms = new ArrayList<>();
+        String sql = """
+        SELECT FarmID, FarmName, Location, Description, Note, Status, CreatedAt
+        FROM Farm
+        WHERE FarmName LIKE ?
+        ORDER BY CreatedAt DESC
+        OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Farm f = new Farm();
+                    f.setFarmID(rs.getInt("FarmID"));
+                    f.setFarmName(rs.getString("FarmName"));
+                    f.setLocation(rs.getString("Location"));
+                    f.setDescription(rs.getString("Description"));
+                    f.setNote(rs.getString("Note"));
+                    f.setStatus(rs.getString("Status"));
+                    f.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farms.add(f);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("searchAllFarmsWithPagination: " + e.getMessage());
+        }
+
+        return farms;
+    }
+
+    public int countSearchAllFarms(String keyword) {
+        String sql = "SELECT COUNT(*) FROM Farm WHERE FarmName LIKE ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("countSearchAllFarms: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    
 
 }
