@@ -23,7 +23,7 @@ public class LoginController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = Optional.ofNullable(req.getParameter("username")).orElse("");
         String password = Optional.ofNullable(req.getParameter("password")).orElse("");
-        
+
         req.setAttribute("username", username);
         req.setAttribute("password", password);
         req.setAttribute("error", null);

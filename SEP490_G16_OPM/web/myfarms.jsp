@@ -39,6 +39,7 @@
                         <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>Hoạt động</option>
                         <option value="Pending" ${param.status == 'Pending' ? 'selected' : ''}>Đang chờ</option>
                         <option value="Inactive" ${param.status == 'Inactive' ? 'selected' : ''}>Không hoạt động</option>
+                        <option value="Cancel" ${param.status == 'Cancel' ? 'selected' : ''}>Bị từ chối</option>
                     </select>
 
                     <!-- Hidden giữ sort -->
@@ -135,6 +136,7 @@
                                                     <c:when test="${farm.status == 'Active'}">Hoạt động</c:when>
                                                     <c:when test="${farm.status == 'Pending'}">Đang chờ</c:when>
                                                     <c:when test="${farm.status == 'Inactive'}">Không hoạt động</c:when>
+                                                    <c:when test="${farm.status == 'Cancel'}">Bị từ chối</c:when>
                                                     <c:otherwise>Không xác định</c:otherwise>
                                                 </c:choose>
                                             </td>
@@ -216,6 +218,7 @@
                                             <c:when test="${farm.status == 'Active'}">Hoạt động</c:when>
                                             <c:when test="${farm.status == 'Pending'}">Đang chờ</c:when>
                                             <c:when test="${farm.status == 'Inactive'}">Không hoạt động</c:when>
+                                            <c:when test="${farm.status == 'Cancel'}">Bị từ chối</c:when>
                                             <c:otherwise>Không xác định</c:otherwise>
                                         </c:choose>
                                     </td>

@@ -24,11 +24,16 @@ public class HomePageController extends HttpServlet {
             return;
         }
         switch (logged.get().getRoleID()) {
-            case 5 -> getDealerHomePage(request, response);
-            case 4 -> response.sendRedirect(request.getContextPath() + "/seller");
-            case 3 -> response.sendRedirect(request.getContextPath() + "/staff");
-            case 2 -> response.sendRedirect(request.getContextPath() + "/admin");
-            case 1 -> response.sendRedirect(request.getContextPath() + "/manager");
+            case 5 ->
+                getDealerHomePage(request, response);
+            case 4 ->
+                response.sendRedirect(request.getContextPath() + "/seller");
+            case 3 ->
+                response.sendRedirect(request.getContextPath() + "/staff");
+            case 2 ->
+                response.sendRedirect(request.getContextPath() + "/manager-home");
+            case 1 ->
+                response.sendRedirect(request.getContextPath() + "/admin");
         }
     }
 
