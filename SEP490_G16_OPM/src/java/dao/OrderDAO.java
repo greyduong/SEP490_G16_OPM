@@ -414,42 +414,31 @@ public class OrderDAO extends DBContext {
     }
 
     public void cancelExpiredOrders() {
-        String selectSql = "SELECT OfferID, Quantity FROM Orders "
-                + "WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24";
-
-        String updateOfferSql = "UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?";
-
-        String cancelSql = "UPDATE Orders "
-                + "SET status = 'Cancelled' "
-                + "WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24";
-
-        try (
-                PreparedStatement selectStm = connection.prepareStatement(selectSql); PreparedStatement updateOfferStm = connection.prepareStatement(updateOfferSql); PreparedStatement cancelStm = connection.prepareStatement(cancelSql);) {
-            ResultSet rs = selectStm.executeQuery();
-
-            int counter = 0;
-
-            while (rs.next()) {
-                int offerId = rs.getInt("OfferID");
-                int quantity = rs.getInt("Quantity");
-
-                updateOfferStm.setInt(1, quantity);
-                updateOfferStm.setInt(2, offerId);
-                updateOfferStm.addBatch();
-                counter++;
+        String updateQuery = """
+                       UPDATE Orders
+                       SET status = 'Cancelled'
+                       OUTPUT inserted.OrderID
+                       WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
+                       """;
+        List<Integer> ids = fetchAll((rs) -> rs.getInt("OrderID"), updateQuery);
+        if (ids.isEmpty()) {
+            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info("Không có đơn nào cần hủy");
+            return;
+        }
+        String insertQuery = """
+                             INSERT INTO ServerLog(content)
+                             VALUES (?)
+                             """;
+        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
+            for(int id : ids) {
+                String message = "Đã hủy đơn hàng id %s".formatted(id);
+                java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
+                pstm.setString(1, message);
+                pstm.addBatch();
             }
-
-            if (counter > 0) {
-                updateOfferStm.executeBatch(); // Cộng lại số lượng
-                int affected = cancelStm.executeUpdate(); // Huỷ đơn hàng
-                System.out.println("🔁 Đã huỷ " + affected + " đơn và hoàn số lượng về offer.");
-            } else {
-                System.out.println("⏳ Không có đơn hàng nào cần huỷ.");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            pstm.executeBatch();
+        } catch(Exception e) {
+            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }
-
 }

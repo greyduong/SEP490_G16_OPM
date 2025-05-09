@@ -6,15 +6,14 @@ import jakarta.servlet.annotation.WebListener;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 @WebListener
-public class ProcessOrderListener implements ServletContextListener {
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+public class TaskScheduler implements ServletContextListener {
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        Logger.getLogger(ProcessOrderListener.class.getName()).info("Start Process Order Schedule:");
-        scheduler.scheduleAtFixedRate(new ProcessOrderTask(), 0, 2, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(new ProcessOrderTask(), 0, 5, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(new ProcessOfferTask(), 0, 5, TimeUnit.MINUTES);
     }
 }
