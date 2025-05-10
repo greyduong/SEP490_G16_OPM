@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.text.DecimalFormat;
+import model.Cart;
 import model.Email;
 import model.PigsOffer;
 import model.User;
@@ -87,17 +88,19 @@ public class CheckOutController extends HttpServlet {
 
             HttpSession session = request.getSession();
             User user = (User) session.getAttribute("user");
-            if (user == null) {
-                response.sendRedirect("login-register.jsp");
-                return;
-            }
 
             CartDAO cartDAO = new CartDAO();
             PigsOfferDAO offerDAO = new PigsOfferDAO();
             OrderDAO orderDAO = new OrderDAO();
             UserDAO userDAO = new UserDAO();
 
-            // Lấy offer
+            Cart cart = cartDAO.getCartById(cartId);
+            if (cart == null || cart.getUser().getUserID() != user.getUserID()) {
+                request.setAttribute("error", "Giỏ hàng không hợp lệ.");
+                request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);
+                return;
+            }
+
             PigsOffer offer = offerDAO.getOfferById(offerId);
             if (offer == null) {
                 request.setAttribute("error", "Không tìm thấy offer.");
@@ -105,10 +108,21 @@ public class CheckOutController extends HttpServlet {
                 return;
             }
 
+            if (quantity < offer.getMinQuantity() || quantity > offer.getQuantity()) {
+                request.setAttribute("error", "Số lượng không hợp lệ.");
+                request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);
+                return;
+            }
+
             User seller = userDAO.getUserById(offer.getSellerID());
 
             // Tính tổng giá
-            double totalPrice = offer.getRetailPrice() * quantity;
+            double totalPrice;
+            if (quantity == offer.getQuantity()) {
+                totalPrice = offer.getTotalOfferPrice();
+            } else {
+                totalPrice = offer.getRetailPrice() * quantity;
+            }
 
             // Thêm đơn hàng
             orderDAO.insertOrder(user.getUserID(), offer.getSellerID(), offerId, quantity, totalPrice);

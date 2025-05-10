@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.PigsOffer;
 
 /**
  *
@@ -75,16 +76,17 @@ public class UpdateCartController extends HttpServlet {
         int cartId = Integer.parseInt(request.getParameter("cartId"));
         String mode = request.getParameter("mode");
         int quantity = Integer.parseInt(request.getParameter("quantity"));
-        int page = Integer.parseInt(request.getParameter("page")); // giữ nguyên trang hiện tại
-
-        // Nếu chọn toàn bộ, quantity sẽ bằng max đã gửi từ frontend
-        if ("all".equals(mode)) {
-            // Bạn có thể bỏ qua xử lý vì giá trị đã là max
-        }
+        int page = Integer.parseInt(request.getParameter("page"));
 
         CartDAO cartDAO = new CartDAO();
-        cartDAO.updateCartQuantity(cartId, quantity);
+        PigsOffer offer = cartDAO.getPigsOfferByCartId(cartId);
 
+        if (quantity < offer.getMinQuantity() || quantity > offer.getQuantity()) {
+            response.sendRedirect("cart?page=" + page + "&error=Số lượng không hợp lệ");
+            return;
+        }
+
+        cartDAO.updateCartQuantity(cartId, quantity);
         response.sendRedirect("cart?page=" + page);
 
     }

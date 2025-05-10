@@ -429,15 +429,15 @@ public class OrderDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
-            for(int id : ids) {
+        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
+            for (int id : ids) {
                 String message = "Đã hủy đơn hàng id %s".formatted(id);
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 pstm.setString(1, message);
                 pstm.addBatch();
             }
             pstm.executeBatch();
-        } catch(Exception e) {
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }
