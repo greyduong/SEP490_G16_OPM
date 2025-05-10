@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.FarmDAO;
 import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,7 +15,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.Farm;
 import model.Order;
+import model.Page;
 import model.User;
 
 /**
@@ -62,33 +65,59 @@ public class OrdersRequestController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Check if the user is logged in
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        // If not logged in, redirect to the login page
-        if (user == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
-        // Check if the user is a seller
-        if (user.getRoleID() != 4) {  // 4 corresponds to the Seller role
-            response.sendRedirect("home");  // Redirect to home if not a seller
-            return;
-        }
-
-        // Get the logged-in seller's ID
         int sellerId = user.getUserID();
 
-        // Create an instance of OrderDAO and fetch the pending orders for the seller
+        // Nhận tham số lọc
+        String farmIdRaw = request.getParameter("farmId");
+        String search = request.getParameter("search");
+        String sort = request.getParameter("sort");
+        String pageRaw = request.getParameter("page");
+
+        Integer farmId = null;
+        int pageIndex = 1;
+
+        try {
+            if (farmIdRaw != null && !farmIdRaw.isEmpty()) {
+                farmId = Integer.parseInt(farmIdRaw);
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        try {
+            if (pageRaw != null) {
+                pageIndex = Integer.parseInt(pageRaw);
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        int pageSize = 10;
+
+        // Gọi DAO
         OrderDAO orderDAO = new OrderDAO();
-        List<Order> pendingOrders = orderDAO.getPendingOrdersBySellerId(sellerId);
+        int totalData = orderDAO.countPendingOrdersBySellerWithFilter(sellerId, farmId, search);
+        List<Order> orderList = orderDAO.getPendingOrdersBySellerWithFilter(
+                sellerId, farmId, search, sort, pageIndex, pageSize
+        );
 
-        // Set the orders in the request scope to pass it to the JSP
-        request.setAttribute("orderList", pendingOrders);
+        // Tạo Page object
+        Page<Order> page = new Page<>();
+        page.setPageNumber(pageIndex);
+        page.setPageSize(pageSize);
+        page.setTotalData(totalData);
+        page.setData(orderList);
+        int totalPage = (int) Math.ceil((double) totalData / pageSize);
+        page.setTotalPage(totalPage);
 
-        // Forward to the order request page
+        request.setAttribute("page", page);
+
+        // Lấy danh sách trang trại để lọc
+        FarmDAO farmDAO = new FarmDAO();
+        List<Farm> farmList = farmDAO.getActiveFarmsBySellerId(sellerId);
+        request.setAttribute("farmList", farmList);
+
         request.getRequestDispatcher("orderrequestpage.jsp").forward(request, response);
     }
 
@@ -103,7 +132,7 @@ public class OrdersRequestController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

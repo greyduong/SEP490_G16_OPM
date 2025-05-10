@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import model.Farm;
 import model.Order;
 import model.OrderStat;
 import model.PigsOffer;
@@ -80,20 +81,75 @@ public class OrderDAO extends DBContext {
         return orders;
     }
 
-    public List<Order> getPendingOrdersBySellerId(int sellerId) {
+    public List<Order> getPendingOrdersBySellerWithFilter(int sellerId, Integer farmId, String search, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
-                + "       p.Name AS OfferName, p.ImageURL, p.RetailPrice, u.FullName AS DealerName "
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
+                + "       p.Name AS OfferName, p.ImageURL, p.RetailPrice, p.MinQuantity, p.MinDeposit, p.TotalOfferPrice, p.Description, "
+                + "       f.FarmID, f.FarmName, f.Location, "
+                + "       u.FullName AS DealerName "
                 + "FROM Orders o "
                 + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
                 + "JOIN UserAccount u ON o.DealerID = u.UserID "
                 + "WHERE o.SellerID = ? AND o.Status = 'Pending' "
-                + "ORDER BY o.CreatedAt DESC";
+        );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, sellerId);
+        if (farmId != null) {
+            sql.append("AND p.FarmID = ? ");
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND p.Name LIKE ? ");
+        }
+
+        if (sort != null) {
+            switch (sort) {
+                case "quantity_asc":
+                    sql.append("ORDER BY o.Quantity ASC ");
+                    break;
+                case "quantity_desc":
+                    sql.append("ORDER BY o.Quantity DESC ");
+                    break;
+                case "price_asc":
+                    sql.append("ORDER BY o.TotalPrice ASC ");
+                    break;
+                case "price_desc":
+                    sql.append("ORDER BY o.TotalPrice DESC ");
+                    break;
+                case "createdAt_asc":
+                    sql.append("ORDER BY o.CreatedAt ASC ");
+                    break;
+                case "createdAt_desc":
+                    sql.append("ORDER BY o.CreatedAt DESC ");
+                    break;
+                default:
+                    sql.append("ORDER BY o.CreatedAt DESC ");
+            }
+        } else {
+            sql.append("ORDER BY o.CreatedAt DESC ");
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, sellerId);
+
+            if (farmId != null) {
+                ps.setInt(paramIndex++, farmId);
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + search.trim() + "%");
+            }
+
+            int offset = (pageIndex - 1) * pageSize;
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex, pageSize);
+
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderID(rs.getInt("OrderID"));
@@ -105,15 +161,26 @@ public class OrderDAO extends DBContext {
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
-                // Set pigs offer info
+                // PigsOffer
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
                 offer.setName(rs.getString("OfferName"));
                 offer.setImageURL(rs.getString("ImageURL"));
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
                 order.setPigsOffer(offer);
 
-                // Set dealer info
+                // Farm
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                farm.setLocation(rs.getString("Location"));
+                order.setFarm(farm);
+
+                // Dealer
                 User dealer = new User();
                 dealer.setUserID(rs.getInt("DealerID"));
                 dealer.setFullName(rs.getString("DealerName"));
@@ -124,7 +191,44 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return orders;
+    }
+
+    public int countPendingOrdersBySellerWithFilter(int sellerId, Integer farmId, String search) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders o "
+                + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "WHERE o.SellerID = ? AND o.Status = 'Pending' "
+        );
+
+        if (farmId != null) {
+            sql.append("AND p.FarmID = ? ");
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND p.Name LIKE ? ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, sellerId);
+            if (farmId != null) {
+                ps.setInt(index++, farmId);
+            }
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
     }
 
     public List<Order> getOrdersExcludingPending(int sellerID) {
@@ -221,6 +325,17 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
         return false;  // Return false if the update fails
+    }
+
+    public boolean rejectOrder(int orderID) {
+        String sql = "UPDATE Orders SET Status = 'Rejected' WHERE OrderID = ? AND Status = 'Pending'"; // Only update if the order is 'Pending'
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean isOrderOwnedBySeller(int orderId, int sellerId) {
@@ -441,15 +556,15 @@ public class OrderDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);){
-            for(Order order : orders) {
+        try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);) {
+            for (Order order : orders) {
                 String message = "Đã hủy đơn hàng id %s".formatted(order.getOrderID());
-                
+
                 // add quantity back to offer
                 addQuantityPstm.setInt(1, order.getQuantity());
                 addQuantityPstm.setInt(2, order.getOfferID());
                 addQuantityPstm.addBatch();
-                
+
                 // add to server log
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 addLogPstm.setString(1, message);
@@ -457,7 +572,7 @@ public class OrderDAO extends DBContext {
             }
             addLogPstm.executeBatch();
             addQuantityPstm.executeBatch();
-        } catch(Exception e) {
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }

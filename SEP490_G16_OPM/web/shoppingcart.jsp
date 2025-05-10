@@ -268,5 +268,35 @@
                 });
             });
         </script>
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    const overlay = document.createElement("div");
+                    overlay.style.position = "fixed";
+                    overlay.style.top = 0;
+                    overlay.style.left = 0;
+                    overlay.style.width = "100%";
+                    overlay.style.height = "100%";
+                    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+                    overlay.style.display = "flex";
+                    overlay.style.justifyContent = "center";
+                    overlay.style.alignItems = "center";
+                    overlay.style.zIndex = 9999;
+
+                    const spinner = document.createElement("div");
+                    spinner.innerHTML = `
+                <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="text-white mt-3">Đang xử lý, vui lòng chờ...</div>
+            `;
+                    spinner.style.textAlign = "center";
+
+                    overlay.appendChild(spinner);
+                    document.body.appendChild(overlay);
+                });
+            });
+        </script>
+
     </body>
 </html>
