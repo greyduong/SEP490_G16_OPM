@@ -130,11 +130,8 @@
                                             </tr>
                                         </c:forEach>
                                     </tbody>
-
-
                                 </table>
                             </div>
-
                             <!-- Phân trang giữ search & sort -->
                             <div class="shoping__cart__pagination text-center mt-4">
                                 <c:forEach begin="1" end="${totalPages}" var="i">
@@ -249,7 +246,6 @@
                         $('#updateModalQuantity').prop('readonly', true).val(max);
                     }
                 });
-
                 $('.offer-detail-link').click(function (e) {
                     e.preventDefault();
                     $('#offerName').text($(this).data('name'));
@@ -268,5 +264,46 @@
                 });
             });
         </script>
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    if (document.getElementById("loading-overlay"))
+                        return; // Đã có overlay thì không tạo nữa
+
+                    const overlay = document.createElement("div");
+                    overlay.id = "loading-overlay"; // Gán ID để xử lý khi back
+                    overlay.style.position = "fixed";
+                    overlay.style.top = 0;
+                    overlay.style.left = 0;
+                    overlay.style.width = "100%";
+                    overlay.style.height = "100%";
+                    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+                    overlay.style.display = "flex";
+                    overlay.style.justifyContent = "center";
+                    overlay.style.alignItems = "center";
+                    overlay.style.zIndex = 9999;
+
+                    const spinner = document.createElement("div");
+                    spinner.innerHTML = `
+                <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="text-white mt-3">Đang xử lý, vui lòng chờ...</div>
+            `;
+                    spinner.style.textAlign = "center";
+
+                    overlay.appendChild(spinner);
+                    document.body.appendChild(overlay);
+                });
+            });
+
+            // Xử lý khi người dùng quay lại trang bằng nút back
+            window.addEventListener("pageshow", function () {
+                const overlay = document.getElementById("loading-overlay");
+                if (overlay)
+                    overlay.remove();
+            });
+        </script>
+
     </body>
 </html>

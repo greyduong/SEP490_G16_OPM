@@ -13,35 +13,62 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
-@WebServlet("/wallet")
+@WebServlet("/wallet-topup")
 public class VNPayRedirect extends HttpServlet {
 
-    /**
-     * Show wallet topup page
-     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
     }
 
-    /**
-     * Create order and redirect to VNPay checkout
-     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = (User) req.getSession().getAttribute("user");
         int userID = user.getUserID();
+
+        String method = Optional.ofNullable(req.getParameter("method")).orElse("picker");
+        req.setAttribute("method", method);
+        req.setAttribute("amount", req.getParameter("amount"));
+        req.setAttribute("amountInput", req.getParameter("amountInput"));
+        
         long amount;
+        if (method.equals("picker")) {
+            try {
+                amount = Long.parseLong(req.getParameter("amount"));
+            } catch (NumberFormatException e) {
+                req.setAttribute("error", "Mệnh giá không hợp lệ");
+                req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
+                return;
+            }
+        } else {
+            try {
+                amount = Long.parseLong(req.getParameter("amountInput"));
+            } catch (NumberFormatException e) {
+                req.setAttribute("error", "Mệnh giá không hợp lệ");
+                req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
+                return;
+            }
+        }
+
         // validate amount
-        try {
-            amount = Long.parseLong(req.getParameter("amount")) * 100;
-        } catch (NumberFormatException e) {
-            req.setAttribute("error", "Invalid amount");
+        if (amount % 10000 != 0) {
+            req.setAttribute("error", "Mệnh giá phải là bội số của 10,000");
             req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
             return;
         }
+        if (amount < 10000 || amount > 100000000) {
+            req.setAttribute("error", "Mệnh giá không hợp lệ");
+            req.getRequestDispatcher("wallet-topup.jsp").forward(req, resp);
+            return;
+        }
+        
+        
+        // VNPay require *100
+        amount = amount * 100;
+
         // generate random txnRef
         String txnRef = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -49,7 +76,7 @@ public class VNPayRedirect extends HttpServlet {
         WalletTopupHistory history = new WalletTopupHistory();
         history.setUserID(userID);
         history.setTxnRef(txnRef);
-        history.setAmount(amount);
+        history.setAmount(amount / 100);
         history.setStatus("Pending");
         new WalletTopupHistoryDAO().create(history);
 

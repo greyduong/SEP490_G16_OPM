@@ -21,8 +21,8 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "ConfirmOrderController", urlPatterns = {"/confirm-order"})
-public class ConfirmOrderController extends HttpServlet {
+@WebServlet(name = "RejectOrderController", urlPatterns = {"/reject-order"})
+public class RejectOrderController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +41,10 @@ public class ConfirmOrderController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ConfirmOrderController</title>");
+            out.println("<title>Servlet RejectOrderController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ConfirmOrderController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RejectOrderController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -76,30 +76,27 @@ public class ConfirmOrderController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
         String orderIDStr = request.getParameter("orderID");
 
         if (orderIDStr != null) {
             try {
                 int orderID = Integer.parseInt(orderIDStr);
-
                 OrderDAO orderDAO = new OrderDAO();
                 Order order = orderDAO.getOrderById(orderID);
 
                 if (order != null && order.getSellerID() == user.getUserID() && order.getStatus().equals("Pending")) {
-                    boolean isUpdated = orderDAO.confirmOrder(orderID);
+                    boolean isUpdated = orderDAO.rejectOrder(orderID);
 
                     if (isUpdated) {
                         String toEmail = order.getDealer().getEmail();
                         String buyerName = order.getDealer().getFullName();
 
-                        String subject = "Đơn hàng #" + orderID + " đã được xác nhận";
+                        String subject = "Đơn hàng #" + orderID + " đã bị từ chối";
                         String content = "Xin chào " + buyerName + ",\n\n"
-                                + "Đơn hàng của bạn với mã #" + orderID + " đã được người bán xác nhận.\n"
-                                + "Vui lòng truy cập hệ thống để xem chi tiết đơn hàng.\n\n"
+                                + "Rất tiếc, đơn hàng #" + orderID + " của bạn đã bị người bán từ chối.\n"
+                                + "Bạn có thể đặt đơn hàng khác hoặc liên hệ lại nếu cần thêm thông tin.\n\n"
                                 + "Trân trọng,\nOnline Pig Market.";
 
                         try {
@@ -107,14 +104,15 @@ public class ConfirmOrderController extends HttpServlet {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        String encodedMsg = java.net.URLEncoder.encode("Xác nhận đơn hàng thành công.", "UTF-8");
+
+                        String encodedMsg = java.net.URLEncoder.encode("Đã từ chối đơn hàng thành công.", "UTF-8");
                         response.sendRedirect("orders-request?msg=" + encodedMsg);
                     } else {
-                        request.setAttribute("msg", "Lỗi: Không thể xác nhận đơn hàng.");
+                        request.setAttribute("msg", "Lỗi: Không thể từ chối đơn hàng.");
                         request.getRequestDispatcher("orders-request").forward(request, response);
                     }
                 } else {
-                    request.setAttribute("msg", "Bạn không có quyền xác nhận đơn hàng này.");
+                    request.setAttribute("msg", "Bạn không có quyền từ chối đơn hàng này.");
                     request.getRequestDispatcher("orders-request").forward(request, response);
                 }
 
@@ -124,6 +122,7 @@ public class ConfirmOrderController extends HttpServlet {
         } else {
             response.sendRedirect("orders-request");
         }
+
     }
 
     /**

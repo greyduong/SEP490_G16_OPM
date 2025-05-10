@@ -43,6 +43,10 @@
             </a>
         </c:if>
         <c:if test="${not empty sessionScope.user}">
+            <a href="${pageContext.request.contextPath}/wallet" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
+                <span class="mdi mdi-cash"></span>
+                <fmt:formatNumber currencyCode="VND" value="${user.wallet}" />đ
+            </a>
             <a href="${pageContext.request.contextPath}/profile"
                class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-account"></span>
@@ -68,11 +72,11 @@
                     <span class="mdi mdi-offer"></span>
                     Chào bán
                 </a>
-                <a href="${pageContext.request.contextPath}/CustomerOrderPageController">
+                <a href="${pageContext.request.contextPath}/customer-orders">
                     <span class="mdi mdi-invoice-list"></span>
                     Hóa đơn của khách
                 </a>
-                <a href="${pageContext.request.contextPath}/OrdersRequestController">
+                <a href="${pageContext.request.contextPath}/orders-request">
                     <span class="mdi mdi-invoice-list"></span>
                     Hóa đơn chờ duyệt
                 </a>
