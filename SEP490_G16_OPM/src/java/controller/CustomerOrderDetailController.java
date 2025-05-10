@@ -23,7 +23,7 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "CustomerOrderDetailController", urlPatterns = {"/CustomerOrderDetailController"})
+@WebServlet(name = "CustomerOrderDetailController", urlPatterns = {"/customer-order-details"})
 public class CustomerOrderDetailController extends HttpServlet {
 
     /**
@@ -66,12 +66,7 @@ public class CustomerOrderDetailController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("home");  // Redirect if not a Seller
-            return;
-        }
-
+        
         String orderIdStr = request.getParameter("id");
         if (orderIdStr != null) {
             try {
