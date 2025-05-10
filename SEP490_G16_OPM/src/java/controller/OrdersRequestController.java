@@ -24,7 +24,7 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "OrdersRequestController", urlPatterns = {"/OrdersRequestController"})
+@WebServlet(name = "OrdersRequestController", urlPatterns = {"/orders-request"})
 public class OrdersRequestController extends HttpServlet {
 
     /**

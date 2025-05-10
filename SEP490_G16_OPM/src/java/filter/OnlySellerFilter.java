@@ -20,10 +20,10 @@ import java.io.IOException;
     "/createOffer",
     "/updateOffer",
     "/updateOfferStatus",
-    "/OrdersRequestController",
-    "/ConfirmOrderController",
-    "/RejectOrderController",
-    "/CustomerOrderPageController"
+    "/orders-request",
+    "/confirm-order",
+    "/reject-order",
+    "/customer-orders"
 })
 public class OnlySellerFilter extends HttpFilter {
 

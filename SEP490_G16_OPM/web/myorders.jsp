@@ -51,7 +51,8 @@
             </c:if>
 
             <form class="form-inline mb-3" method="get" action="myorders">
-                <input type="text" name="search" class="form-control form-control-sm mr-2" placeholder="Tìm theo tên chào bán" value="${param.search}" />
+                <input type="text" name="search" class="form-control form-control-sm mr-2"
+                       placeholder="Tìm theo mã đơn hoặc tên chào bán" value="${param.search}" />
                 <select name="status" class="form-control form-control-sm mr-2">
                     <option value="">Tất cả trạng thái</option>
                     <option value="Pending" ${param.status == 'Pending' ? 'selected' : ''}>Chờ xác nhận</option>
@@ -68,6 +69,7 @@
             </form>
 
             <c:set var="currentSort" value="${param.sort}" />
+            <c:set var="nextOrderIdSort" value="${currentSort == 'orderid_desc' ? 'orderid_asc' : 'orderid_desc'}" />
             <c:set var="nextQuantitySort" value="${currentSort == 'quantity_desc' ? 'quantity_asc' : 'quantity_desc'}" />
             <c:set var="nextPriceSort" value="${currentSort == 'totalprice_desc' ? 'totalprice_asc' : 'totalprice_desc'}" />
             <c:set var="nextCreatedAtSort" value="${currentSort == 'createdat_desc' ? 'createdat_asc' : 'createdat_desc'}" />
@@ -82,7 +84,16 @@
                     <table class="table table-bordered text-center">
                         <thead class="thead-dark">
                             <tr>
-                                <th>#</th>
+                                <th>
+                                    Mã đơn
+                                    <a href="myorders?sort=${nextOrderIdSort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-outline-light ml-1">
+                                        <c:choose>
+                                            <c:when test="${currentSort == 'orderid_asc'}">▲</c:when>
+                                            <c:when test="${currentSort == 'orderid_desc'}">▼</c:when>
+                                            <c:otherwise>⇅</c:otherwise>
+                                        </c:choose>
+                                    </a>
+                                </th>
                                 <th>Chào bán</th>
                                 <th>Số lượng
                                     <a href="myorders?sort=${nextQuantitySort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-outline-light ml-1">
@@ -121,16 +132,15 @@
                                         </c:choose>
                                     </a>
                                 </th>
-
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="o" items="${page.data}" varStatus="loop">
+                            <c:forEach var="o" items="${page.data}">
                                 <tr>
                                     <td>
                                         <form action="view-order-detail" method="get" class="d-inline">
                                             <input type="hidden" name="id" value="${o.orderID}" />
-                                            <button type="submit" class="btn btn-link p-0">${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</button>
+                                            <button type="submit" class="btn btn-link p-0">${o.orderID}</button>
                                         </form>
                                     </td>
                                     <td>${o.pigsOffer.name}</td>
@@ -139,7 +149,8 @@
                                     <td class="status-${o.status}">
                                         <c:choose>
                                             <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
-                                            <c:when test="${o.status == 'Confirmed'}">Đã xác nhận
+                                            <c:when test="${o.status == 'Confirmed'}">
+                                                Đã xác nhận
                                                 <form action="deposit-order" method="post" class="d-inline ml-2">
                                                     <input type="hidden" name="orderId" value="${o.orderID}" />
                                                     <input type="hidden" name="search" value="${param.search}" />
@@ -187,8 +198,6 @@
                     </small>
                 </div>
 
-
-                <!-- Phân trang -->
                 <nav>
                     <ul class="pagination justify-content-center">
                         <c:forEach begin="1" end="${page.totalPage}" var="i">
@@ -208,46 +217,5 @@
         </div>
 
         <jsp:include page="component/footer.jsp" />
-        <script>
-            // Xử lý submit
-            document.querySelectorAll("form").forEach(form => {
-                form.addEventListener("submit", function () {
-                    const overlay = document.createElement("div");
-                    overlay.id = "loading-overlay"; // Gán ID để dễ xử lý khi quay lại
-
-                    overlay.style.position = "fixed";
-                    overlay.style.top = 0;
-                    overlay.style.left = 0;
-                    overlay.style.width = "100%";
-                    overlay.style.height = "100%";
-                    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-                    overlay.style.display = "flex";
-                    overlay.style.justifyContent = "center";
-                    overlay.style.alignItems = "center";
-                    overlay.style.zIndex = 9999;
-
-                    const spinner = document.createElement("div");
-                    spinner.innerHTML = `
-                <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
-                    <span class="sr-only">Loading...</span>
-                </div>
-                <div class="text-white mt-3">Đang xử lý, vui lòng chờ...</div>
-            `;
-                    spinner.style.textAlign = "center";
-
-                    overlay.appendChild(spinner);
-                    document.body.appendChild(overlay);
-                });
-            });
-
-            // Khi quay lại trang bằng nút Back, loại bỏ overlay
-            window.addEventListener("pageshow", function (event) {
-                const overlay = document.getElementById("loading-overlay");
-                if (overlay) {
-                    overlay.remove();
-                }
-            });
-        </script>
-
     </body>
 </html>

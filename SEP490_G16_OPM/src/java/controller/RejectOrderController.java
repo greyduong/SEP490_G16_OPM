@@ -21,7 +21,7 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "RejectOrderController", urlPatterns = {"/RejectOrderController"})
+@WebServlet(name = "RejectOrderController", urlPatterns = {"/reject-order"})
 public class RejectOrderController extends HttpServlet {
 
     /**
@@ -106,21 +106,21 @@ public class RejectOrderController extends HttpServlet {
                         }
 
                         String encodedMsg = java.net.URLEncoder.encode("Đã từ chối đơn hàng thành công.", "UTF-8");
-                        response.sendRedirect("OrdersRequestController?msg=" + encodedMsg);
+                        response.sendRedirect("orders-request?msg=" + encodedMsg);
                     } else {
                         request.setAttribute("msg", "Lỗi: Không thể từ chối đơn hàng.");
-                        request.getRequestDispatcher("OrdersRequestController").forward(request, response);
+                        request.getRequestDispatcher("orders-request").forward(request, response);
                     }
                 } else {
                     request.setAttribute("msg", "Bạn không có quyền từ chối đơn hàng này.");
-                    request.getRequestDispatcher("OrdersRequestController").forward(request, response);
+                    request.getRequestDispatcher("orders-request").forward(request, response);
                 }
 
             } catch (NumberFormatException e) {
-                response.sendRedirect("OrdersRequestController");
+                response.sendRedirect("orders-request");
             }
         } else {
-            response.sendRedirect("OrdersRequestController");
+            response.sendRedirect("orders-request");
         }
 
     }

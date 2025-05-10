@@ -49,45 +49,47 @@ public class OrderDAO extends DBContext {
         );
 
         if (search != null && !search.trim().isEmpty()) {
-            sql.append("AND p.Name LIKE ? ");
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
         }
 
         if (status != null && !status.trim().isEmpty()) {
             sql.append("AND o.Status = ? ");
         }
 
-        if (sort != null && !sort.isBlank()) {
-            switch (sort) {
-                case "quantity_asc":
-                    sql.append("ORDER BY o.Quantity ASC ");
-                    break;
-                case "quantity_desc":
-                    sql.append("ORDER BY o.Quantity DESC ");
-                    break;
-                case "totalprice_asc":
-                    sql.append("ORDER BY o.TotalPrice ASC ");
-                    break;
-                case "totalprice_desc":
-                    sql.append("ORDER BY o.TotalPrice DESC ");
-                    break;
-                case "createdat_asc":
-                    sql.append("ORDER BY o.CreatedAt ASC ");
-                    break;
-                case "createdat_desc":
-                    sql.append("ORDER BY o.CreatedAt DESC ");
-                    break;
-                case "processeddate_asc":
-                    sql.append("ORDER BY o.ProcessedDate ASC ");
-                    break;
-                case "processeddate_desc":
-                    sql.append("ORDER BY o.ProcessedDate DESC ");
-                    break;
-                default:
-                    sql.append("ORDER BY o.CreatedAt DESC ");
-                    break;
-            }
-        } else {
-            sql.append("ORDER BY o.CreatedAt DESC ");
+        switch (sort != null ? sort : "") {
+            case "orderid_asc":
+                sql.append("ORDER BY o.OrderID ASC ");
+                break;
+            case "orderid_desc":
+                sql.append("ORDER BY o.OrderID DESC ");
+                break;
+            case "quantity_asc":
+                sql.append("ORDER BY o.Quantity ASC ");
+                break;
+            case "quantity_desc":
+                sql.append("ORDER BY o.Quantity DESC ");
+                break;
+            case "totalprice_asc":
+                sql.append("ORDER BY o.TotalPrice ASC ");
+                break;
+            case "totalprice_desc":
+                sql.append("ORDER BY o.TotalPrice DESC ");
+                break;
+            case "createdat_asc":
+                sql.append("ORDER BY o.CreatedAt ASC ");
+                break;
+            case "createdat_desc":
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+            case "processeddate_asc":
+                sql.append("ORDER BY o.ProcessedDate ASC ");
+                break;
+            case "processeddate_desc":
+                sql.append("ORDER BY o.ProcessedDate DESC ");
+                break;
+            default:
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
         }
 
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
@@ -97,6 +99,7 @@ public class OrderDAO extends DBContext {
             ps.setInt(index++, buyerId);
 
             if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
                 ps.setString(index++, "%" + search.trim() + "%");
             }
 
@@ -161,7 +164,7 @@ public class OrderDAO extends DBContext {
         );
 
         if (search != null && !search.trim().isEmpty()) {
-            sql.append("AND p.Name LIKE ? ");
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
         }
 
         if (status != null && !status.trim().isEmpty()) {
@@ -173,6 +176,7 @@ public class OrderDAO extends DBContext {
             ps.setInt(index++, buyerId);
 
             if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
                 ps.setString(index++, "%" + search.trim() + "%");
             }
 
@@ -211,40 +215,42 @@ public class OrderDAO extends DBContext {
         }
 
         if (search != null && !search.trim().isEmpty()) {
-            sql.append("AND p.Name LIKE ? ");
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
         }
 
-        if (sort != null) {
-            switch (sort) {
-                case "quantity_asc":
-                    sql.append("ORDER BY o.Quantity ASC ");
-                    break;
-                case "quantity_desc":
-                    sql.append("ORDER BY o.Quantity DESC ");
-                    break;
-                case "price_asc":
-                    sql.append("ORDER BY o.TotalPrice ASC ");
-                    break;
-                case "price_desc":
-                    sql.append("ORDER BY o.TotalPrice DESC ");
-                    break;
-                case "createdAt_asc":
-                    sql.append("ORDER BY o.CreatedAt ASC ");
-                    break;
-                case "createdAt_desc":
-                    sql.append("ORDER BY o.CreatedAt DESC ");
-                    break;
-                case "processeddate_asc":
-                    sql.append("ORDER BY o.ProcessedDate ASC ");
-                    break;
-                case "processeddate_desc":
-                    sql.append("ORDER BY o.ProcessedDate DESC ");
-                    break;
-                default:
-                    sql.append("ORDER BY o.CreatedAt DESC ");
-            }
-        } else {
-            sql.append("ORDER BY o.CreatedAt DESC ");
+        switch (sort != null ? sort : "") {
+            case "orderid_asc":
+                sql.append("ORDER BY o.OrderID ASC ");
+                break;
+            case "orderid_desc":
+                sql.append("ORDER BY o.OrderID DESC ");
+                break;
+            case "quantity_asc":
+                sql.append("ORDER BY o.Quantity ASC ");
+                break;
+            case "quantity_desc":
+                sql.append("ORDER BY o.Quantity DESC ");
+                break;
+            case "price_asc":
+                sql.append("ORDER BY o.TotalPrice ASC ");
+                break;
+            case "price_desc":
+                sql.append("ORDER BY o.TotalPrice DESC ");
+                break;
+            case "createdAt_asc":
+                sql.append("ORDER BY o.CreatedAt ASC ");
+                break;
+            case "createdAt_desc":
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+            case "processeddate_asc":
+                sql.append("ORDER BY o.ProcessedDate ASC ");
+                break;
+            case "processeddate_desc":
+                sql.append("ORDER BY o.ProcessedDate DESC ");
+                break;
+            default:
+                sql.append("ORDER BY o.CreatedAt DESC ");
         }
 
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
@@ -258,6 +264,7 @@ public class OrderDAO extends DBContext {
             }
 
             if (search != null && !search.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + search.trim() + "%");
                 ps.setString(paramIndex++, "%" + search.trim() + "%");
             }
 
@@ -320,17 +327,21 @@ public class OrderDAO extends DBContext {
         if (farmId != null) {
             sql.append("AND p.FarmID = ? ");
         }
+
         if (search != null && !search.trim().isEmpty()) {
-            sql.append("AND p.Name LIKE ? ");
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
         }
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int index = 1;
             ps.setInt(index++, sellerId);
+
             if (farmId != null) {
                 ps.setInt(index++, farmId);
             }
+
             if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
                 ps.setString(index++, "%" + search.trim() + "%");
             }
 
@@ -345,18 +356,87 @@ public class OrderDAO extends DBContext {
         return count;
     }
 
-    public List<Order> getOrdersExcludingPending(int sellerID) {
+    public List<Order> getOrdersExcludingPendingWithFilter(int sellerId, Integer farmId, String search, String status, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
-                + "       p.Name AS OfferName, p.ImageURL, p.RetailPrice, u.FullName AS DealerName "
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, "
+                + "f.FarmID, f.FarmName, u.FullName AS DealerName "
                 + "FROM Orders o "
                 + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
                 + "JOIN UserAccount u ON o.DealerID = u.UserID "
                 + "WHERE o.SellerID = ? AND o.Status != 'Pending' "
-                + "ORDER BY o.CreatedAt DESC";
+        );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, sellerID);
+        if (farmId != null) {
+            sql.append("AND f.FarmID = ? ");
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND o.Status = ? ");
+        }
+
+        switch (sort != null ? sort : "") {
+            case "orderid_asc":
+                sql.append("ORDER BY o.OrderID ASC ");
+                break;
+            case "orderid_desc":
+                sql.append("ORDER BY o.OrderID DESC ");
+                break;
+            case "quantity_asc":
+                sql.append("ORDER BY o.Quantity ASC ");
+                break;
+            case "quantity_desc":
+                sql.append("ORDER BY o.Quantity DESC ");
+                break;
+            case "totalprice_asc":
+                sql.append("ORDER BY o.TotalPrice ASC ");
+                break;
+            case "totalprice_desc":
+                sql.append("ORDER BY o.TotalPrice DESC ");
+                break;
+            case "createdat_asc":
+                sql.append("ORDER BY o.CreatedAt ASC ");
+                break;
+            case "createdat_desc":
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+            case "processeddate_asc":
+                sql.append("ORDER BY o.ProcessedDate ASC ");
+                break;
+            case "processeddate_desc":
+                sql.append("ORDER BY o.ProcessedDate DESC ");
+                break;
+            default:
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int i = 1;
+            ps.setInt(i++, sellerId);
+
+            if (farmId != null) {
+                ps.setInt(i++, farmId);
+            }
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(i++, "%" + search.trim() + "%");
+                ps.setString(i++, "%" + search.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(i++, status);
+            }
+
+            int offset = (pageIndex - 1) * pageSize;
+            ps.setInt(i++, offset);
+            ps.setInt(i, pageSize);
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Order order = new Order();
@@ -368,8 +448,8 @@ public class OrderDAO extends DBContext {
                 order.setTotalPrice(rs.getDouble("TotalPrice"));
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Set offer details
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
                 offer.setName(rs.getString("OfferName"));
@@ -377,7 +457,11 @@ public class OrderDAO extends DBContext {
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
                 order.setPigsOffer(offer);
 
-                // Set dealer info
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                order.setFarm(farm);
+
                 User dealer = new User();
                 dealer.setUserID(rs.getInt("DealerID"));
                 dealer.setFullName(rs.getString("DealerName"));
@@ -388,7 +472,52 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return orders;
+    }
+
+    public int countOrdersExcludingPendingWithFilter(int sellerID, Integer farmId, String search, String status) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders o "
+                + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
+                + "WHERE o.SellerID = ? AND o.Status != 'Pending' "
+        );
+
+        if (farmId != null) {
+            sql.append("AND f.FarmID = ? ");
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND o.Status = ? ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, sellerID);
+            if (farmId != null) {
+                ps.setInt(index++, farmId);
+            }
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
+                ps.setString(index++, "%" + search.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(index++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
     }
 
     public Order getOrderById(int orderId) {

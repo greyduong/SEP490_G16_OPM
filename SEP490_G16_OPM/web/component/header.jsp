@@ -72,11 +72,11 @@
                     <span class="mdi mdi-offer"></span>
                     Chào bán
                 </a>
-                <a href="${pageContext.request.contextPath}/CustomerOrderPageController">
+                <a href="${pageContext.request.contextPath}/customer-orders">
                     <span class="mdi mdi-invoice-list"></span>
                     Hóa đơn của khách
                 </a>
-                <a href="${pageContext.request.contextPath}/OrdersRequestController">
+                <a href="${pageContext.request.contextPath}/orders-request">
                     <span class="mdi mdi-invoice-list"></span>
                     Hóa đơn chờ duyệt
                 </a>

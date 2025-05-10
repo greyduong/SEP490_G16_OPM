@@ -100,7 +100,7 @@ public class CreateDeliveryController extends HttpServlet {
             // Kiểm tra quyền sở hữu đơn hàng
             if (!orderDAO.isOrderOwnedBySeller(orderID, user.getUserID())) {
                 session.setAttribute("msg", "Bạn không có quyền tạo giao hàng cho đơn này.");
-                response.sendRedirect("CustomerOrderPageController");
+                response.sendRedirect("customer-orders");
                 return;
             }
 
@@ -117,14 +117,14 @@ public class CreateDeliveryController extends HttpServlet {
             // Validate dữ liệu nhập
             if (remainingQty == 0 && remainingPrice == 0) {
                 session.setAttribute("msg", "Đơn hàng đã được giao xong, không thể tạo!");
-                response.sendRedirect("CustomerOrderDetailController?id=" + orderID + "&openCreateDelivery=true");
+                response.sendRedirect("customer-orders?id=" + orderID + "&openCreateDelivery=true");
                 return;
             }
 
             // Validate dữ liệu nhập
             if (quantity < 0 || quantity > remainingQty || totalPrice < 0 || totalPrice > remainingPrice) {
                 session.setAttribute("msg", "Số lượng hoặc tổng tiền vượt quá phần còn lại của đơn hàng.");
-                response.sendRedirect("CustomerOrderDetailController?id=" + orderID + "&openCreateDelivery=true");
+                response.sendRedirect("customer-orders?id=" + orderID + "&openCreateDelivery=true");
                 return;
             }
 
@@ -137,12 +137,12 @@ public class CreateDeliveryController extends HttpServlet {
                 session.setAttribute("msg", "Đã xảy ra lỗi khi tạo giao hàng.");
             }
 
-            response.sendRedirect("CustomerOrderDetailController?id=" + orderID);
+            response.sendRedirect("customer-orders?id=" + orderID);
 
         } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("msg", "Đã xảy ra lỗi hệ thống.");
-            response.sendRedirect("CustomerOrderDetailController?id=" + request.getParameter("orderID"));
+            response.sendRedirect("customer-orders?id=" + request.getParameter("orderID"));
         }
     }
 

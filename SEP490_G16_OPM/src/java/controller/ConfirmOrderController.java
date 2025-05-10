@@ -21,7 +21,7 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "ConfirmOrderController", urlPatterns = {"/ConfirmOrderController"})
+@WebServlet(name = "ConfirmOrderController", urlPatterns = {"/confirm-order"})
 public class ConfirmOrderController extends HttpServlet {
 
     /**
@@ -108,21 +108,21 @@ public class ConfirmOrderController extends HttpServlet {
                             e.printStackTrace();
                         }
                         String encodedMsg = java.net.URLEncoder.encode("Xác nhận đơn hàng thành công.", "UTF-8");
-                        response.sendRedirect("OrdersRequestController?msg=" + encodedMsg);
+                        response.sendRedirect("orders-request?msg=" + encodedMsg);
                     } else {
                         request.setAttribute("msg", "Lỗi: Không thể xác nhận đơn hàng.");
-                        request.getRequestDispatcher("OrdersRequestController").forward(request, response);
+                        request.getRequestDispatcher("orders-request").forward(request, response);
                     }
                 } else {
                     request.setAttribute("msg", "Bạn không có quyền xác nhận đơn hàng này.");
-                    request.getRequestDispatcher("OrdersRequestController").forward(request, response);
+                    request.getRequestDispatcher("orders-request").forward(request, response);
                 }
 
             } catch (NumberFormatException e) {
-                response.sendRedirect("OrdersRequestController");
+                response.sendRedirect("orders-request");
             }
         } else {
-            response.sendRedirect("OrdersRequestController");
+            response.sendRedirect("orders-request");
         }
     }
 

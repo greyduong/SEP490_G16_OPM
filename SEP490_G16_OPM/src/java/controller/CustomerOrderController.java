@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.FarmDAO;
 import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,15 +15,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import model.Farm;
 import model.Order;
+import model.Page;
 import model.User;
 
 /**
  *
  * @author duong
  */
-@WebServlet(name = "CustomerOrderPageController", urlPatterns = {"/CustomerOrderPageController"})
-public class CustomerOrderPageController extends HttpServlet {
+@WebServlet(name = "CustomerOrderController", urlPatterns = {"/customer-orders"})
+public class CustomerOrderController extends HttpServlet {
+
+    private static final int PAGE_SIZE = 10;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -62,27 +67,61 @@ public class CustomerOrderPageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Get the current session to check user info
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        // Check if the user is logged in and has the Seller role
-        if (user == null || user.getRoleID() != 4) {  // Ensure the user is logged in and is a Seller
-            response.sendRedirect("login-register.jsp");  // Redirect to login page if not logged in or not a Seller
+        if (user == null || user.getRoleID() != 4) { // Chỉ seller mới được xem
+            response.sendRedirect("login-register.jsp");
             return;
         }
 
-        // Get the seller ID from the session
         int sellerId = user.getUserID();
+        String search = request.getParameter("search");
+        String status = request.getParameter("status");
+        String sort = request.getParameter("sort");
+        String farmIdRaw = request.getParameter("farmId");
+        String pageRaw = request.getParameter("page");
 
-        // Fetch all orders excluding 'Pending' status for the seller
+        Integer farmId = null;
+        if (farmIdRaw != null && !farmIdRaw.trim().isEmpty()) {
+            try {
+                farmId = Integer.parseInt(farmIdRaw);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        int pageIndex = 1;
+        try {
+            if (pageRaw != null) {
+                pageIndex = Integer.parseInt(pageRaw);
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
         OrderDAO orderDAO = new OrderDAO();
-        List<Order> orders = orderDAO.getOrdersExcludingPending(sellerId);
 
-        // Set the orders in the request scope to pass it to the JSP
-        request.setAttribute("orderList", orders);
+        int totalData = orderDAO.countOrdersExcludingPendingWithFilter(sellerId, farmId, search, status);
+        List<Order> orders = orderDAO.getOrdersExcludingPendingWithFilter(sellerId, farmId, search, status, sort, pageIndex, PAGE_SIZE);
 
-        // Forward the request to the customer order page
+        Page<Order> page = new Page<>();
+        page.setPageNumber(pageIndex);
+        page.setPageSize(PAGE_SIZE);
+        page.setTotalData(totalData);
+        page.setTotalPage((int) Math.ceil((double) totalData / PAGE_SIZE));
+        page.setData(orders);
+
+        // Gửi lên JSP
+        request.setAttribute("page", page);
+        request.setAttribute("search", search);
+        request.setAttribute("status", status);
+        request.setAttribute("sort", sort);
+        request.setAttribute("farmId", farmId);
+
+        // Load farm list để lọc
+        FarmDAO farmDAO = new FarmDAO();
+        List<Farm> farmList = farmDAO.getActiveFarmsBySellerId(sellerId);
+        request.setAttribute("farmList", farmList);
+
         request.getRequestDispatcher("customerorderpage.jsp").forward(request, response);
     }
 
@@ -97,7 +136,7 @@ public class CustomerOrderPageController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**
