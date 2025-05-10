@@ -43,6 +43,10 @@
             </a>
         </c:if>
         <c:if test="${not empty sessionScope.user}">
+            <a href="${pageContext.request.contextPath}/wallet" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
+                <span class="mdi mdi-cash"></span>
+                <fmt:formatNumber currencyCode="VND" value="${user.wallet}" />đ
+            </a>
             <a href="${pageContext.request.contextPath}/profile"
                class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-account"></span>
