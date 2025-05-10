@@ -539,18 +539,23 @@ public class OrderDAO extends DBContext {
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Lấy thông tin Dealer
+                // Lấy người mua và người bán
                 UserDAO userDAO = new UserDAO();
-                User dealer = userDAO.getUserById(order.getDealerID());
-                order.setDealer(dealer);
-
-                // Lấy thông tin Seller
-                User seller = userDAO.getUserById(order.getSellerID());
-                order.setSeller(seller);
+                order.setDealer(userDAO.getUserById(order.getDealerID()));
+                order.setSeller(userDAO.getUserById(order.getSellerID()));
 
                 // Lấy thông tin Offer
                 PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
                 PigsOffer offer = pigsOfferDAO.getOfferById(order.getOfferID());
+
+                // Lấy thông tin Farm từ Offer
+                if (offer != null) {
+                    FarmDAO farmDAO = new FarmDAO();
+                    Farm farm = farmDAO.getFarmById(offer.getFarmID());
+                    offer.setFarm(farm);
+                    order.setFarm(farm);
+                }
+
                 order.setPigsOffer(offer);
             }
         } catch (Exception e) {
@@ -564,7 +569,7 @@ public class OrderDAO extends DBContext {
         // Các trạng thái được xem là đã xử lý, cần cập nhật ProcessedDate
         if (newStatus.equals("Confirmed") || newStatus.equals("Rejected")
                 || newStatus.equals("Canceled") || newStatus.equals("Completed")
-                || newStatus.equals("Deposited")) {
+                || newStatus.equals("Deposited") || newStatus.equals("Processing")) {
             sql = "UPDATE Orders SET Status = ?, ProcessedDate = GETDATE() WHERE OrderID = ?";
         } else {
             sql = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
@@ -810,7 +815,6 @@ public class OrderDAO extends DBContext {
                 addQuantityPstm.addBatch();
 
                 // add to server log
-
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 addLogPstm.setString(1, message);
                 addLogPstm.addBatch();

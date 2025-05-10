@@ -5,6 +5,7 @@
 package controller;
 
 import dao.DeliveryDAO;
+import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,13 +13,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Order;
 import model.User;
 
 /**
  *
  * @author duong
  */
-@WebServlet(name = "ConfirmDeliveryController", urlPatterns = {"/ConfirmDeliveryController"})
+@WebServlet(name = "ConfirmDeliveryController", urlPatterns = {"/confirm-delivery"})
 public class ConfirmDeliveryController extends HttpServlet {
 
     /**
@@ -73,30 +76,56 @@ public class ConfirmDeliveryController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("user");
-
-        if (user == null || user.getRoleID() != 5) { // chỉ dealer mới được xác nhận
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
 
         try {
             int deliveryID = Integer.parseInt(request.getParameter("deliveryID"));
-            DeliveryDAO deliveryDAO = new DeliveryDAO();
 
-            // Kiểm tra dealer có quyền với delivery này không
+            DeliveryDAO deliveryDAO = new DeliveryDAO();
+            OrderDAO orderDAO = new OrderDAO();
+
+            // Lấy OrderID & DealerID
             int orderID = deliveryDAO.getOrderIdByDeliveryId(deliveryID);
             int dealerID = deliveryDAO.getDealerIdByDeliveryId(deliveryID);
 
-            if (dealerID != user.getUserID()) {
+            // Kiểm tra quyền truy cập
+            if (user == null || user.getRoleID() != 5 || user.getUserID() != dealerID) {
                 response.sendRedirect("view-order-detail?id=" + orderID + "&msg="
                         + java.net.URLEncoder.encode("Bạn không có quyền xác nhận giao hàng này.", "UTF-8"));
                 return;
             }
 
-            // Cập nhật trạng thái delivery
+            // Kiểm tra trạng thái đơn hàng
+            String orderStatus = deliveryDAO.getOrderStatusByDeliveryId(deliveryID);
+            if (!"Processing".equalsIgnoreCase(orderStatus)) {
+                response.sendRedirect("view-order-detail?id=" + orderID + "&msg="
+                        + java.net.URLEncoder.encode("Chỉ được xác nhận khi đơn hàng đang ở trạng thái 'Đang xử lý'.", "UTF-8"));
+                return;
+            }
+
+            // Chỉ đến đây nếu đơn hàng đang "Processing"
+            Order order = orderDAO.getOrderById(orderID);
+
             boolean updated = deliveryDAO.confirmDelivery(deliveryID);
-            String msg = updated ? "Giao hàng đã được xác nhận." : "Xác nhận thất bại.";
+            String msg;
+
+            if (updated) {
+                int totalDeliveredQuantity = deliveryDAO.getTotalDeliveredQuantity(orderID);
+                double totalDeliveredPrice = deliveryDAO.getTotalDeliveredPrice(orderID);
+
+                int remainingQuantity = order.getQuantity() - totalDeliveredQuantity;
+                double remainingPrice = order.getTotalPrice() - totalDeliveredPrice;
+
+                if (remainingQuantity <= 0 && Math.abs(remainingPrice) < 0.0001) {
+                    orderDAO.updateOrderStatus(orderID, "Completed");
+                    msg = "Giao hàng đã được xác nhận. Đơn hàng đã hoàn tất.";
+                } else {
+                    msg = "Giao hàng đã được xác nhận.";
+                }
+            } else {
+                msg = "Xác nhận thất bại.";
+            }
 
             response.sendRedirect("view-order-detail?id=" + orderID + "&msg="
                     + java.net.URLEncoder.encode(msg, "UTF-8"));
