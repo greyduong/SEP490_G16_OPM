@@ -70,11 +70,6 @@ public class ViewOrderDetailController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 5) {  // 5 = Dealer
-            response.sendRedirect("home");
-            return;
-        }
-
         try {
             int orderId = Integer.parseInt(request.getParameter("id"));
 
@@ -82,7 +77,6 @@ public class ViewOrderDetailController extends HttpServlet {
             Order order = orderDAO.getOrderById(orderId);
 
             if (order == null || order.getDealerID() != user.getUserID()) {
-                // Redirect back to myorders with error message
                 request.setAttribute("msg", "Bạn không có quyền truy cập đơn hàng này hoặc đơn hàng không tồn tại.");
                 request.getRequestDispatcher("/myorders").forward(request, response);
                 return;
@@ -94,11 +88,19 @@ public class ViewOrderDetailController extends HttpServlet {
 
             DeliveryDAO deliveryDAO = new DeliveryDAO();
             List<Delivery> deliveries = deliveryDAO.getDeliveriesByOrderId(orderId);
-            int totalDeliveredQuantity = deliveries.stream().mapToInt(Delivery::getQuantity).sum();
-            double totalDeliveredPrice = deliveries.stream().mapToDouble(Delivery::getTotalPrice).sum();
 
-            int remainingQuantity = order.getQuantity() - totalDeliveredQuantity;
-            double remainingPrice = order.getTotalPrice() - totalDeliveredPrice;
+            // Tính tổng số lượng và tổng giá trị chỉ từ delivery đã Confirmed
+            int totalDeliveredQuantity = deliveryDAO.getTotalDeliveredQuantity(orderId);
+            double totalDeliveredPrice = deliveryDAO.getTotalDeliveredPrice(orderId);
+
+            int totalConfirmedOrPendingQty = deliveryDAO.getTotalQuantityByStatuses(orderId);
+            double totalConfirmedOrPendingPrice = deliveryDAO.getTotalPriceByStatuses(orderId);
+
+            int totalPendingQty = totalConfirmedOrPendingQty - totalDeliveredQuantity;
+            double totalPendingPrice = totalConfirmedOrPendingPrice - totalDeliveredPrice;
+
+            int realRemainingQty = order.getQuantity() - totalConfirmedOrPendingQty;
+            double realRemainingPrice = order.getTotalPrice() - totalConfirmedOrPendingPrice;
 
             request.setAttribute("order", order);
             request.setAttribute("buyer", buyer);
@@ -106,8 +108,17 @@ public class ViewOrderDetailController extends HttpServlet {
             request.setAttribute("deliveryList", deliveries);
             request.setAttribute("totalDeliveredQuantity", totalDeliveredQuantity);
             request.setAttribute("totalDeliveredPrice", totalDeliveredPrice);
-            request.setAttribute("remainingQuantity", remainingQuantity);
-            request.setAttribute("remainingPrice", remainingPrice);
+            request.setAttribute("totalPendingQuantity", totalPendingQty);
+            request.setAttribute("totalPendingPrice", totalPendingPrice);
+            request.setAttribute("totalCreatedQuantity", totalConfirmedOrPendingQty);
+            request.setAttribute("totalCreatedPrice", totalConfirmedOrPendingPrice);
+            request.setAttribute("realRemainingQuantity", realRemainingQty);
+            request.setAttribute("realRemainingPrice", realRemainingPrice);
+
+            String msg = request.getParameter("msg");
+            if (msg != null) {
+                request.setAttribute("msg", java.net.URLDecoder.decode(msg, "UTF-8"));
+            }
 
             request.getRequestDispatcher("order_detail.jsp").forward(request, response);
 
@@ -129,7 +140,7 @@ public class ViewOrderDetailController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

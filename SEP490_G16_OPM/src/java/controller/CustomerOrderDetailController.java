@@ -66,7 +66,7 @@ public class CustomerOrderDetailController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
-        
+
         String orderIdStr = request.getParameter("id");
         if (orderIdStr != null) {
             try {
@@ -80,18 +80,41 @@ public class CustomerOrderDetailController extends HttpServlet {
                 DeliveryDAO deliveryDAO = new DeliveryDAO();
 
                 Order order = orderDAO.getOrderById(orderID);  // Fetch the order by ID
+                if (order == null) {
+                    session.setAttribute("msg", "Đơn hàng không tồn tại hoặc đã bị xóa.");
+                    response.sendRedirect("customer-orders");
+                    return;
+                }
                 List<Delivery> deliveries = deliveryDAO.getDeliveriesByOrderId(orderID);  // Fetch deliveries for this seller
 
-                int totalDeliveredQuantity = deliveries.stream().mapToInt(Delivery::getQuantity).sum();
-                double totalDeliveredPrice = deliveries.stream().mapToDouble(Delivery::getTotalPrice).sum();
+                int totalConfirmedQty = deliveryDAO.getTotalDeliveredQuantity(orderID);
+                double totalConfirmedPrice = deliveryDAO.getTotalDeliveredPrice(orderID);
 
-                int remainingQuantity = order.getQuantity() - totalDeliveredQuantity;
-                double remainingPrice = order.getTotalPrice() - totalDeliveredPrice;
+                // Tính cả Confirmed + Pending
+                int totalConfirmedOrPendingQty = deliveryDAO.getTotalQuantityByStatuses(orderID);
+                double totalConfirmedOrPendingPrice = deliveryDAO.getTotalPriceByStatuses(orderID);
 
-                request.setAttribute("totalDeliveredQuantity", totalDeliveredQuantity);
-                request.setAttribute("totalDeliveredPrice", totalDeliveredPrice);
-                request.setAttribute("remainingQuantity", remainingQuantity);
-                request.setAttribute("remainingPrice", remainingPrice);
+                // Còn lại thực tế
+                int realRemainingQty = order.getQuantity() - totalConfirmedOrPendingQty;
+                double realRemainingPrice = order.getTotalPrice() - totalConfirmedOrPendingPrice;
+
+                // Pending = (Confirmed + Pending) - Confirmed
+                int totalPendingQty = totalConfirmedOrPendingQty - totalConfirmedQty;
+                double totalPendingPrice = totalConfirmedOrPendingPrice - totalConfirmedPrice;
+
+                // Gửi thêm xuống JSP
+                request.setAttribute("totalPendingQuantity", totalPendingQty);
+                request.setAttribute("totalPendingPrice", totalPendingPrice);
+                request.setAttribute("totalCreatedQuantity", totalConfirmedOrPendingQty);
+                request.setAttribute("totalCreatedPrice", totalConfirmedOrPendingPrice);
+
+                // Gửi xuống JSP
+                request.setAttribute("totalDeliveredQuantity", totalConfirmedQty);
+                request.setAttribute("totalDeliveredPrice", totalConfirmedPrice);
+                request.setAttribute("remainingQuantity", order.getQuantity() - totalConfirmedQty);
+                request.setAttribute("remainingPrice", order.getTotalPrice() - totalConfirmedPrice);
+                request.setAttribute("realRemainingQuantity", realRemainingQty);
+                request.setAttribute("realRemainingPrice", realRemainingPrice);
 
                 // Set attributes to be accessed in JSP
                 request.setAttribute("order", order);
