@@ -417,27 +417,47 @@ public class OrderDAO extends DBContext {
         String updateQuery = """
                        UPDATE Orders
                        SET status = 'Cancelled'
-                       OUTPUT inserted.OrderID
+                       OUTPUT inserted.OrderID, inserted.Quantity, inserted.OfferID
                        WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
                        """;
-        List<Integer> ids = fetchAll((rs) -> rs.getInt("OrderID"), updateQuery);
-        if (ids.isEmpty()) {
+        String addQuantityQuery = """
+                                  UPDATE PigsOffer
+                                  SET Quantity = Quantity + ? WHERE OfferID = ?
+                                  """;
+        // Get all updated orders
+        List<Order> orders = fetchAll((rs) -> {
+            Order order = new Order();
+            order.setOrderID(rs.getInt("OrderID"));
+            order.setOfferID(rs.getInt("OfferID"));
+            order.setQuantity(rs.getInt("Quantity"));
+            return order;
+        }, updateQuery);
+        // no order updated
+        if (orders.isEmpty()) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info("Không có đơn nào cần hủy");
             return;
         }
-        String insertQuery = """
+        String addLogQuery = """
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
-            for (int id : ids) {
-                String message = "Đã hủy đơn hàng id %s".formatted(id);
+        try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);){
+            for(Order order : orders) {
+                String message = "Đã hủy đơn hàng id %s".formatted(order.getOrderID());
+                
+                // add quantity back to offer
+                addQuantityPstm.setInt(1, order.getQuantity());
+                addQuantityPstm.setInt(2, order.getOfferID());
+                addQuantityPstm.addBatch();
+                
+                // add to server log
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
-                pstm.setString(1, message);
-                pstm.addBatch();
+                addLogPstm.setString(1, message);
+                addLogPstm.addBatch();
             }
-            pstm.executeBatch();
-        } catch (Exception e) {
+            addLogPstm.executeBatch();
+            addQuantityPstm.executeBatch();
+        } catch(Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }
