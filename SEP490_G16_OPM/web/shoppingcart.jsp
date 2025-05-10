@@ -130,11 +130,8 @@
                                             </tr>
                                         </c:forEach>
                                     </tbody>
-
-
                                 </table>
                             </div>
-
                             <!-- Phân trang giữ search & sort -->
                             <div class="shoping__cart__pagination text-center mt-4">
                                 <c:forEach begin="1" end="${totalPages}" var="i">
@@ -249,7 +246,6 @@
                         $('#updateModalQuantity').prop('readonly', true).val(max);
                     }
                 });
-
                 $('.offer-detail-link').click(function (e) {
                     e.preventDefault();
                     $('#offerName').text($(this).data('name'));
