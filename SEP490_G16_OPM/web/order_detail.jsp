@@ -14,6 +14,18 @@
             .wrap-text {
                 white-space: pre-line;
             }
+            .status-Pending {
+                color: #ffc107;
+                font-weight: bold;
+            }
+            .status-Confirmed {
+                color: #28a745;
+                font-weight: bold;
+            }
+            .status-Canceled {
+                color: #dc3545;
+                font-weight: bold;
+            }
         </style>
     </head>
     <body>
@@ -42,14 +54,30 @@
                         <tr><th>Trạng thái</th>
                             <td>
                                 <c:choose>
-                                    <c:when test="${order.status == 'Pending'}">Chờ xác nhận</c:when>
-                                    <c:when test="${order.status == 'Confirmed'}">Đã xác nhận</c:when>
-                                    <c:when test="${order.status == 'Rejected'}">Đã từ chối</c:when>
-                                    <c:when test="${order.status == 'Canceled'}">Đã hủy</c:when>
-                                    <c:when test="${order.status == 'Processing'}">Đang xử lý</c:when>
-                                    <c:when test="${order.status == 'Deposited'}">Đã đặt cọc</c:when>
-                                    <c:when test="${order.status == 'Completed'}">Hoàn thành</c:when>
-                                    <c:otherwise>${order.status}</c:otherwise>
+                                    <c:when test="${order.status == 'Pending'}">
+                                        <span style="color: #ffc107; font-weight: bold;">Chờ xác nhận</span>
+                                    </c:when>
+                                    <c:when test="${order.status == 'Confirmed'}">
+                                        <span style="color: #007bff; font-weight: bold;">Đã xác nhận</span>
+                                    </c:when>
+                                    <c:when test="${order.status == 'Rejected'}">
+                                        <span style="color: #dc3545; font-weight: bold;">Đã từ chối</span>
+                                    </c:when>
+                                    <c:when test="${order.status == 'Canceled'}">
+                                        <span style="color: #6c757d; font-weight: bold;">Đã hủy</span>
+                                    </c:when>
+                                    <c:when test="${order.status == 'Processing'}">
+                                        <span style="color: #17a2b8; font-weight: bold;">Đang xử lý</span>
+                                    </c:when>
+                                    <c:when test="${order.status == 'Deposited'}">
+                                        <span style="color: #8e44ad; font-weight: bold;">Đã đặt cọc</span>
+                                    </c:when>
+                                    <c:when test="${order.status == 'Completed'}">
+                                        <span style="color: #28a745; font-weight: bold;">Hoàn thành</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span>${order.status}</span>
+                                    </c:otherwise>
                                 </c:choose>
                             </td>
                         </tr>
@@ -88,7 +116,14 @@
                             <c:forEach var="d" items="${deliveryList}">
                                 <tr>
                                     <td>${d.deliveryID}</td>
-                                    <td>${d.deliveryStatus}</td>
+                                    <td class="status-${d.deliveryStatus}">
+                                        <c:choose>
+                                            <c:when test="${d.deliveryStatus == 'Pending'}">Chờ xác nhận</c:when>
+                                            <c:when test="${d.deliveryStatus == 'Confirmed'}">Đã xác nhận</c:when>
+                                            <c:when test="${d.deliveryStatus == 'Canceled'}">Đã hủy</c:when>
+                                            <c:otherwise>${d.deliveryStatus}</c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>${d.recipientName}</td>
                                     <td>${d.quantity}</td>
                                     <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true"/></td>
@@ -96,9 +131,13 @@
                                     <td class="wrap-text">${d.comments}</td>
                                     <td>
                                         <c:if test="${d.deliveryStatus == 'Pending' && order.status == 'Processing'}">
-                                            <form action="confirm-delivery" method="post" style="display:inline;">
+                                            <form action="confirm-delivery" method="post" style="display:inline-block; margin-right: 5px;">
                                                 <input type="hidden" name="deliveryID" value="${d.deliveryID}" />
                                                 <button type="submit" class="btn btn-sm btn-success">Xác nhận</button>
+                                            </form>
+                                            <form action="cancel-delivery" method="post" style="display:inline-block;">
+                                                <input type="hidden" name="deliveryID" value="${d.deliveryID}" />
+                                                <button type="submit" class="btn btn-sm btn-danger">Hủy</button>
                                             </form>
                                         </c:if>
                                     </td>
@@ -138,5 +177,48 @@
         </div>
 
         <jsp:include page="component/footer.jsp" />
+        <script>
+            document.querySelectorAll("form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    // Nếu đã có overlay, không tạo thêm
+                    if (document.getElementById("loading-overlay"))
+                        return;
+
+                    // Tạo overlay
+                    const overlay = document.createElement("div");
+                    overlay.id = "loading-overlay"; // Gán ID để xử lý sau
+                    overlay.style.position = "fixed";
+                    overlay.style.top = 0;
+                    overlay.style.left = 0;
+                    overlay.style.width = "100%";
+                    overlay.style.height = "100%";
+                    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+                    overlay.style.display = "flex";
+                    overlay.style.justifyContent = "center";
+                    overlay.style.alignItems = "center";
+                    overlay.style.zIndex = 9999;
+
+                    // Tạo nội dung loading
+                    const spinner = document.createElement("div");
+                    spinner.innerHTML = `
+                <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="text-white mt-3">Đang xử lý, vui lòng chờ...</div>
+            `;
+                    spinner.style.textAlign = "center";
+
+                    overlay.appendChild(spinner);
+                    document.body.appendChild(overlay);
+                });
+            });
+
+            // Khi back lại, xóa overlay nếu còn tồn tại
+            window.addEventListener("pageshow", function () {
+                const overlay = document.getElementById("loading-overlay");
+                if (overlay)
+                    overlay.remove();
+            });
+        </script>
     </body>
 </html>

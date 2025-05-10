@@ -7,6 +7,36 @@
         <meta charset="UTF-8">
         <title>Orders Request Page</title>
         <jsp:include page="component/library.jsp" />
+        <style>
+            .status-Pending {
+                color: #ffc107;
+                font-weight: bold;
+            }
+            .status-Confirmed {
+                color: #007bff;
+                font-weight: bold;
+            }
+            .status-Rejected {
+                color: #dc3545;
+                font-weight: bold;
+            }
+            .status-Canceled {
+                color: #6c757d;
+                font-weight: bold;
+            }
+            .status-Processing {
+                color: #17a2b8;
+                font-weight: bold;
+            }
+            .status-Completed {
+                color: #28a745;
+                font-weight: bold;
+            }
+            .status-Deposited {
+                color: #8e44ad;
+                font-weight: bold;
+            }
+        </style>
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
@@ -87,7 +117,7 @@
                                     </c:choose>
                                 </a>
                             </th>
-                            <th>Trạng thái</th>
+                            <th style="min-width: 140px;">Trạng thái</th>
                             <th>
                                 Ngày tạo
                                 <a href="orders-request?sort=${nextCreatedAtSort}&search=${param.search}&farmId=${param.farmId}" class="btn btn-sm btn-outline-light ml-1">
@@ -113,7 +143,18 @@
                                 <td>${o.pigsOffer.name}</td>
                                 <td>${o.quantity}</td>
                                 <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
-                                <td>${o.status}</td>
+                                <td class="status-${o.status}">
+                                    <c:choose>
+                                        <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
+                                        <c:when test="${o.status == 'Confirmed'}">Đã xác nhận</c:when>
+                                        <c:when test="${o.status == 'Rejected'}">Đã từ chối</c:when>
+                                        <c:when test="${o.status == 'Canceled'}">Đã hủy</c:when>
+                                        <c:when test="${o.status == 'Processing'}">Đang xử lý</c:when>
+                                        <c:when test="${o.status == 'Deposited'}">Đã đặt cọc</c:when>
+                                        <c:when test="${o.status == 'Completed'}">Hoàn thành</c:when>
+                                        <c:otherwise>${o.status}</c:otherwise>
+                                    </c:choose>
+                                </td>
                                 <td><fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                 <td>
                                     <c:if test="${o.status == 'Pending'}">

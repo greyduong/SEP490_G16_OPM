@@ -18,7 +18,8 @@ import model.User;
     "/myorders",
     "/deposit-order",
     "/view-order-detail",
-    "/confirm-delivery"
+    "/confirm-delivery",
+    "/cancel-delivery"
 })
 public class OnlyDealerFilter extends HttpFilter {
 
