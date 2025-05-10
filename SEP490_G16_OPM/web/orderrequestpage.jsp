@@ -262,7 +262,11 @@
         <script>
             document.querySelectorAll("form").forEach(form => {
                 form.addEventListener("submit", function () {
+                    if (document.getElementById("loading-overlay"))
+                        return; // Đã có overlay thì không tạo nữa
+
                     const overlay = document.createElement("div");
+                    overlay.id = "loading-overlay"; // Gán ID để xử lý khi back
                     overlay.style.position = "fixed";
                     overlay.style.top = 0;
                     overlay.style.left = 0;
@@ -286,6 +290,13 @@
                     overlay.appendChild(spinner);
                     document.body.appendChild(overlay);
                 });
+            });
+
+            // Xử lý khi người dùng quay lại trang bằng nút back
+            window.addEventListener("pageshow", function () {
+                const overlay = document.getElementById("loading-overlay");
+                if (overlay)
+                    overlay.remove();
             });
         </script>
 

@@ -120,7 +120,8 @@ CREATE TABLE Orders (
     Quantity INT,
     TotalPrice DECIMAL(15,2),
     Status NVARCHAR(20) DEFAULT 'Pending',
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    ProcessedDate DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE Delivery (
@@ -259,25 +260,26 @@ VALUES
 (5, 2, 2);  
 
 
-INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate)
 VALUES
-(5, 4, 2, 2, 5, 25000000, 'Confirmed'), 
-(5, 4, 2, 3, 8, 46400000, 'Pending'), 
-(5, 4, 2, 4, 6, 24600000, 'Confirmed'),
-(5, 4, 2, 5, 7, 24600000, 'Pending'),
-(5, 4, 2, 6, 10, 24600000, 'Deposited');
+(5, 4, 2, 2, 5, 25000000, 'Confirmed', GETDATE(), GETDATE()), 
+(5, 4, 2, 3, 8, 46400000, 'Pending',   GETDATE(), NULL), 
+(5, 4, 2, 4, 6, 24600000, 'Confirmed', GETDATE(), GETDATE()),
+(5, 4, 2, 5, 7, 24600000, 'Pending',   GETDATE(), NULL),
+(5, 4, 2, 6, 10, 24600000, 'Deposited', GETDATE(), GETDATE());
 
-INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate)
 VALUES
-(5, 4, 2, 3, 3, 15000000, 'Confirmed', '2025-01-10'),
-(5, 4, 2, 4, 4, 18000000, 'Pending',   '2025-02-20'),
-(5, 4, 2, 5, 2, 10000000, 'Deposited', '2025-03-01'),
-(5, 4, 2, 6, 8, 30000000, 'Confirmed', '2025-03-21'),
-(5, 4, 2, 7, 6, 24000000, 'Confirmed', '2025-04-05'),
-(5, 4, 2, 8, 9, 29000000, 'Pending',   '2025-04-25'),
-(5, 4, 2, 9, 5, 27500000, 'Deposited', '2025-05-03'),
-(5, 4, 2, 10, 7, 26500000, 'Confirmed','2025-05-20'),
-(5, 4, 2, 11, 4, 25500000, 'Pending',  '2025-06-15');
+(5, 4, 2, 3, 3, 15000000, 'Confirmed', '2025-01-10', '2025-01-11'),
+(5, 4, 2, 4, 4, 18000000, 'Pending',   '2025-02-20', NULL),
+(5, 4, 2, 5, 2, 10000000, 'Deposited', '2025-03-01', '2025-03-02'),
+(5, 4, 2, 6, 8, 30000000, 'Confirmed', '2025-03-21', '2025-03-22'),
+(5, 4, 2, 7, 6, 24000000, 'Confirmed', '2025-04-05', '2025-04-06'),
+(5, 4, 2, 8, 9, 29000000, 'Pending',   '2025-04-25', NULL),
+(5, 4, 2, 9, 5, 27500000, 'Deposited', '2025-05-03', '2025-05-04'),
+(5, 4, 2, 10, 7, 26500000, 'Confirmed','2025-05-20', '2025-05-21'),
+(5, 4, 2, 11, 4, 25500000, 'Pending',  '2025-06-15', NULL);
+
 
 
 -- Insert Delivery records for different order statuses

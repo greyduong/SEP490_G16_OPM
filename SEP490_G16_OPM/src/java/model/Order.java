@@ -20,6 +20,7 @@ public class Order {
     private double totalPrice;
     private String status;
     private Timestamp createdAt;
+    private Timestamp processedDate;
 
     private User dealer;
     private User seller;
@@ -43,7 +44,7 @@ public class Order {
         this.pigsOffer = pigsOffer;
     }
 
-    public Order(int orderID, int dealerID, int sellerID, int offerID, int quantity, double totalPrice, String status, Timestamp createdAt, User dealer, User seller, PigsOffer pigsOffer, Farm farm) {
+    public Order(int orderID, int dealerID, int sellerID, int offerID, int quantity, double totalPrice, String status, Timestamp createdAt, Timestamp processedDate, User dealer, User seller, PigsOffer pigsOffer, Farm farm) {
         this.orderID = orderID;
         this.dealerID = dealerID;
         this.sellerID = sellerID;
@@ -52,6 +53,7 @@ public class Order {
         this.totalPrice = totalPrice;
         this.status = status;
         this.createdAt = createdAt;
+        this.processedDate = processedDate;
         this.dealer = dealer;
         this.seller = seller;
         this.pigsOffer = pigsOffer;
@@ -120,6 +122,14 @@ public class Order {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Timestamp getProcessedDate() {
+        return processedDate;
+    }
+
+    public void setProcessedDate(Timestamp processedDate) {
+        this.processedDate = processedDate;
     }
 
     public User getDealer() {

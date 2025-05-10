@@ -210,8 +210,13 @@
         <script>
             document.querySelectorAll("form").forEach(form => {
                 form.addEventListener("submit", function () {
+                    // Nếu đã có overlay, không tạo thêm
+                    if (document.getElementById("loading-overlay"))
+                        return;
+
                     // Tạo overlay
                     const overlay = document.createElement("div");
+                    overlay.id = "loading-overlay"; // Gán ID để xử lý sau
                     overlay.style.position = "fixed";
                     overlay.style.top = 0;
                     overlay.style.left = 0;
@@ -236,6 +241,13 @@
                     overlay.appendChild(spinner);
                     document.body.appendChild(overlay);
                 });
+            });
+
+            // Khi back lại, xóa overlay nếu còn tồn tại
+            window.addEventListener("pageshow", function () {
+                const overlay = document.getElementById("loading-overlay");
+                if (overlay)
+                    overlay.remove();
             });
         </script>
 
