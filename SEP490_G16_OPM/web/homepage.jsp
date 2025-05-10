@@ -57,66 +57,70 @@
             <section class="hero">
                 <div class="container">
                     <div class="row">
+                        <!-- Cột bên trái: Danh mục -->
                         <div class="col-lg-3">
                             <div class="hero__categories">
                                 <div class="hero__categories__all">
                                     <i class="fa fa-bars"></i>
-                                    <span><c:choose>
+                                    <span>
+                                    <c:choose>
                                         <c:when test="${not empty param.categoryName}">
                                             ${param.categoryName}
                                         </c:when>
                                         <c:otherwise>
                                             Loại Heo
                                         </c:otherwise>
-                                    </c:choose></span>
+                                    </c:choose>
+                                </span>
                             </div>
                             <ul>
                                 <li><a href="home">Tất cả</a></li>
                                     <c:forEach var="c" items="${categoryList}">
                                     <li><a href="home?categoryName=${c.name}">${c.name}</a></li>
                                     </c:forEach>
-
                             </ul>
                         </div>
                     </div>
 
+                    <!-- Cột bên phải: Tìm kiếm -->
                     <div class="col-lg-9">
                         <div class="hero__search">
                             <div class="hero__search__form">
                                 <form action="home" method="get">
-                                    <input type="text" name="keyword" placeholder="What do you need?" value="${param.keyword}">
+                                    <input type="text" name="keyword" placeholder="Nhập tên chào bán..." value="${param.keyword}">
                                     <c:if test="${not empty param.categoryName}">
                                         <input type="hidden" name="categoryName" value="${param.categoryName}" />
                                     </c:if>
-                                    <button type="submit" class="site-btn">SEARCH</button>
+                                    <button type="submit" class="site-btn">TÌM</button>
                                 </form>
-
                             </div>
                         </div>
                     </div>
-
-                    <!-- Unified Sort Dropdown -->
-                    <div class="container my-3">
-                        <form action="home" method="get" class="form-inline">
-                            <input type="hidden" name="keyword" value="${param.keyword}">
-                            <input type="hidden" name="categoryName" value="${param.categoryName}">
-
-                            <label class="mr-2 font-weight-bold">Sort by:</label>
-                            <select name="sort" class="form-control mr-2" onchange="this.form.submit()">
-                                <option value="none">-- Select --</option>
-                                <option value="quantity_asc" ${param.sort == 'quantity_asc' ? 'selected' : ''}>Quantity ↑</option>
-                                <option value="quantity_desc" ${param.sort == 'quantity_desc' ? 'selected' : ''}>Quantity ↓</option>
-                                <option value="price_asc" ${param.sort == 'price_asc' ? 'selected' : ''}>Price ↑</option>
-                                <option value="price_desc" ${param.sort == 'price_desc' ? 'selected' : ''}>Price ↓</option>
-                            </select>
-                        </form>
-                    </div>
-
                 </div>
+            </div>
+
+            <!-- Sort dropdown container riêng -->
+            <div class="container my-3">
+                <form action="home" method="get" class="form-inline">
+                    <input type="hidden" name="keyword" value="${param.keyword}">
+                    <input type="hidden" name="categoryName" value="${param.categoryName}">
+
+                    <label class="mr-2 font-weight-bold">Sắp xếp:</label>
+                    <select name="sort" class="form-control mr-2" onchange="this.form.submit()">
+                        <option value="none">-- Chọn --</option>
+                        <option value="quantity_asc" ${param.sort == 'quantity_asc' ? 'selected' : ''}>Số lượng ↑</option>
+                        <option value="quantity_desc" ${param.sort == 'quantity_desc' ? 'selected' : ''}>Số lượng ↓</option>
+                        <option value="price_asc" ${param.sort == 'price_asc' ? 'selected' : ''}>Giá cả ↑</option>
+                        <option value="price_desc" ${param.sort == 'price_desc' ? 'selected' : ''}>Giá cả ↓</option>
+                    </select>
+                </form>
             </div>
         </section>
         <!-- Hero Section End -->
 
+        <c:if test="${not empty msg}">
+            <div class="alert alert-warning">${msg}</div>
+        </c:if>
 
         <!-- Featured Section Begin -->
         <section class="featured spad">
@@ -160,68 +164,6 @@
                 </div>
             </div>
         </section>
-        <!-- Featured Section End -->
-
-        <!--         Blog Section Begin 
-                <section class="from-blog spad">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="section-title from-blog__title">
-                                    <h2>From The Blog</h2>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-4 col-sm-6">
-                                <div class="blog__item">
-                                    <div class="blog__item__pic">
-                                        <img src="img/blog/blog-1.jpg" alt="">
-                                    </div>
-                                    <div class="blog__item__text">
-                                        <ul>
-                                            <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                            <li><i class="fa fa-comment-o"></i> 5</li>
-                                        </ul>
-                                        <h5><a href="#">Cooking tips make cooking simple</a></h5>
-                                        <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-6">
-                                <div class="blog__item">
-                                    <div class="blog__item__pic">
-                                        <img src="img/blog/blog-2.jpg" alt="">
-                                    </div>
-                                    <div class="blog__item__text">
-                                        <ul>
-                                            <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                            <li><i class="fa fa-comment-o"></i> 5</li>
-                                        </ul>
-                                        <h5><a href="#">6 ways to prepare breakfast for 30</a></h5>
-                                        <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-md-4 col-sm-6">
-                                <div class="blog__item">
-                                    <div class="blog__item__pic">
-                                        <img src="img/blog/blog-3.jpg" alt="">
-                                    </div>
-                                    <div class="blog__item__text">
-                                        <ul>
-                                            <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                            <li><i class="fa fa-comment-o"></i> 5</li>
-                                        </ul>
-                                        <h5><a href="#">Visit the clean farm in the US</a></h5>
-                                        <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                 Blog Section End -->
 
         <jsp:include page="component/footer.jsp" />
 

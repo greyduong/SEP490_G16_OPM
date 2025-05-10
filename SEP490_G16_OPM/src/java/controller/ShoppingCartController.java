@@ -5,6 +5,7 @@
 package controller;
 
 import dao.CartDAO;
+import dao.PigsOfferDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -65,24 +66,30 @@ public class ShoppingCartController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
+        int userId = user.getUserID();
 
-        // Phân trang
+        // Lấy tham số phân trang, tìm kiếm, sắp xếp
         String indexParam = request.getParameter("page");
         int pageIndex = (indexParam != null) ? Integer.parseInt(indexParam) : 1;
+        int pageSize = 3;
+
+        String search = request.getParameter("search");
+        String sort = request.getParameter("sort");
 
         CartDAO cartDAO = new CartDAO();
-        int userId = user.getUserID();
-        List<Cart> cartList = cartDAO.getCartByUserIdWithPaging(userId, pageIndex);
-        int totalItems = cartDAO.countCartItemsByUser(userId);
-        int totalPages = (int) Math.ceil((double) totalItems / 3);
+        PigsOfferDAO offerDAO = new PigsOfferDAO();
+
+        // Lấy danh sách giỏ hàng có phân trang, search, sort
+        List<Cart> cartList = cartDAO.getCartByUserIdWithFilter(userId, pageIndex, pageSize, search, sort);
+
+        // Tổng số mục trong giỏ (phục vụ phân trang)
+        int totalItems = cartDAO.countCartItemsByUserWithFilter(userId, search);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
 
         request.setAttribute("cartList", cartList);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", pageIndex);
+        request.setAttribute("param", request.getParameterMap()); // giữ lại filter khi phân trang
 
         request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);
     }

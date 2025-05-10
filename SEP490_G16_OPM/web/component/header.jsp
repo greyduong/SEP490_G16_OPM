@@ -81,12 +81,12 @@
                     Đơn đề nghị
                 </a>
             </c:if>
-            <c:if test="${sessionScope.user.roleID == 3}">
+            <c:if test="${sessionScope.user.roleID == 5}">
                 <a href="${pageContext.request.contextPath}/cart">
                     <span class="mdi mdi-cart"></span>
                     Giỏ hàng
                 </a>
-                <a href="${pageContext.request.contextPath}/orders"
+                <a href="${pageContext.request.contextPath}/myorders"
                    >
                     <span class="mdi mdi-invoice-list"></span>
                     Hóa của tôi

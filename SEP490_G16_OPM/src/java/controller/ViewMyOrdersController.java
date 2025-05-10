@@ -65,11 +65,6 @@ public class ViewMyOrdersController extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
 
-        if (currentUser == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         int userId = currentUser.getUserID();
         OrderDAO orderDAO = new OrderDAO();
         List<Order> myOrders = orderDAO.getOrdersByBuyerId(userId);
