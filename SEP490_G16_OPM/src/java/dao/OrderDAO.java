@@ -799,6 +799,7 @@ public class OrderDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
+
         try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);) {
             for (Order order : orders) {
                 String message = "Đã hủy đơn hàng id %s".formatted(order.getOrderID());
@@ -809,12 +810,15 @@ public class OrderDAO extends DBContext {
                 addQuantityPstm.addBatch();
 
                 // add to server log
+
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 addLogPstm.setString(1, message);
                 addLogPstm.addBatch();
             }
+
             addLogPstm.executeBatch();
             addQuantityPstm.executeBatch();
+
         } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }

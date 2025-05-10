@@ -69,7 +69,6 @@ public class ViewMyOrdersController extends HttpServlet {
         User currentUser = (User) session.getAttribute("user");
 
         int userId = currentUser.getUserID();
-
         String search = request.getParameter("search");
         String status = request.getParameter("status");
         String sort = request.getParameter("sort");
@@ -82,7 +81,6 @@ public class ViewMyOrdersController extends HttpServlet {
             }
         } catch (NumberFormatException ignored) {
         }
-
         OrderDAO orderDAO = new OrderDAO();
         int totalData = orderDAO.countOrdersByBuyerWithFilter(userId, search, status);
         List<Order> orders = orderDAO.getOrdersByBuyerWithFilter(userId, search, status, sort, pageIndex, PAGE_SIZE);
