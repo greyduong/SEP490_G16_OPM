@@ -15,6 +15,7 @@ public class Page<T> {
     private int pageSize = 10;
     private int totalPage;
     private int totalElements;
+    private List<T> data = new ArrayList<>();
 
     public int getTotalElements() {
         return totalElements;
@@ -23,7 +24,7 @@ public class Page<T> {
     public void setTotalElements(int totalElements) {
         this.totalElements = totalElements;
     }
-    private List<T> data = new ArrayList<>();
+    
     private int totalData;
 
     public int getPageNumber() {
@@ -46,7 +47,7 @@ public class Page<T> {
         return data;
     }
 
-    public void setData(List data) {
+    public void setData(List<T> data) {
         this.data = data;
     }
 
