@@ -89,7 +89,20 @@ public class ConfirmOrderController extends HttpServlet {
                 OrderDAO orderDAO = new OrderDAO();
                 Order order = orderDAO.getOrderById(orderID);
 
-                if (order != null && order.getSellerID() == user.getUserID() && order.getStatus().equals("Pending")) {
+                if (order != null
+                        && order.getSellerID() == user.getUserID()
+                        && order.getStatus().equals("Pending")) {
+
+                    java.time.Instant createdAt = order.getCreatedAt().toInstant();
+                    java.time.Instant now = java.time.Instant.now();
+                    java.time.Duration duration = java.time.Duration.between(createdAt, now);
+
+                    if (duration.toHours() > 24) {
+                        request.setAttribute("msg", "Không thể xác nhận đơn hàng vì đã quá 24 giờ kể từ khi tạo.");
+                        request.getRequestDispatcher("orders-request").forward(request, response);
+                        return;
+                    }
+                    
                     boolean isUpdated = orderDAO.confirmOrder(orderID);
 
                     if (isUpdated) {

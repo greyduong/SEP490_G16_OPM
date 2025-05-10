@@ -145,7 +145,7 @@
                         <tbody>
                             <c:forEach var="o" items="${page.data}">
                                 <tr>
-                                    <td><a href="CustomerOrderDetailController?id=${o.orderID}">${o.orderID}</a></td>
+                                    <td><a href="customer-order-details?id=${o.orderID}">${o.orderID}</a></td>
                                     <td>${o.pigsOffer.name}</td>
                                     <td>${o.quantity}</td>
                                     <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /></td>
@@ -161,7 +161,7 @@
                                     </td>
                                     <td>
                                         <c:if test="${o.status == 'Deposited' || o.status == 'In Delivery'}">
-                                            <form action="CustomerOrderDetailController" method="get">
+                                            <form action="customer-order-details" method="get">
                                                 <input type="hidden" name="id" value="${o.orderID}" />
                                                 <input type="hidden" name="openCreateDelivery" value="true" />
                                                 <button type="submit" class="btn btn-sm btn-primary">Giao hàng</button>

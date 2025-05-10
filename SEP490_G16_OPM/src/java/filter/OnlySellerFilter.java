@@ -23,7 +23,8 @@ import java.io.IOException;
     "/orders-request",
     "/confirm-order",
     "/reject-order",
-    "/customer-orders"
+    "/customer-orders",
+    "/customer-order-details"
 })
 public class OnlySellerFilter extends HttpFilter {
 

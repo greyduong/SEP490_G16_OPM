@@ -101,7 +101,7 @@ public class DepositOrderController extends HttpServlet {
                 Order order = orderDAO.getOrderById(orderID);
 
                 if (order != null && order.getDealerID() == user.getUserID() && "Confirmed".equals(order.getStatus())) {
-                    long createdAtMillis = order.getCreatedAt().getTime();
+                    long createdAtMillis = order.getProcessedDate().getTime();
                     long nowMillis = System.currentTimeMillis();
                     long diffInHours = (nowMillis - createdAtMillis) / (1000 * 60 * 60);
 
