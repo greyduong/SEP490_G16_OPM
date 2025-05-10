@@ -46,7 +46,6 @@
                             <tr><th>Trạng thái</th>
                                 <td>
                                     <c:choose>
-                                        <<<<<<< HEAD
                                         <c:when test="${order.status == 'Pending'}">
                                             <span style="color: #ffc107; font-weight: bold;">Chờ xác nhận</span>
                                         </c:when>
