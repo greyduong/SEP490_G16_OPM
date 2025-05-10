@@ -120,7 +120,7 @@
                                         </c:choose>
                                     </a>
                                 </th>
-                                <th>Trạng thái</th>
+                                <th style="min-width: 140px;">Trạng thái</th>
                                 <th>Ngày tạo
                                     <a href="customer-orders?sort=${nextCreatedAtSort}&search=${param.search}&status=${param.status}&farmId=${param.farmId}" class="btn btn-sm btn-outline-light ml-1">
                                         <c:choose>
@@ -149,7 +149,19 @@
                                     <td>${o.pigsOffer.name}</td>
                                     <td>${o.quantity}</td>
                                     <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /></td>
-                                    <td class="status-${o.status}">${o.status}</td>
+                                    <td class="status-${o.status}">
+                                        <c:choose>
+                                            <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
+                                            <c:when test="${o.status == 'Confirmed'}">Đã xác nhận</c:when>
+                                            <c:when test="${o.status == 'Rejected'}">Đã từ chối</c:when>
+                                            <c:when test="${o.status == 'Canceled'}">Đã hủy</c:when>
+                                            <c:when test="${o.status == 'Processing'}">Đang xử lý</c:when>
+                                            <c:when test="${o.status == 'Deposited'}">Đã đặt cọc</c:when>
+                                            <c:when test="${o.status == 'Completed'}">Hoàn thành</c:when>
+                                            <c:otherwise>${o.status}</c:otherwise>
+                                        </c:choose>
+                                    </td>
+
                                     <td><fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy" /></td>
                                     <td>
                                         <c:choose>

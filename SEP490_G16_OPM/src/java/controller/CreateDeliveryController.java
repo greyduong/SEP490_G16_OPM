@@ -2,16 +2,18 @@ package controller;
 
 import dao.DeliveryDAO;
 import dao.OrderDAO;
+import dao.UserDAO;
 import dao.Validation;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
+import java.text.DecimalFormat;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Email;
 import model.Order;
 import model.User;
 
@@ -65,7 +67,6 @@ public class CreateDeliveryController extends HttpServlet {
             int sellerId = Integer.parseInt(request.getParameter("sellerID"));
             int dealerId = Integer.parseInt(request.getParameter("dealerID"));
 
-            // Giữ lại input
             session.setAttribute("prevRecipient", recipientName);
             session.setAttribute("prevQuantity", quantityStr);
             session.setAttribute("prevTotalPrice", totalPriceStr);
@@ -91,15 +92,11 @@ public class CreateDeliveryController extends HttpServlet {
 
             DeliveryDAO deliveryDAO = new DeliveryDAO();
 
-            // Tính tổng đã giao gồm cả Confirmed + Pending
             int deliveredQty = deliveryDAO.getTotalQuantityByStatuses(orderID);
             double deliveredTotal = deliveryDAO.getTotalPriceByStatuses(orderID);
 
-            int orderQuantity = order.getQuantity();
-            double orderTotalPrice = order.getTotalPrice();
-
-            int remainingQty = orderQuantity - deliveredQty;
-            double remainingPrice = orderTotalPrice - deliveredTotal;
+            int remainingQty = order.getQuantity() - deliveredQty;
+            double remainingPrice = order.getTotalPrice() - deliveredTotal;
 
             if ("Completed".equals(order.getStatus()) || (remainingQty <= 0 && remainingPrice <= 0)) {
                 session.setAttribute("msg", "Đơn hàng đã được giao xong, không thể tạo!");
@@ -107,7 +104,6 @@ public class CreateDeliveryController extends HttpServlet {
                 return;
             }
 
-            // Validate nội dung
             String recipientError = Validation.validateRecipientName(recipientName);
             if (recipientError != null) {
                 session.setAttribute("recipientError", recipientError);
@@ -141,27 +137,58 @@ public class CreateDeliveryController extends HttpServlet {
                 return;
             }
 
-            // Xóa lỗi cũ nếu không có lỗi
             session.removeAttribute("recipientError");
             session.removeAttribute("quantityError");
             session.removeAttribute("priceError");
             session.removeAttribute("commentError");
 
-            boolean success = deliveryDAO.createDelivery(orderID, sellerId, dealerId, recipientName.trim(), quantity, totalPrice, comments);
+            int deliveryID = deliveryDAO.createDelivery(orderID, sellerId, dealerId, recipientName.trim(), quantity, totalPrice, comments);
 
-            // Xóa input nếu thành công
             session.removeAttribute("prevRecipient");
             session.removeAttribute("prevQuantity");
             session.removeAttribute("prevTotalPrice");
             session.removeAttribute("prevComment");
 
-            if (success) {
+            if (deliveryID > 0) {
                 if (!"Completed".equals(order.getStatus())) {
                     orderDAO.updateOrderStatus(orderID, "Processing");
                 }
+
+                UserDAO userDAO = new UserDAO();
+                User seller = userDAO.getUserById(sellerId);
+                User dealer = userDAO.getUserById(dealerId);
+
+                DecimalFormat formatter = new DecimalFormat("#,###");
+                String formattedPrice = formatter.format(totalPrice) + " VND";
+
+                String subject = "Thông báo: Đơn hàng #" + orderID + " có giao hàng mới";
+
+                String contentForDealer = "Xin chào " + dealer.getFullName() + ",\n\n"
+                        + "Người bán đã tạo một giao hàng mới cho đơn hàng #" + orderID + ".\n"
+                        + "- Mã giao hàng: #" + deliveryID + "\n"
+                        + "- Người nhận: " + recipientName + "\n"
+                        + "- Số lượng: " + quantity + "\n"
+                        + "- Tổng giá trị: " + formattedPrice + "\n"
+                        + "- Ghi chú: " + comments + "\n\n"
+                        + "Vui lòng đăng nhập để xác nhận giao hàng.";
+
+                String contentForSeller = "Xin chào " + seller.getFullName() + ",\n\n"
+                        + "Bạn đã tạo thành công một giao hàng mới cho đơn hàng #" + orderID + ".\n"
+                        + "- Mã giao hàng: #" + deliveryID + "\n"
+                        + "- Người nhận: " + recipientName + "\n"
+                        + "- Số lượng: " + quantity + "\n"
+                        + "- Tổng giá trị: " + formattedPrice + "\n"
+                        + "- Ghi chú: " + comments + "\n\n"
+                        + "Đang chờ người mua xác nhận.";
+
+                try {
+                    Email.sendEmail(dealer.getEmail(), subject, contentForDealer);
+                    Email.sendEmail(seller.getEmail(), subject, contentForSeller);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 session.setAttribute("msg", "Tạo giao hàng thành công. Đang chờ người mua xác nhận.");
-            } else {
-                session.setAttribute("msg", "Đã xảy ra lỗi khi tạo giao hàng.");
             }
 
             response.sendRedirect("customer-order-details?id=" + orderID);

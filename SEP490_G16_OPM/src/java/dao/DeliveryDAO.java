@@ -103,9 +103,39 @@ public class DeliveryDAO extends DBContext {
         return 0.0;
     }
 
-    public boolean createDelivery(int orderId, int sellerId, int dealerId, String recipientName, int quantity, double totalPrice, String comments) {
+    public int getDeliveryQuantity(int deliveryID) {
+        String sql = "SELECT Quantity FROM Delivery WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("Quantity");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public double getDeliveryTotalPrice(int deliveryID) {
+        String sql = "SELECT TotalPrice FROM Delivery WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("TotalPrice");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int createDelivery(int orderId, int sellerId, int dealerId, String recipientName, int quantity, double totalPrice, String comments) {
         String sql = "INSERT INTO Delivery (OrderID, SellerID, DealerID, RecipientName, Quantity, TotalPrice, Comments, DeliveryStatus, CreatedAt) "
+                + "OUTPUT INSERTED.DeliveryID "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', GETDATE())";
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.setInt(2, sellerId);
@@ -114,11 +144,15 @@ public class DeliveryDAO extends DBContext {
             ps.setInt(5, quantity);
             ps.setDouble(6, totalPrice);
             ps.setString(7, comments);
-            return ps.executeUpdate() > 0;
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("DeliveryID");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return -1; // Thất bại
     }
 
     public int getDealerIdByDeliveryId(int deliveryID) {
@@ -135,8 +169,20 @@ public class DeliveryDAO extends DBContext {
         return -1;
     }
 
+    public boolean updateDeliveryStatus(int deliveryID, String status) {
+        String sql = "UPDATE Delivery SET DeliveryStatus = ? WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, deliveryID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean confirmDelivery(int deliveryID) {
-        String sql = "UPDATE Delivery SET DeliveryStatus = 'Confirmed' WHERE DeliveryID = ?";
+        String sql = "UPDATE Delivery SET DeliveryStatus = 'Confirmed' WHERE DeliveryID = ? AND DeliveryStatus = 'Pending'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, deliveryID);
             return ps.executeUpdate() > 0;
@@ -176,6 +222,21 @@ public class DeliveryDAO extends DBContext {
             e.printStackTrace();
         }
         return status;
+    }
+
+    public String getDeliveryStatusById(int deliveryID) {
+        String sql = "SELECT DeliveryStatus FROM Delivery WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("DeliveryStatus");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public double calculateTotalRevenueFromDeliveryBySeller(int sellerId) {
