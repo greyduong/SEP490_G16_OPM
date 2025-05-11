@@ -10,16 +10,16 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <main class="w-200 mx-auto mb-5">
-            <div class="text-3xl mb-3"><span class="mdi mdi-account-star me-2"></span>Manage User</div>
+        <main class="px-5">
+            <div class="text-3xl mb-3"><span class="mdi mdi-account-star me-2"></span>Quản lý người dùng</div>
             <div class="mb-3 d-flex">
-                <form action="" class="inline-flex items-center rounded-sm gap-2 border border-slate-300 px-2 has-[:focus]:border-slate-400">
+                <form action="" class="inline-flex items-center rounded-sm gap-2 border border-slate-300 px-2 has-[:focus]:!border-lime-400">
                     <span class="mdi mdi-magnify"></span>
-                    <input value="${search}" name="search" type="text" placeholder="Search user" class="outline-none py-1 focus:!outline-none">
+                    <input value="${search}" name="search" type="text" placeholder="Tìm kiếm" class="outline-none py-1 focus:!outline-none">
                 </form>
-                <a href="?action=add" class="ml-auto !bg-blue-600 !text-white px-2 py-1 rounded-sm hover:!bg-blue-700 hover:cursor-pointer">
+                <a href="?action=add" class="ml-auto !no-underline transition-all !bg-lime-600 !text-white px-2 py-1 rounded-sm hover:!bg-lime-700 hover:cursor-pointer">
                     <span class="mdi mdi-plus-box"></span>
-                    Add user
+                    Tạo
                 </a>
             </div>
             <div class="mb-3 overflow-x-auto">
@@ -28,11 +28,11 @@
                         <tr class="text-sm bg-slate-50 text-slate-500 text-left *:py-2 *:px-3 border-b border-slate-300">
                             <th>ID</th>
                             <th>Email</th>
-                            <th>Full name</th>
-                            <th>Username</th>
-                            <th>Status</th>
+                            <th>Tên đầy đủ</th>
+                            <th>Tên đăng nhập</th>
+                            <th>Trạng thái</th>
                             <th>Role</th>
-                            <th>Action</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,17 +55,25 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="flex gap-2">
-                                        <a href="?action=edit&id=${usr.getUserID()}" class="text-sm px-2 py-1 rounded-sm !text-slate-500 !bg-slate-100 hover:cursor-pointer hover:!bg-slate-200">Edit</a>
+                                    <div class="flex items-center gap-2">
+                                        <a href="?action=edit&id=${usr.getUserID()}" class="btn_action hover:!bg-blue-700 !bg-blue-600 !text-white"><span class="mdi mdi-pencil"></span>Sửa</a>
                                         <c:choose>
                                             <c:when test="${usr.getStatus() == 'Active'}">
-                                                <form class="delete-user-form" method="POST" action="?action=delete&id=${usr.getUserID()}"><button class="delete-user text-sm px-2 py-1 rounded-sm text-slate-500 bg-slate-100 hover:cursor-pointer hover:bg-slate-200">Delete</button></form>
+                                                <form class="delete-user-form" method="POST" action="?action=delete&id=${usr.getUserID()}">
+                                                    <button class="delete-user btn_action bg-red-600 text-white hover:bg-red-700">
+                                                        <span class="mdi mdi-trash-can"></span><span>Xóa</span>
+                                                    </button>
+                                                </form>
                                             </c:when>
                                             <c:when test="${usr.getStatus() == 'Inactive'}">
-                                                <form class="recover-user-form" method="POST" action="?action=recover&id=${usr.getUserID()}"><button class="recover-user text-sm px-2 py-1 rounded-sm text-slate-500 bg-slate-100 hover:cursor-pointer hover:bg-slate-200">Recover</button></form>
+                                                <form class="recover-user-form" method="POST" action="?action=recover&id=${usr.getUserID()}">
+                                                    <button class="recover-user btn_action border border-slate-300 hover:border-slate-400">
+                                                        <span class="mdi mdi-restore"></span>
+                                                        <span>Phục hồi</span>
+                                                    </button>
+                                                </form>
                                             </c:when>
                                         </c:choose>
-
                                     </div>
                                 </td>
                             </tr>
@@ -74,12 +82,20 @@
                 </table>
             </div>
             <div>
-                <span class="mr-2">Showing ${offset+1}-${offset + users.size()} of ${total} items</span>
-                <a href="?page=${page-1}&search=${search}" class="!text-slate-600 !bg-slate-100 px-2 py-1 hover:!bg-slate-200 rounded-sm hover:cursor-pointer">Previous</a>
-                <a href="?page=${page+1}&search=${search}" class="!text-slate-600 !bg-slate-100 px-2 py-1 hover:!bg-slate-200 rounded-sm hover:cursor-pointer">Next</a>
+                <span class="mr-2">Hiện từ hàng ${offset+1}-${offset + users.size()} của tổng ${total} hàng</span>
+                <a href="?page=${page-1}&search=${search}" class="btn_"><span class="mdi mdi-chevron-left"></span></a>
+                <a href="?page=${page+1}&search=${search}" class="btn_"><span class="mdi mdi-chevron-right"></span></a>
             </div>
         </main>
         <jsp:include page="component/footer.jsp" />
+        <style type="text/tailwindcss">
+            .btn_ {
+                @apply inline-flex items-center gap-2 justify-center transition-all !no-underline !text-white !bg-lime-600 px-2 py-1 hover:!bg-lime-700 rounded-sm hover:cursor-pointer;
+            }
+            .btn_action {
+                @apply !no-underline px-2 py-1 text-sm inline-flex gap-1 items-center justify-center rounded-sm transition-all;
+            }
+        </style>
         <script>
             $(".delete-user-form").on("submit", function (e) {
                 e.preventDefault();
