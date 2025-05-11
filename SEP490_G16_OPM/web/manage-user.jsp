@@ -31,7 +31,7 @@
                             <th>Tên đầy đủ</th>
                             <th>Tên đăng nhập</th>
                             <th>Trạng thái</th>
-                            <th>Role</th>
+                            <th>Loại tài khoản</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
