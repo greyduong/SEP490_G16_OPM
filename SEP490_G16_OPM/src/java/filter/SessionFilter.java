@@ -19,7 +19,6 @@ public class SessionFilter extends HttpFilter {
         Optional<User> opt = Optional.ofNullable(request.getSession().getAttribute("user")).map(obj -> (User) obj);
         if (opt.isPresent()) {
             User user = new UserDAO().getUserByUsername(opt.get().getUsername());
-            request.setAttribute("user", user);
             request.getSession().setAttribute("user", user);
         }
         super.doFilter(request, response, chain);
