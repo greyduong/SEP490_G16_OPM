@@ -1,20 +1,24 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<style type="text/tailwindcss">
+    .header_link {
+        @apply !no-underline !font-medium !text-slate-600 hover:!text-lime-600;
+    }
+</style>
 <div class="p-2 border border-slate-300 flex items-center gap-6 mb-5 sticky top-0 bg-white z-100">
     <c:if test="${not empty sessionScope.user}">
         <div id="toggleSidebar" class="border border-slate-300 text-slate-600 rounded-sm px-2 py-1 hover:!border-slate-400 hover:text-slate-700 hover:cursor-pointer"><span class="mdi mdi-menu"></span></div>
         </c:if>
     <a href="${pageContext.request.contextPath}/home"><img class="w-10 h-10" src="img/logo.svg"></a>
     <div class="flex items-center gap-6">
-        <a href="${pageContext.request.contextPath}/home"
-           class="!no-underline !font-medium !text-slate-600 hover:!text-lime-600">
+        <a href="${pageContext.request.contextPath}/home" class="header_link">
             <span class="mdi mdi-home"></span>
             Trang chủ
         </a>
         <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
             <!-- Seller -->
-            <a href="${pageContext.request.contextPath}/my-farms" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <a href="${pageContext.request.contextPath}/my-farms" class="header_link">
                 <span class="mdi mdi-barn"></span>
                 Trang trại của tôi
             </a>
@@ -22,7 +26,7 @@
 
         <c:if test="${sessionScope.user == null || sessionScope.user.roleID != 4}">
             <!-- Guest, Dealer, Admin... -->
-            <a href="${pageContext.request.contextPath}/farms" class="!font-bold !text-slate-600 hover:!text-green-600">
+            <a href="${pageContext.request.contextPath}/farms" class="header_link">
                 <span class="mdi mdi-barn"></span>
                 Trang trại
             </a>
