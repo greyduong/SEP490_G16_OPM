@@ -19,7 +19,7 @@ public class DBContext {
     private final String password = "OnlinePigMarket@1";
     private final String connectUrl = "jdbc:sqlserver://localhost:1433;databaseName=OPM";
     private final String className = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    
+
     public DBContext() {
         try {
             Class.forName(className);
@@ -27,7 +27,7 @@ public class DBContext {
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     public Connection getConnection() {
@@ -63,12 +63,11 @@ public class DBContext {
             return result;
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex.getMessage());
+            return result;
         }
     }
 
     public <T> T fetchOne(Mapper<T> mapper, String query, Object... params) {
-        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             if (rs.next()) {
                 T item = mapper.fromResultSet(rs);
@@ -77,12 +76,11 @@ public class DBContext {
             return null;
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex.getMessage());
+            return null;
         }
     }
 
     public int count(String query, Object... params) {
-        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -95,7 +93,6 @@ public class DBContext {
     }
 
     public int insert(String query, Object... params) {
-        System.out.println(query);
         try (PreparedStatement pstm = prepareStatementReturnKeys(query, params)) {
             int inserted = pstm.executeUpdate();
             if (inserted == 0) {
@@ -114,7 +111,6 @@ public class DBContext {
     }
 
     public void update(String query, Object... params) {
-        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params)) {
             int updated = pstm.executeUpdate();
 
@@ -129,7 +125,6 @@ public class DBContext {
     }
 
     public void delete(String query, Object... params) {
-        System.out.println(query);
         try (PreparedStatement pstm = prepareStatement(query, params)) {
             int deleted = pstm.executeUpdate();
 
@@ -141,5 +136,18 @@ public class DBContext {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex.getMessage());
         }
+    }
+
+    public int executeUpdate(String query, Object... params) {
+        try (PreparedStatement pstm = prepareStatement(query, params)) {
+            return pstm.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    public BatchStatement batch(String query) {
+        return new BatchStatement(connection, query);
     }
 }
