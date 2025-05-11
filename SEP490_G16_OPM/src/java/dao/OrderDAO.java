@@ -807,11 +807,9 @@ public class OrderDAO extends DBContext {
             order.setQuantity(rs.getInt("Quantity"));
             User seller = new User();
             seller.setUserID(rs.getInt("SellerID"));
-            seller.setFullName("SellerFullName");
             seller.setEmail("SellerEmail");
             User dealer = new User();
             dealer.setUserID(rs.getInt("DealerID"));
-            dealer.setFullName("DealerFullName");
             dealer.setEmail("DealerEmail");
             order.setSeller(seller);
             order.setDealer(dealer);
@@ -819,14 +817,12 @@ public class OrderDAO extends DBContext {
         }, """
            SELECT
            o.*,
-           d.FullName AS DealerFullName,
            d.Email AS DealerEmail,
-           s.FullName AS SellerFullName
            s.Email AS SellerEmail
            FROM Orders o
            JOIN UserAccount s ON o.SellerID = s.UserID
            JOIN UserAccount d ON o.DealerID = d.UserID
-           WHERE status = 'Confirmed' AND DATEDIFF(HOUR, ProccessedDate, GETDATE()) >= 24
+           WHERE o.Status = 'Confirmed' AND DATEDIFF(HOUR, GETDATE(), ProcessedDate) >= 24
            """);
     }
 
