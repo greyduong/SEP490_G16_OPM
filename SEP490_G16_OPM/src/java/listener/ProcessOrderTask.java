@@ -14,12 +14,12 @@ public class ProcessOrderTask implements Runnable {
         var expired = db.getExpiredOrders();
         db.cancelOrders(expired);
         expired.forEach(order -> {
-            sendCancelOrderEmail(order, "Hết hạn");
+            // sendCancelOrderEmail(order, "Hết hạn");
         });
         var overProcess = db.getOverProcessedDateOrders();
         db.cancelOrders(overProcess);
         expired.forEach(order -> {
-            sendCancelOrderEmail(order, "Quá hạn xử lý");
+            // sendCancelOrderEmail(order, "Quá hạn xử lý");
         });
     }
 
