@@ -53,7 +53,6 @@ public class DBContext {
     }
 
     public <T> List<T> fetchAll(Mapper<T> mapper, String query, Object... params) {
-        System.out.println(query);
         List<T> result = new ArrayList<>();
         try (PreparedStatement pstm = prepareStatement(query, params); ResultSet rs = pstm.executeQuery()) {
             while (rs.next()) {
