@@ -776,55 +776,73 @@ public class OrderDAO extends DBContext {
         return 0;
     }
 
-    public void cancelExpiredOrders() {
-        String updateQuery = """
-                       UPDATE Orders
-                       SET status = 'Cancelled'
-                       OUTPUT inserted.OrderID, inserted.Quantity, inserted.OfferID
-                       WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
-                       """;
-        String addQuantityQuery = """
-                                  UPDATE PigsOffer
-                                  SET Quantity = Quantity + ? WHERE OfferID = ?
-                                  """;
-        // Get all updated orders
-        List<Order> orders = fetchAll((rs) -> {
+    public List<Order> getExpiredOrders() {
+        return fetchAll((rs) -> {
             Order order = new Order();
             order.setOrderID(rs.getInt("OrderID"));
             order.setOfferID(rs.getInt("OfferID"));
             order.setQuantity(rs.getInt("Quantity"));
+            User seller = new User();
+            seller.setUserID(rs.getInt("SellerID"));
+            seller.setFullName("SellerFullName");
+            seller.setEmail("SellerEmail");
+            User dealer = new User();
+            dealer.setUserID(rs.getInt("DealerID"));
+            dealer.setFullName("DealerFullName");
+            dealer.setEmail("DealerEmail");
+            order.setSeller(seller);
+            order.setDealer(dealer);
             return order;
-        }, updateQuery);
-        // no order updated
-        if (orders.isEmpty()) {
-            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info("Không có đơn nào cần hủy");
-            return;
-        }
-        String addLogQuery = """
-                             INSERT INTO ServerLog(content)
-                             VALUES (?)
-                             """;
+        }, """
+           SELECT
+           o.*,
+           d.FullName AS DealerFullName,
+           d.Email AS DealerEmail,
+           s.FullName AS SellerFullName
+           s.Email AS SellerEmail
+           FROM Orders o
+           JOIN UserAccount s ON o.SellerID = s.UserID
+           JOIN UserAccount d ON o.DealerID = d.UserID
+           WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
+           """);
+    }
 
-        try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);) {
-            for (Order order : orders) {
-                String message = "Đã hủy đơn hàng id %s".formatted(order.getOrderID());
+    public List<Order> getOverProcessedDateOrders() {
+        return fetchAll((rs) -> {
+            Order order = new Order();
+            order.setOrderID(rs.getInt("OrderID"));
+            order.setOfferID(rs.getInt("OfferID"));
+            order.setQuantity(rs.getInt("Quantity"));
+            User seller = new User();
+            seller.setUserID(rs.getInt("SellerID"));
+            seller.setFullName("SellerFullName");
+            seller.setEmail("SellerEmail");
+            User dealer = new User();
+            dealer.setUserID(rs.getInt("DealerID"));
+            dealer.setFullName("DealerFullName");
+            dealer.setEmail("DealerEmail");
+            order.setSeller(seller);
+            order.setDealer(dealer);
+            return order;
+        }, """
+           SELECT
+           o.*,
+           d.FullName AS DealerFullName,
+           d.Email AS DealerEmail,
+           s.FullName AS SellerFullName
+           s.Email AS SellerEmail
+           FROM Orders o
+           JOIN UserAccount s ON o.SellerID = s.UserID
+           JOIN UserAccount d ON o.DealerID = d.UserID
+           WHERE status = 'Confirmed' AND DATEDIFF(HOUR, ProccessedDate, GETDATE()) >= 24
+           """);
+    }
 
-                // add quantity back to offer
-                addQuantityPstm.setInt(1, order.getQuantity());
-                addQuantityPstm.setInt(2, order.getOfferID());
-                addQuantityPstm.addBatch();
-
-                // add to server log
-                java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
-                addLogPstm.setString(1, message);
-                addLogPstm.addBatch();
-            }
-
-            addLogPstm.executeBatch();
-            addQuantityPstm.executeBatch();
-
-        } catch (Exception e) {
-            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
-        }
+    public boolean cancelOrders(List<Order> orders) {
+        var statement = batch("UPDATE Orders SET status = 'Cancelled' WHERE OrderID = ?");
+        orders.forEach(order -> {
+            statement.params(order.getOrderID());
+        });
+        return statement.execute() != null;
     }
 }
