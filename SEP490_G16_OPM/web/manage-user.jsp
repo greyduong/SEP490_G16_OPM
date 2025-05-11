@@ -42,7 +42,13 @@
                                 <td>${usr.getEmail()}</td>
                                 <td>${usr.getFullName()}</td>
                                 <td>${usr.getUsername()}</td>
-                                <td><span class="border ${usr.getStatus() == 'Active' ? 'text-green-600' : 'text-red-600'} rounded-full px-2 inline-flex items-center justify-center text-sm uppercase">${usr.getStatus()}</span></td>
+                                <td>
+                                    
+                                    <c:choose>
+                                        <c:when test="${usr.status == 'Active'}">Hoạt động</c:when>
+                                        <c:when test="${usr.status == 'Inactive'}">Không hoạt động</c:when>
+                                    </c:choose>
+                                </td>
                                 <td>
                                     <span class="whitespace-nowrap">
                                         <c:choose>
@@ -99,14 +105,14 @@
         <script>
             $(".delete-user-form").on("submit", function (e) {
                 e.preventDefault();
-                const choice = confirm("Do you want to delete this user?");
+                const choice = confirm("Xác nhận hủy kích hoạt người dùng này?");
                 if (!choice)
                     return;
                 e.target.submit();
             });
             $(".recover-user-form").on("submit", function (e) {
                 e.preventDefault();
-                const choice = confirm("Do you want to recover this user?");
+                const choice = confirm("Xác nhận kích hoạt người dùng này?");
                 if (!choice)
                     return;
                 e.target.submit();
