@@ -1,7 +1,3 @@
-/*
-     * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-     * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import dal.DBContext;
@@ -709,62 +705,69 @@ public class PigsOfferDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
-
     }
 
-    public void updateUpcomingOffers() {
-        String updateQuery = """
-                       UPDATE PigsOffer
-                       SET status = 'Available'
-                       OUTPUT inserted.OfferID
-                       WHERE status = 'Upcoming' AND GETDATE() > StartDate
-                       """;
-        List<Integer> ids = fetchAll((resultSet) -> resultSet.getInt("OfferID"), updateQuery);
-        if (ids.isEmpty()) {
-            return;
-        }
-        String insertQuery = """
-                             INSERT INTO ServerLog(content)
-                             VALUES (?)
-                             """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
-            for (int id : ids) {
-                String message = "Chào bán id %s đã sẵn sàng".formatted(id);
-                java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
-                pstm.setString(1, message);
-                pstm.addBatch();
-            }
-            pstm.executeBatch();
-        } catch (Exception e) {
-            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
-        }
+    public void updateOffersStatus(List<PigsOffer> offers, String status) {
+        var statement = batch("UPDATE PigsOffer SET Status = ? WHERE OfferID = ?");
+        offers.forEach(offer -> {
+            statement.params(offer.getOfferID());
+        });
+        statement.execute();
     }
 
-    public void updateExpiredOffers() {
-        String updateQuery = """
-                       UPDATE PigsOffer
-                       SET status = 'Unavailable'
-                       OUTPUT inserted.OfferID
-                       WHERE status = 'Available' AND GETDATE() > EndDate
-                       """;
-        List<Integer> ids = fetchAll((resultSet) -> resultSet.getInt("OfferID"), updateQuery);
-        if (ids.isEmpty()) {
-            return;
-        }
-        String insertQuery = """
-                             INSERT INTO ServerLog(content)
-                             VALUES (?)
-                             """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
-            for (int id : ids) {
-                String message = "Chào bán id %s đã hết hạn".formatted(id);
-                java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
-                pstm.setString(1, message);
-                pstm.addBatch();
-            }
-            pstm.executeBatch();
-        } catch (Exception e) {
-            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
-        }
+    public List<PigsOffer> getAvailableUpcomingOffers() {
+        return fetchAll(rs -> {
+            PigsOffer offer = new PigsOffer();
+            offer.setOfferID(rs.getInt("OfferID"));
+            offer.setSellerID(rs.getInt("SellerID"));
+            offer.setFarmID(rs.getInt("FarmID"));
+            offer.setCategoryID(rs.getInt("CategoryID"));
+            offer.setName(rs.getString("Name"));
+            offer.setPigBreed(rs.getString("PigBreed"));
+            offer.setQuantity(rs.getInt("Quantity"));
+            offer.setMinQuantity(rs.getInt("MinQuantity"));
+            offer.setMinDeposit(rs.getBigDecimal("MinDeposit").doubleValue());
+            offer.setRetailPrice(rs.getBigDecimal("RetailPrice").doubleValue());
+            offer.setTotalOfferPrice(rs.getBigDecimal("TotalOfferPrice").doubleValue());
+            offer.setDescription(rs.getString("Description"));
+            offer.setImageURL(rs.getString("ImageURL"));
+            offer.setStartDate(rs.getDate("StartDate"));
+            offer.setEndDate(rs.getDate("EndDate"));
+            offer.setStatus(rs.getString("Status"));
+            offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+            return offer;
+        }, """
+           SELECT *
+           FROM PigsOffer
+           WHERE status = 'Upcoming' AND GETDATE() > StartDate
+           """);
+    }
+
+    public List<PigsOffer> getExpiredOffers() {
+        return fetchAll(rs -> {
+            PigsOffer offer = new PigsOffer();
+            offer.setOfferID(rs.getInt("OfferID"));
+            offer.setSellerID(rs.getInt("SellerID"));
+            offer.setFarmID(rs.getInt("FarmID"));
+            offer.setCategoryID(rs.getInt("CategoryID"));
+            offer.setName(rs.getString("Name"));
+            offer.setPigBreed(rs.getString("PigBreed"));
+            offer.setQuantity(rs.getInt("Quantity"));
+            offer.setMinQuantity(rs.getInt("MinQuantity"));
+            offer.setMinDeposit(rs.getBigDecimal("MinDeposit").doubleValue());
+            offer.setRetailPrice(rs.getBigDecimal("RetailPrice").doubleValue());
+            offer.setTotalOfferPrice(rs.getBigDecimal("TotalOfferPrice").doubleValue());
+            offer.setDescription(rs.getString("Description"));
+            offer.setImageURL(rs.getString("ImageURL"));
+            offer.setStartDate(rs.getDate("StartDate"));
+            offer.setEndDate(rs.getDate("EndDate"));
+            offer.setStatus(rs.getString("Status"));
+            offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+            return offer;
+        }, """
+           SELECT *
+           FROM PigsOffer
+           WHERE status = 'Available' AND GETDATE() > EndDate
+           """);
     }
 }

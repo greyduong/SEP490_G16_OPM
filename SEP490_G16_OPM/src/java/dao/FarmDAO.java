@@ -8,58 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import model.Farm;
 import model.Page;
-import model.PigsOffer;
 import model.User;
 
 public class FarmDAO extends DBContext {
-
-    public static Mapper<Farm> mapper() {
-        return (rs) -> {
-            Farm farm = new Farm();
-            farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
-            farm.setDescription(rs.getString("Description"));
-            farm.setFarmID(rs.getInt("FarmID"));
-            farm.setFarmName(rs.getString("FarmName"));
-            farm.setLocation(rs.getString("Location"));
-            farm.setSellerID(rs.getInt("SellerID"));
-            farm.setStatus(rs.getString("Status"));
-            farm.setNote(rs.getString("Note"));
-            farm.setImageURL(rs.getString("ImageURL"));
-            return farm;
-        };
-    }
-
-    public Farm getById(int id) {
-        return fetchOne(
-                mapper(),
-                "SELECT * FROM Farm WHERE FarmID = ?",
-                id);
-    }
-
-    public Page<Farm> search(String name, int pageNumber, int pageSize) {
-        String selectQuery = "SELECT * FROM Farm WHERE Status = 'Active' AND FarmName LIKE ? ORDER BY FarmID OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        String countQuery = "SELECT COUNT(*) FROM Farm WHERE Status = 'Active' AND FarmName LIKE ?";
-        Page<Farm> page = new Page<>();
-        if (pageNumber < 1) {
-            pageNumber = 1;
-        }
-        if (pageSize < 1) {
-            pageSize = 10;
-        }
-        int offset = (pageNumber - 1) * pageSize;
-        List<Farm> data = fetchAll(mapper(), selectQuery, "%" + name + "%", offset, pageSize);
-        int totalRows = count(countQuery, "%" + name + "%");
-        int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
-        page.setTotalPage(totalPages);
-        page.setPageNumber(pageNumber);
-        page.setPageSize(pageSize);
-        page.setTotalElements(totalRows);
-        if (data == null) {
-            return null;
-        }
-        page.setData(data);
-        return page;
-    }
 
     public Page<Farm> getFarmsByFilterbySellerId(int userId, String search, String status, int pageNumber, int pageSize, String sort) {
         Page<Farm> page = new Page<>();

@@ -1,6 +1,9 @@
 package service;
 
 import jakarta.servlet.http.Part;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,7 +15,6 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONException;
@@ -35,6 +37,17 @@ public class ImageService {
             Logger.getLogger(ImageService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+    
+    public String upload(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            String base64 = Base64.getEncoder().encodeToString(fis.readAllBytes());
+            return upload(base64);
+        } catch(IOException ex) {
+            Logger.getLogger(ImageService.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     public String upload(String base64) {

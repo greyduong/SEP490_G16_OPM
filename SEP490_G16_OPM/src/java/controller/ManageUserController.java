@@ -125,33 +125,34 @@ public class ManageUserController extends HttpServlet {
         req.setAttribute("password", password);
         req.setAttribute("role", role);
         req.setAttribute("error", null);
+        var db = new UserDAO();
         try {
             if (fullname.isEmpty()) {
-                throw new RuntimeException("Fullname cannot empty!");
+                throw new RuntimeException("Tên đầy đủ không được trống!");
             }
             if (username.isEmpty()) {
-                throw new RuntimeException("Username cannot empty!");
+                throw new RuntimeException("Tên đăng nhập không được trống!");
             }
             if (username.matches("^[a-zA-Z0-9]$") && username.length() > 32 && username.length() < 4) {
-                throw new RuntimeException("Username only contains a-z, A-Z, 0-9, min 4, max 32 characters");
+                throw new RuntimeException("Tên đăng nhập chỉ có thể chứa các ký tự a-z, A-Z, 0-9, tối thiểu 4, tối đa 32 ký tự");
             }
             if (email.isEmpty()) {
-                throw new RuntimeException("Email cannot empty!");
+                throw new RuntimeException("Email không được trống!");
             }
             if (!Validation.isValidEmail(email)) {
-                throw new RuntimeException("Invalid email format!");
+                throw new RuntimeException("Email không hợp lệ!");
             }
             if (password.isEmpty()) {
-                throw new RuntimeException("Password cannot empty!");
+                throw new RuntimeException("Mật khẩu không được trống!");
             }
             if (password.length() < 4) {
-                throw new RuntimeException("Password min length 4!");
+                throw new RuntimeException("Mật khẩu tối thiểu 4 ký tự!");
             }
-            if (new UserDAO().checkExistsUsername(username)) {
-                throw new RuntimeException("Username existed!");
+            if (db.checkExistsEmail(email)) {
+                throw new RuntimeException("Email đã tồn tại!");
             }
-            if (new DBContext().count("SELECT COUNT(*) FROM UserAccount WHERE Email = ?", email) > 0) {
-                throw new RuntimeException("Email existed!");
+            if (db.checkExistsUsername(username)) {
+                throw new RuntimeException("Tên đăng nhập đã tồn tại!");
             }
             User user = new User();
             user.setFullName(fullname);
@@ -161,7 +162,7 @@ public class ManageUserController extends HttpServlet {
             user.setRoleID(role);
             user.setStatus("Active");
             new UserDAO().addNewUser(user);
-            req.setAttribute("success", "Add new user success!");
+            req.setAttribute("success", "Thêm người dùng thành công!");
             showAddPage(req, resp);
         } catch (RuntimeException e) {
             req.setAttribute("error", e.getMessage());

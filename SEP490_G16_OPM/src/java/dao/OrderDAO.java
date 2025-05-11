@@ -776,55 +776,61 @@ public class OrderDAO extends DBContext {
         return 0;
     }
 
-    public void cancelExpiredOrders() {
-        String updateQuery = """
-                       UPDATE Orders
-                       SET status = 'Cancelled'
-                       OUTPUT inserted.OrderID, inserted.Quantity, inserted.OfferID
-                       WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
-                       """;
-        String addQuantityQuery = """
-                                  UPDATE PigsOffer
-                                  SET Quantity = Quantity + ? WHERE OfferID = ?
-                                  """;
-        // Get all updated orders
-        List<Order> orders = fetchAll((rs) -> {
+    public List<Order> getExpiredOrders() {
+        return fetchAll((rs) -> {
+            Order order = new Order();
+            order.setOrderID(rs.getInt("OrderID"));
+            order.setQuantity(rs.getInt("Quantity"));
+            User seller = new User();
+            seller.setUserID(rs.getInt("SellerID"));
+            seller.setEmail("SellerEmail");
+            User dealer = new User();
+            dealer.setUserID(rs.getInt("DealerID"));
+            dealer.setEmail("DealerEmail");
+            order.setSeller(seller);
+            order.setDealer(dealer);
+            return order;
+        }, """
+           SELECT o.*, s.Email as SellerEmail, d.Email AS DealerEmail
+           FROM Orders o
+           JOIN UserAccount s ON o.SellerID = s.UserID
+           JOIn UserAccount d ON o.DealerID = d.UserID 
+           WHERE o.Status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
+           """);
+    }
+
+    public List<Order> getOverProcessedDateOrders() {
+        return fetchAll((rs) -> {
             Order order = new Order();
             order.setOrderID(rs.getInt("OrderID"));
             order.setOfferID(rs.getInt("OfferID"));
             order.setQuantity(rs.getInt("Quantity"));
+            User seller = new User();
+            seller.setUserID(rs.getInt("SellerID"));
+            seller.setEmail("SellerEmail");
+            User dealer = new User();
+            dealer.setUserID(rs.getInt("DealerID"));
+            dealer.setEmail("DealerEmail");
+            order.setSeller(seller);
+            order.setDealer(dealer);
             return order;
-        }, updateQuery);
-        // no order updated
-        if (orders.isEmpty()) {
-            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info("Không có đơn nào cần hủy");
-            return;
-        }
-        String addLogQuery = """
-                             INSERT INTO ServerLog(content)
-                             VALUES (?)
-                             """;
+        }, """
+           SELECT
+           o.*,
+           d.Email AS DealerEmail,
+           s.Email AS SellerEmail
+           FROM Orders o
+           JOIN UserAccount s ON o.SellerID = s.UserID
+           JOIN UserAccount d ON o.DealerID = d.UserID
+           WHERE o.Status = 'Confirmed' AND DATEDIFF(HOUR, GETDATE(), ProcessedDate) >= 24
+           """);
+    }
 
-        try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);) {
-            for (Order order : orders) {
-                String message = "Đã hủy đơn hàng id %s".formatted(order.getOrderID());
-
-                // add quantity back to offer
-                addQuantityPstm.setInt(1, order.getQuantity());
-                addQuantityPstm.setInt(2, order.getOfferID());
-                addQuantityPstm.addBatch();
-
-                // add to server log
-                java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
-                addLogPstm.setString(1, message);
-                addLogPstm.addBatch();
-            }
-
-            addLogPstm.executeBatch();
-            addQuantityPstm.executeBatch();
-
-        } catch (Exception e) {
-            java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
-        }
+    public boolean cancelOrders(List<Order> orders) {
+        var statement = batch("UPDATE Orders SET status = 'Cancelled' WHERE OrderID = ?");
+        orders.forEach(order -> {
+            statement.params(order.getOrderID());
+        });
+        return statement.execute() != null;
     }
 }
