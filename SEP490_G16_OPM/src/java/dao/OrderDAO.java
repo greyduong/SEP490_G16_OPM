@@ -798,7 +798,7 @@ public class OrderDAO extends DBContext {
            o.*,
            d.FullName AS DealerFullName,
            d.Email AS DealerEmail,
-           s.FullName AS SellerFullName
+           s.FullName AS SellerFullName,
            s.Email AS SellerEmail
            FROM Orders o
            JOIN UserAccount s ON o.SellerID = s.UserID
