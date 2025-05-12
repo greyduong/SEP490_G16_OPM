@@ -1,4 +1,4 @@
-package vnpay;
+package controller;
 
 import dao.WalletTopupHistoryDAO;
 import jakarta.servlet.ServletException;
@@ -10,14 +10,12 @@ import model.User;
 import model.WalletTopupHistory;
 
 import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
+import vnpay.VNPay;
 
 @WebServlet("/wallet-topup")
-public class VNPayRedirect extends HttpServlet {
+public class WalletTopupController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -65,10 +63,6 @@ public class VNPayRedirect extends HttpServlet {
             return;
         }
         
-        
-        // VNPay require *100
-        amount = amount * 100;
-
         // generate random txnRef
         String txnRef = UUID.randomUUID().toString().replaceAll("-", "");
 
@@ -76,34 +70,14 @@ public class VNPayRedirect extends HttpServlet {
         WalletTopupHistory history = new WalletTopupHistory();
         history.setUserID(userID);
         history.setTxnRef(txnRef);
-        history.setAmount(amount / 100);
+        history.setAmount(amount);
         history.setStatus("Pending");
         new WalletTopupHistoryDAO().create(history);
-
-        // build payment url
-        VNPayParams params = new VNPayParams();
-        params.add("vnp_Version", "2.1.0");
-        params.add("vnp_Command", "pay");
-        params.add("vnp_TxnRef", txnRef);
-        params.add("vnp_IpAddr", "127.0.0.1");
-        params.add("vnp_OrderType", "other");
-        params.add("vnp_CurrCode", "VND");
-        params.add("vnp_Amount", String.valueOf(amount));
-        params.add("vnp_OrderInfo", "wallet");
-        params.add("vnp_Locale", "vn");
-        params.add("vnp_TmnCode", Config.vnp_TmnCode);
-        params.add("vnp_ReturnUrl", req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + Config.vnp_ReturnUrl);
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC+7"));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(now);
-        params.add("vnp_CreateDate", vnp_CreateDate);
-        ZonedDateTime expire = now.plusMinutes(15);
-        String vnp_ExpireDate = formatter.format(expire);
-        params.add("vnp_ExpireDate", vnp_ExpireDate);
-        String queryUrl = params.build();
-        String vnp_SecureHash = Config.hmacSHA512(Config.vnp_HashSecret, queryUrl);
-        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
+        
+        String returnUrl = req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + "/wallet-topup-result";
+        
+        String paymentUrl = new VNPay().createPaymentUrl(amount, txnRef, returnUrl);
+        
         resp.sendRedirect(paymentUrl);
     }
 }

@@ -39,7 +39,7 @@
                             <div class="text-slate-500 text-sm">${item.getCreatedAtAsString('HH:mm dd/MM/yyyy')}</div>
                             <div>
                                 <c:choose>
-                                    <c:when test="${item.status == 'Fail'}">
+                                    <c:when test="${item.status == 'Cancelled'}">
                                         <div class="text-red-500 font-bold text-xl"><fmt:formatNumber currencyCode="VND" value="${item.amount}" />đ</div>
                                     </c:when>
                                     <c:when test="${item.status == 'Success'}">
@@ -52,7 +52,7 @@
                                 <div class="text-slate-600">Mã giao dịch: ${item.txnRef}</div>
                                 <div class="text-slate-600">Trạng thái:
                                     <c:choose>
-                                        <c:when test="${item.status == 'Fail'}"><span class="text-red-600">Hủy</span></c:when>
+                                        <c:when test="${item.status == 'Cancelled'}"><span class="text-red-600">Hủy</span></c:when>
                                         <c:when test="${item.status == 'Success'}"><span class="text-lime-600">Thành công</span></c:when>
                                         <c:when test="${item.status == 'Pending'}"><span class="text-gray-500">Chờ thanh toán</span></c:when>
                                     </c:choose>
