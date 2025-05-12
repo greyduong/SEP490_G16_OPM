@@ -828,9 +828,11 @@ public class OrderDAO extends DBContext {
 
     public boolean cancelOrders(List<Order> orders) {
         var statement = batch("UPDATE Orders SET status = 'Cancelled' WHERE OrderID = ?");
+        var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?");
         orders.forEach(order -> {
             statement.params(order.getOrderID());
+            statement2.params(order.getQuantity(), order.getOfferID());
         });
-        return statement.execute() != null;
+        return statement.execute() != null && statement2.execute() != null;
     }
 }
