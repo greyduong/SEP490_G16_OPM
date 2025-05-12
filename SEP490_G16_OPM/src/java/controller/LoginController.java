@@ -30,11 +30,11 @@ public class LoginController extends HttpServlet {
 
         try {
             if (username.isEmpty() || password.isEmpty()) {
-                throw new AppException("Username and password cannot be empty!");
+                throw new AppException("Tên đăng nhập và mật khẩu không được để trống!");
             }
             UserDAO userDAO = new UserDAO();
             if (!userDAO.checkUser(username, password)) {
-                throw new AppException("Invalid credential!");
+                throw new AppException("Thông tin đăng nhập không hợp lệ!");
             }
             User user = userDAO.getUserByUsername(username);
             req.getSession().setAttribute("user", user);
