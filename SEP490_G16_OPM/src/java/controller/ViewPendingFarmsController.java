@@ -4,7 +4,7 @@
  */
 package controller;
 
-import dao.CartDAO;
+import dao.FarmDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,14 +12,15 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.PigsOffer;
+import model.Farm;
+import model.Page;
 
 /**
  *
  * @author duong
  */
-@WebServlet(name = "UpdateCartController", urlPatterns = {"/update-cart"})
-public class UpdateCartController extends HttpServlet {
+@WebServlet(name = "ViewPendingFarmsController", urlPatterns = {"/pending-farms"})
+public class ViewPendingFarmsController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,10 +39,10 @@ public class UpdateCartController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet UpdateCartController</title>");
+            out.println("<title>Servlet ViewPendingFarmsController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet UpdateCartController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ViewPendingFarmsController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -59,7 +60,30 @@ public class UpdateCartController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        int pageNumber = 1;
+        int pageSize = 5;
+        String sort = request.getParameter("sort");
+        String search = request.getParameter("search");
+        String status = "Pending";
+
+        try {
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
+                pageNumber = Integer.parseInt(pageParam);
+            }
+        } catch (NumberFormatException e) {
+            pageNumber = 1;
+        }
+
+        FarmDAO dao = new FarmDAO();
+        Page<Farm> pagedFarms = dao.getFarmsForManager(search, status, pageNumber, pageSize, sort);
+
+        request.setAttribute("pagedFarms", pagedFarms);
+        request.setAttribute("search", search);
+        request.setAttribute("status", status);
+        request.setAttribute("sort", sort);
+        request.getRequestDispatcher("pendingfarms.jsp").forward(request, response);
     }
 
     /**
@@ -73,22 +97,7 @@ public class UpdateCartController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int cartId = Integer.parseInt(request.getParameter("cartId"));
-        String mode = request.getParameter("mode");
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-        int page = Integer.parseInt(request.getParameter("page"));
-
-        CartDAO cartDAO = new CartDAO();
-        PigsOffer offer = cartDAO.getPigsOfferByCartId(cartId);
-
-        if (quantity < offer.getMinQuantity() || quantity > offer.getQuantity()) {
-            response.sendRedirect("cart?page=" + page + "&error=Số lượng không hợp lệ");
-            return;
-        }
-
-        cartDAO.updateCartQuantity(cartId, quantity);
-        response.sendRedirect("cart?page=" + page);
-
+        processRequest(request, response);
     }
 
     /**

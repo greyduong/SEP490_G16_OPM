@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import model.Farm;
 import model.Order;
 import model.OrderStat;
 import model.PigsOffer;
@@ -34,18 +35,82 @@ public class OrderDAO extends DBContext {
         }
     }
 
-    public List<Order> getOrdersByBuyerId(int dealerId) {
+    public List<Order> getOrdersByBuyerWithFilter(int buyerId, String search, String status, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
-                + "       p.Name AS OfferName, p.ImageURL, p.RetailPrice, u.FullName AS SellerName "
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, p.MinQuantity, p.MinDeposit, p.TotalOfferPrice, p.Description, "
+                + "f.FarmID, f.FarmName, f.Location, u.FullName AS SellerName "
                 + "FROM Orders o "
                 + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
                 + "JOIN UserAccount u ON o.SellerID = u.UserID "
                 + "WHERE o.DealerID = ? "
-                + "ORDER BY o.CreatedAt DESC";
+        );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, dealerId);
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND o.Status = ? ");
+        }
+
+        switch (sort != null ? sort : "") {
+            case "orderid_asc":
+                sql.append("ORDER BY o.OrderID ASC ");
+                break;
+            case "orderid_desc":
+                sql.append("ORDER BY o.OrderID DESC ");
+                break;
+            case "quantity_asc":
+                sql.append("ORDER BY o.Quantity ASC ");
+                break;
+            case "quantity_desc":
+                sql.append("ORDER BY o.Quantity DESC ");
+                break;
+            case "totalprice_asc":
+                sql.append("ORDER BY o.TotalPrice ASC ");
+                break;
+            case "totalprice_desc":
+                sql.append("ORDER BY o.TotalPrice DESC ");
+                break;
+            case "createdat_asc":
+                sql.append("ORDER BY o.CreatedAt ASC ");
+                break;
+            case "createdat_desc":
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+            case "processeddate_asc":
+                sql.append("ORDER BY o.ProcessedDate ASC ");
+                break;
+            case "processeddate_desc":
+                sql.append("ORDER BY o.ProcessedDate DESC ");
+                break;
+            default:
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, buyerId);
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
+                ps.setString(index++, "%" + search.trim() + "%");
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(index++, status);
+            }
+
+            int offset = (pageIndex - 1) * pageSize;
+            ps.setInt(index++, offset);
+            ps.setInt(index, pageSize);
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Order order = new Order();
@@ -57,16 +122,25 @@ public class OrderDAO extends DBContext {
                 order.setTotalPrice(rs.getDouble("TotalPrice"));
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Set pigs offer info
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
                 offer.setName(rs.getString("OfferName"));
                 offer.setImageURL(rs.getString("ImageURL"));
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
                 order.setPigsOffer(offer);
 
-                // Set seller info
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                farm.setLocation(rs.getString("Location"));
+                order.setFarm(farm);
+
                 User seller = new User();
                 seller.setUserID(rs.getInt("SellerID"));
                 seller.setFullName(rs.getString("SellerName"));
@@ -77,23 +151,128 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return orders;
     }
 
-    public List<Order> getPendingOrdersBySellerId(int sellerId) {
+    public int countOrdersByBuyerWithFilter(int buyerId, String search, String status) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders o "
+                + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "WHERE o.DealerID = ? "
+        );
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND o.Status = ? ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, buyerId);
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
+                ps.setString(index++, "%" + search.trim() + "%");
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(index++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public List<Order> getPendingOrdersBySellerWithFilter(int sellerId, Integer farmId, String search, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
-                + "       p.Name AS OfferName, p.ImageURL, p.RetailPrice, u.FullName AS DealerName "
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, p.MinQuantity, p.MinDeposit, p.TotalOfferPrice, p.Description, "
+                + "f.FarmID, f.FarmName, f.Location, "
+                + "u.FullName AS DealerName "
                 + "FROM Orders o "
                 + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
                 + "JOIN UserAccount u ON o.DealerID = u.UserID "
                 + "WHERE o.SellerID = ? AND o.Status = 'Pending' "
-                + "ORDER BY o.CreatedAt DESC";
+        );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, sellerId);
+        if (farmId != null) {
+            sql.append("AND p.FarmID = ? ");
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+
+        switch (sort != null ? sort : "") {
+            case "orderid_asc":
+                sql.append("ORDER BY o.OrderID ASC ");
+                break;
+            case "orderid_desc":
+                sql.append("ORDER BY o.OrderID DESC ");
+                break;
+            case "quantity_asc":
+                sql.append("ORDER BY o.Quantity ASC ");
+                break;
+            case "quantity_desc":
+                sql.append("ORDER BY o.Quantity DESC ");
+                break;
+            case "price_asc":
+                sql.append("ORDER BY o.TotalPrice ASC ");
+                break;
+            case "price_desc":
+                sql.append("ORDER BY o.TotalPrice DESC ");
+                break;
+            case "createdAt_asc":
+                sql.append("ORDER BY o.CreatedAt ASC ");
+                break;
+            case "createdAt_desc":
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+            case "processeddate_asc":
+                sql.append("ORDER BY o.ProcessedDate ASC ");
+                break;
+            case "processeddate_desc":
+                sql.append("ORDER BY o.ProcessedDate DESC ");
+                break;
+            default:
+                sql.append("ORDER BY o.CreatedAt DESC ");
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, sellerId);
+
+            if (farmId != null) {
+                ps.setInt(paramIndex++, farmId);
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + search.trim() + "%");
+                ps.setString(paramIndex++, "%" + search.trim() + "%");
+            }
+
+            int offset = (pageIndex - 1) * pageSize;
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex, pageSize);
+
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderID(rs.getInt("OrderID"));
@@ -104,16 +283,25 @@ public class OrderDAO extends DBContext {
                 order.setTotalPrice(rs.getDouble("TotalPrice"));
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Set pigs offer info
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
                 offer.setName(rs.getString("OfferName"));
                 offer.setImageURL(rs.getString("ImageURL"));
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                offer.setMinQuantity(rs.getInt("MinQuantity"));
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
                 order.setPigsOffer(offer);
 
-                // Set dealer info
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                farm.setLocation(rs.getString("Location"));
+                order.setFarm(farm);
+
                 User dealer = new User();
                 dealer.setUserID(rs.getInt("DealerID"));
                 dealer.setFullName(rs.getString("DealerName"));
@@ -124,21 +312,131 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return orders;
     }
 
-    public List<Order> getOrdersExcludingPending(int sellerID) {
+    public int countPendingOrdersBySellerWithFilter(int sellerId, Integer farmId, String search) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders o "
+                + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "WHERE o.SellerID = ? AND o.Status = 'Pending' "
+        );
+
+        if (farmId != null) {
+            sql.append("AND p.FarmID = ? ");
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, sellerId);
+
+            if (farmId != null) {
+                ps.setInt(index++, farmId);
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
+                ps.setString(index++, "%" + search.trim() + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public List<Order> getOrdersExcludingPendingWithFilter(int sellerId, Integer farmId, String search, String status, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, "
-                + "       p.Name AS OfferName, p.ImageURL, p.RetailPrice, u.FullName AS DealerName "
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, "
+                + "f.FarmID, f.FarmName, u.FullName AS DealerName "
                 + "FROM Orders o "
                 + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
                 + "JOIN UserAccount u ON o.DealerID = u.UserID "
                 + "WHERE o.SellerID = ? AND o.Status != 'Pending' "
-                + "ORDER BY o.CreatedAt DESC";
+        );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, sellerID);
+        if (farmId != null) {
+            sql.append("AND f.FarmID = ? ");
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND o.Status = ? ");
+        }
+
+        switch (sort != null ? sort : "") {
+            case "orderid_asc":
+                sql.append("ORDER BY o.OrderID ASC ");
+                break;
+            case "orderid_desc":
+                sql.append("ORDER BY o.OrderID DESC ");
+                break;
+            case "quantity_asc":
+                sql.append("ORDER BY o.Quantity ASC ");
+                break;
+            case "quantity_desc":
+                sql.append("ORDER BY o.Quantity DESC ");
+                break;
+            case "totalprice_asc":
+                sql.append("ORDER BY o.TotalPrice ASC ");
+                break;
+            case "totalprice_desc":
+                sql.append("ORDER BY o.TotalPrice DESC ");
+                break;
+            case "createdat_asc":
+                sql.append("ORDER BY o.CreatedAt ASC ");
+                break;
+            case "createdat_desc":
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+            case "processeddate_asc":
+                sql.append("ORDER BY o.ProcessedDate ASC ");
+                break;
+            case "processeddate_desc":
+                sql.append("ORDER BY o.ProcessedDate DESC ");
+                break;
+            default:
+                sql.append("ORDER BY o.CreatedAt DESC ");
+                break;
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int i = 1;
+            ps.setInt(i++, sellerId);
+
+            if (farmId != null) {
+                ps.setInt(i++, farmId);
+            }
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(i++, "%" + search.trim() + "%");
+                ps.setString(i++, "%" + search.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(i++, status);
+            }
+
+            int offset = (pageIndex - 1) * pageSize;
+            ps.setInt(i++, offset);
+            ps.setInt(i, pageSize);
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Order order = new Order();
@@ -150,8 +448,8 @@ public class OrderDAO extends DBContext {
                 order.setTotalPrice(rs.getDouble("TotalPrice"));
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Set offer details
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
                 offer.setName(rs.getString("OfferName"));
@@ -159,7 +457,11 @@ public class OrderDAO extends DBContext {
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
                 order.setPigsOffer(offer);
 
-                // Set dealer info
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                order.setFarm(farm);
+
                 User dealer = new User();
                 dealer.setUserID(rs.getInt("DealerID"));
                 dealer.setFullName(rs.getString("DealerName"));
@@ -170,7 +472,52 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return orders;
+    }
+
+    public int countOrdersExcludingPendingWithFilter(int sellerID, Integer farmId, String search, String status) {
+        int count = 0;
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(*) FROM Orders o "
+                + "JOIN PigsOffer p ON o.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
+                + "WHERE o.SellerID = ? AND o.Status != 'Pending' "
+        );
+
+        if (farmId != null) {
+            sql.append("AND f.FarmID = ? ");
+        }
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (CAST(o.OrderID AS VARCHAR) LIKE ? OR p.Name LIKE ?) ");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND o.Status = ? ");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int index = 1;
+            ps.setInt(index++, sellerID);
+            if (farmId != null) {
+                ps.setInt(index++, farmId);
+            }
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(index++, "%" + search.trim() + "%");
+                ps.setString(index++, "%" + search.trim() + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(index++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return count;
     }
 
     public Order getOrderById(int orderId) {
@@ -190,19 +537,25 @@ public class OrderDAO extends DBContext {
                 order.setTotalPrice(rs.getDouble("TotalPrice"));
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Lấy thông tin Dealer
+                // Lấy người mua và người bán
                 UserDAO userDAO = new UserDAO();
-                User dealer = userDAO.getUserById(order.getDealerID());
-                order.setDealer(dealer);
-
-                // Lấy thông tin Seller
-                User seller = userDAO.getUserById(order.getSellerID());
-                order.setSeller(seller);
+                order.setDealer(userDAO.getUserById(order.getDealerID()));
+                order.setSeller(userDAO.getUserById(order.getSellerID()));
 
                 // Lấy thông tin Offer
                 PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
                 PigsOffer offer = pigsOfferDAO.getOfferById(order.getOfferID());
+
+                // Lấy thông tin Farm từ Offer
+                if (offer != null) {
+                    FarmDAO farmDAO = new FarmDAO();
+                    Farm farm = farmDAO.getFarmById(offer.getFarmID());
+                    offer.setFarm(farm);
+                    order.setFarm(farm);
+                }
+
                 order.setPigsOffer(offer);
             }
         } catch (Exception e) {
@@ -211,16 +564,49 @@ public class OrderDAO extends DBContext {
         return order;
     }
 
-    public boolean confirmOrder(int orderID) {
-        String sql = "UPDATE Orders SET Status = 'Confirmed' WHERE OrderID = ? AND Status = 'Pending'"; // Only update if the order is 'Pending'
+    public boolean updateOrderStatus(int orderId, String newStatus) {
+        String sql;
+        // Các trạng thái được xem là đã xử lý, cần cập nhật ProcessedDate
+        if (newStatus.equals("Confirmed") || newStatus.equals("Rejected")
+                || newStatus.equals("Canceled") || newStatus.equals("Completed")
+                || newStatus.equals("Deposited") || newStatus.equals("Processing")) {
+            sql = "UPDATE Orders SET Status = ?, ProcessedDate = GETDATE() WHERE OrderID = ?";
+        } else {
+            sql = "UPDATE Orders SET Status = ? WHERE OrderID = ?";
+        }
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, orderID);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;  // Return true if one or more rows were updated
+            ps.setString(1, newStatus);
+            ps.setInt(2, orderId);
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;  // Return false if the update fails
+        return false;
+    }
+
+    public boolean confirmOrder(int orderID) {
+        String sql = "UPDATE Orders SET Status = 'Confirmed', ProcessedDate = GETDATE() "
+                + "WHERE OrderID = ? AND Status = 'Pending'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean rejectOrder(int orderID) {
+        String sql = "UPDATE Orders SET Status = 'Rejected', ProcessedDate = GETDATE() "
+                + "WHERE OrderID = ? AND Status = 'Pending'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public boolean isOrderOwnedBySeller(int orderId, int sellerId) {
@@ -362,29 +748,6 @@ public class OrderDAO extends DBContext {
         return list;
     }
 
-    public static void main(String[] args) {
-        OrderDAO dao = new OrderDAO();
-
-        // Thử nghiệm với từng loại thống kê
-        int sellerId = 4; // ⚠️ Thay bằng ID người bán hợp lệ trong database
-
-        System.out.println("📊 Thống kê theo năm:");
-        List<OrderStat> statsByYear = dao.getOrderStatsFlexible("year", null, null, null, sellerId);
-        statsByYear.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
-
-        System.out.println("\n📊 Thống kê theo tháng trong năm 2024:");
-        List<OrderStat> statsByMonth = dao.getOrderStatsFlexible("month", 2024, null, null, sellerId);
-        statsByMonth.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
-
-        System.out.println("\n📊 Thống kê theo ngày trong tháng 4/2025:");
-        List<OrderStat> statsByDay = dao.getOrderStatsFlexible("day", 2025, 4, null, sellerId);
-        statsByDay.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
-
-        System.out.println("\n📊 Thống kê theo giờ trong ngày 24/4/2025:");
-        List<OrderStat> statsByHour = dao.getOrderStatsFlexible("hour", 2025, 4, 24, sellerId);
-        statsByHour.forEach(stat -> System.out.println(stat.getLabel() + " - " + stat.getTotal()));
-    }
-
     public int getOrderQuantity(int orderId) {
         String sql = "SELECT Quantity FROM Orders WHERE OrderID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -417,27 +780,50 @@ public class OrderDAO extends DBContext {
         String updateQuery = """
                        UPDATE Orders
                        SET status = 'Cancelled'
-                       OUTPUT inserted.OrderID
+                       OUTPUT inserted.OrderID, inserted.Quantity, inserted.OfferID
                        WHERE status = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24
                        """;
-        List<Integer> ids = fetchAll((rs) -> rs.getInt("OrderID"), updateQuery);
-        if (ids.isEmpty()) {
+        String addQuantityQuery = """
+                                  UPDATE PigsOffer
+                                  SET Quantity = Quantity + ? WHERE OfferID = ?
+                                  """;
+        // Get all updated orders
+        List<Order> orders = fetchAll((rs) -> {
+            Order order = new Order();
+            order.setOrderID(rs.getInt("OrderID"));
+            order.setOfferID(rs.getInt("OfferID"));
+            order.setQuantity(rs.getInt("Quantity"));
+            return order;
+        }, updateQuery);
+        // no order updated
+        if (orders.isEmpty()) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info("Không có đơn nào cần hủy");
             return;
         }
-        String insertQuery = """
+        String addLogQuery = """
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
-            for(int id : ids) {
-                String message = "Đã hủy đơn hàng id %s".formatted(id);
+
+        try (PreparedStatement addLogPstm = getConnection().prepareStatement(addLogQuery); PreparedStatement addQuantityPstm = getConnection().prepareStatement(addQuantityQuery);) {
+            for (Order order : orders) {
+                String message = "Đã hủy đơn hàng id %s".formatted(order.getOrderID());
+
+                // add quantity back to offer
+                addQuantityPstm.setInt(1, order.getQuantity());
+                addQuantityPstm.setInt(2, order.getOfferID());
+                addQuantityPstm.addBatch();
+
+                // add to server log
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
-                pstm.setString(1, message);
-                pstm.addBatch();
+                addLogPstm.setString(1, message);
+                addLogPstm.addBatch();
             }
-            pstm.executeBatch();
-        } catch(Exception e) {
+
+            addLogPstm.executeBatch();
+            addQuantityPstm.executeBatch();
+
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }

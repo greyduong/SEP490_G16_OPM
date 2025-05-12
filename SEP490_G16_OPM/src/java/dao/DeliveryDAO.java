@@ -43,8 +43,40 @@ public class DeliveryDAO extends DBContext {
         return deliveries;
     }
 
+    public int getTotalQuantityByStatuses(int orderId) {
+        String sql = "SELECT SUM(Quantity) FROM Delivery "
+                + "WHERE OrderID = ? AND DeliveryStatus IN ('Confirmed', 'Pending')";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public double getTotalPriceByStatuses(int orderId) {
+        String sql = "SELECT SUM(TotalPrice) FROM Delivery "
+                + "WHERE OrderID = ? AND DeliveryStatus IN ('Confirmed', 'Pending')";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
     public int getTotalDeliveredQuantity(int orderId) {
-        String sql = "SELECT SUM(Quantity) FROM Delivery WHERE OrderID = ?";
+        String sql = "SELECT SUM(Quantity) FROM Delivery WHERE OrderID = ? AND DeliveryStatus = 'Confirmed'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ResultSet rs = ps.executeQuery();
@@ -58,7 +90,7 @@ public class DeliveryDAO extends DBContext {
     }
 
     public double getTotalDeliveredPrice(int orderId) {
-        String sql = "SELECT SUM(TotalPrice) FROM Delivery WHERE OrderID = ?";
+        String sql = "SELECT SUM(TotalPrice) FROM Delivery WHERE OrderID = ? AND DeliveryStatus = 'Confirmed'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ResultSet rs = ps.executeQuery();
@@ -68,12 +100,42 @@ public class DeliveryDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return 0.0;
+    }
+
+    public int getDeliveryQuantity(int deliveryID) {
+        String sql = "SELECT Quantity FROM Delivery WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("Quantity");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
-    public boolean createDelivery(int orderId, int sellerId, int dealerId, String recipientName, int quantity, double totalPrice, String comments) {
+    public double getDeliveryTotalPrice(int deliveryID) {
+        String sql = "SELECT TotalPrice FROM Delivery WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("TotalPrice");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int createDelivery(int orderId, int sellerId, int dealerId, String recipientName, int quantity, double totalPrice, String comments) {
         String sql = "INSERT INTO Delivery (OrderID, SellerID, DealerID, RecipientName, Quantity, TotalPrice, Comments, DeliveryStatus, CreatedAt) "
+                + "OUTPUT INSERTED.DeliveryID "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', GETDATE())";
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.setInt(2, sellerId);
@@ -82,11 +144,15 @@ public class DeliveryDAO extends DBContext {
             ps.setInt(5, quantity);
             ps.setDouble(6, totalPrice);
             ps.setString(7, comments);
-            return ps.executeUpdate() > 0;
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("DeliveryID");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return -1; // Thất bại
     }
 
     public int getDealerIdByDeliveryId(int deliveryID) {
@@ -103,8 +169,20 @@ public class DeliveryDAO extends DBContext {
         return -1;
     }
 
+    public boolean updateDeliveryStatus(int deliveryID, String status) {
+        String sql = "UPDATE Delivery SET DeliveryStatus = ? WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, deliveryID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean confirmDelivery(int deliveryID) {
-        String sql = "UPDATE Delivery SET DeliveryStatus = 'Confirmed' WHERE DeliveryID = ?";
+        String sql = "UPDATE Delivery SET DeliveryStatus = 'Confirmed' WHERE DeliveryID = ? AND DeliveryStatus = 'Pending'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, deliveryID);
             return ps.executeUpdate() > 0;
@@ -128,26 +206,59 @@ public class DeliveryDAO extends DBContext {
         return -1;
     }
 
+    public String getOrderStatusByDeliveryId(int deliveryId) {
+        String status = null;
+        String sql = "SELECT o.Status FROM Delivery d "
+                + "JOIN Orders o ON d.OrderID = o.OrderID "
+                + "WHERE d.DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    status = rs.getString("Status");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    public String getDeliveryStatusById(int deliveryID) {
+        String sql = "SELECT DeliveryStatus FROM Delivery WHERE DeliveryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, deliveryID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("DeliveryStatus");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public double calculateTotalRevenueFromDeliveryBySeller(int sellerId) {
-    String sql = """
+        String sql = """
             SELECT COALESCE(SUM(d.TotalPrice), 0)
             FROM Delivery d
             JOIN Orders o ON d.OrderID = o.OrderID
             JOIN PigsOffer po ON o.OfferID = po.OfferID
             WHERE po.SellerID = ?
             """;
-    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-        ps.setInt(1, sellerId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return rs.getDouble(1);
+            ps.setInt(1, sellerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        return 0.0;
     }
-    return 0.0;
-}
 
 }

@@ -6,7 +6,6 @@ package controller;
 
 import dao.CartDAO;
 import dao.PigsOfferDAO;
-import dao.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -77,12 +76,8 @@ public class AddToCartController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Lấy user từ session
+
             User user = (User) request.getSession().getAttribute("user");
-            if (user == null) {
-                response.sendRedirect("login-register.jsp");
-                return;
-            }
 
             int userId = user.getUserID();
             int offerId = Integer.parseInt(request.getParameter("offerId"));
@@ -91,17 +86,20 @@ public class AddToCartController extends HttpServlet {
             PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
             PigsOffer pigsOffer = pigsOfferDAO.getOfferById(offerId);
 
-            if (pigsOffer.getMinQuantity() > quantity || quantity > pigsOffer.getQuantity()) {
-                request.setAttribute("msg", "ERROR QUANTITY");
-                request.getRequestDispatcher("home").forward(request, response);
+            if (!pigsOffer.getStatus().equals("Available")) {
+                request.getSession().setAttribute("msg", "Chào bán đã ngưng bán!");
+                response.sendRedirect("home");
                 return;
             }
 
-            // Gọi DAO để thêm vào giỏ hàng
+            if (pigsOffer.getMinQuantity() > quantity || quantity > pigsOffer.getQuantity()) {
+                request.getSession().setAttribute("msg", "Số lượng không phù hợp!");
+                response.sendRedirect("home");
+                return;
+            }
+
             CartDAO cartDAO = new CartDAO();
             cartDAO.addToCart(userId, offerId, quantity);
-
-            // Quay lại trang homepage (hoặc trang hiện tại)
             response.sendRedirect("cart");
 
         } catch (Exception e) {

@@ -12,12 +12,20 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <main class="container mb-5">
-            <div class="w-25 mx-auto">
-                <h4 class="font-weight-bold">Wallet Result</h4>
-                <c:if test="${not empty requestScope.error}"><p class="text-success">${requestScope.error}</p></c:if>
-                <c:if test="${not empty requestScope.success}"><p class="text-success">Thành công nạp ${requestScope.vnp_Amount} VND vào ví!</p></c:if>
-                <c:if test="${not empty requestScope.fail}"><p class="text-success">Giao dịch thất bại</p></c:if>
+        <main class="text-center mb-5">
+            <div class="font-bold text-2xl mb-3">Kết quả nạp</div>
+            <c:if test="${not empty error}">
+                <div class="text-red-600 font-bold mb-3">${error}</div>
+            </c:if>
+            <c:if test="${not empty success}">
+                <div class="text-lime-600 font-bold mb-3">Thành công nạp ${requestScope.vnp_Amount} VND vào ví!</div>
+            </c:if>
+            <c:if test="${not empty fail}">
+                <div class="text-red-600 font-bold mb-3">Bạn đã hủy nạp</div>
+            </c:if>
+            <a href="${pageContext.request.contextPath}/wallet-topup">Tiến hành giao dịch mới</a>
+            <div>
+                <a class="!no-underline text-xs !text-slate-500" href="${pageContext.request.contextPath}/wallet"><span class="mdi mdi-chevron-left"></span>Quay về lịch sử giao dịch</a>
             </div>
         </main>
         <jsp:include page="component/footer.jsp" />     

@@ -22,6 +22,7 @@ public class UserDAO extends DBContext {
             double wallet = rs.getDouble("Wallet");
             String status = rs.getString("Status");
             User user = new User(userID, roleID, fullName, fullName, password, email, phone, address, wallet, status);
+            user.setUsername(rs.getString("Username"));
             return user;
         };
     }

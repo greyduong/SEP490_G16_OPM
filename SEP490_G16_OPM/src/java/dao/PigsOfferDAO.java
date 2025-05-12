@@ -484,22 +484,19 @@ public class PigsOfferDAO extends DBContext {
         String orderClause = "ORDER BY CreatedAt DESC";
         if (sortOption != null) {
             switch (sortOption) {
-                case "quantity_asc":
+                case "quantity_asc" ->
                     orderClause = "ORDER BY Quantity ASC";
-                    break;
-                case "quantity_desc":
+                case "quantity_desc" ->
                     orderClause = "ORDER BY Quantity DESC";
-                    break;
-                case "price_asc":
+                case "price_asc" ->
                     orderClause = "ORDER BY RetailPrice ASC";
-                    break;
-                case "price_desc":
+                case "price_desc" ->
                     orderClause = "ORDER BY RetailPrice DESC";
-                    break;
             }
         }
 
-        String sql = "SELECT * FROM PigsOffer " + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM PigsOffer WHERE Status = 'Available' " + orderClause
+                + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, offset);
@@ -537,7 +534,7 @@ public class PigsOfferDAO extends DBContext {
         ArrayList<PigsOffer> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
 
-        StringBuilder sql = new StringBuilder("SELECT po.* FROM PigsOffer po JOIN Category c ON po.CategoryID = c.CategoryID WHERE 1=1 ");
+        StringBuilder sql = new StringBuilder("SELECT po.* FROM PigsOffer po JOIN Category c ON po.CategoryID = c.CategoryID WHERE po.Status = 'Available' ");
         ArrayList<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -549,26 +546,24 @@ public class PigsOfferDAO extends DBContext {
             params.add(categoryName.trim());
         }
 
-        if (sortOption != null) {
-            switch (sortOption) {
-                case "quantity_asc":
-                    sql.append("ORDER BY po.Quantity ASC ");
-                    break;
-                case "quantity_desc":
-                    sql.append("ORDER BY po.Quantity DESC ");
-                    break;
-                case "price_asc":
-                    sql.append("ORDER BY po.RetailPrice ASC ");
-                    break;
-                case "price_desc":
-                    sql.append("ORDER BY po.RetailPrice DESC ");
-                    break;
-                default:
-                    sql.append("ORDER BY po.CreatedAt DESC ");
-            }
+        String orderClause;
+        if (sortOption == null) {
+            orderClause = "ORDER BY po.CreatedAt DESC ";
         } else {
-            sql.append("ORDER BY po.CreatedAt DESC ");
+            switch (sortOption) {
+                case "quantity_asc" ->
+                    orderClause = "ORDER BY po.Quantity ASC ";
+                case "quantity_desc" ->
+                    orderClause = "ORDER BY po.Quantity DESC ";
+                case "price_asc" ->
+                    orderClause = "ORDER BY po.RetailPrice ASC ";
+                case "price_desc" ->
+                    orderClause = "ORDER BY po.RetailPrice DESC ";
+                default ->
+                    orderClause = "ORDER BY po.CreatedAt DESC ";
+            }
         }
+        sql.append(orderClause);
 
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add(offset);
@@ -608,7 +603,7 @@ public class PigsOfferDAO extends DBContext {
     }
 
     public int countOffersFlexible(String keyword, String categoryName) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM PigsOffer po JOIN Category c ON po.CategoryID = c.CategoryID WHERE 1=1 ");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM PigsOffer po JOIN Category c ON po.CategoryID = c.CategoryID WHERE po.Status = 'Available' ");
         ArrayList<Object> params = new ArrayList<>();
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -632,6 +627,19 @@ public class PigsOfferDAO extends DBContext {
             e.printStackTrace();
         }
 
+        return 0;
+    }
+
+    public int countAvailableOffers() {
+        String sql = "SELECT COUNT(*) FROM PigsOffer WHERE Status = 'Available'";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -719,19 +727,19 @@ public class PigsOfferDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
-            for(int id : ids) {
+        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
+            for (int id : ids) {
                 String message = "Chào bán id %s đã sẵn sàng".formatted(id);
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 pstm.setString(1, message);
                 pstm.addBatch();
             }
             pstm.executeBatch();
-        } catch(Exception e) {
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }
-    
+
     public void updateExpiredOffers() {
         String updateQuery = """
                        UPDATE PigsOffer
@@ -747,15 +755,15 @@ public class PigsOfferDAO extends DBContext {
                              INSERT INTO ServerLog(content)
                              VALUES (?)
                              """;
-        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)){
-            for(int id : ids) {
+        try (PreparedStatement pstm = getConnection().prepareStatement(insertQuery)) {
+            for (int id : ids) {
                 String message = "Chào bán id %s đã hết hạn".formatted(id);
                 java.util.logging.Logger.getLogger(OrderDAO.class.getName()).info(message);
                 pstm.setString(1, message);
                 pstm.addBatch();
             }
             pstm.executeBatch();
-        } catch(Exception e) {
+        } catch (Exception e) {
             java.util.logging.Logger.getLogger(OrderDAO.class.getName()).severe(e.getMessage());
         }
     }

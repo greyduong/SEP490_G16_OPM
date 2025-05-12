@@ -122,8 +122,6 @@ public class DBContext {
                 throw new SQLException("No row updated");
             }
 
-            
-
         } catch (SQLException ex) {
             Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex.getMessage());

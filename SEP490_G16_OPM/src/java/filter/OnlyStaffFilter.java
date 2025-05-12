@@ -6,28 +6,11 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import model.User;
 
-import java.io.IOException;
-
-@WebFilter(urlPatterns = {
-    "/seller",
-    "/createFarm",
-    "/my-farms",
-    "/updateFarm",
-    "/deactivateFarm",
-    "/my-offers",
-    "/createOffer",
-    "/updateOffer",
-    "/updateOfferStatus",
-    "/orders-request",
-    "/confirm-order",
-    "/reject-order",
-    "/customer-orders",
-    "/customer-order-details",
-    "/create-delivery"
-})
-public class OnlySellerFilter extends HttpFilter {
+@WebFilter(urlPatterns = {})
+public class OnlyStaffFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -37,7 +20,7 @@ public class OnlySellerFilter extends HttpFilter {
         }
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.getRoleID());
-        if (user.getRoleID() != 4) {
+        if (user.getRoleID() != 3) {
             response.sendRedirect(request.getContextPath() + "/home?error=403");
             return;
         }

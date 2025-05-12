@@ -67,7 +67,7 @@ public class HomePageController extends HttpServlet {
             totalOffers = pigsOfferDAO.countOffersFlexible(keyword, categoryName);
         } else {
             offerList = pigsOfferDAO.getPagedPigsOffersWithSort(sort, page, pageSize);
-            totalOffers = pigsOfferDAO.countAllOffers();
+            totalOffers = pigsOfferDAO.countAvailableOffers();
         }
 
         int totalPages = (int) Math.ceil((double) totalOffers / pageSize);

@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import model.Email;
 import model.Order;
 import model.User;
@@ -21,8 +23,8 @@ import model.User;
  *
  * @author duong
  */
-@WebServlet(name = "ConfirmOrderController", urlPatterns = {"/confirm-order"})
-public class ConfirmOrderController extends HttpServlet {
+@WebServlet(name = "DepositOrderController", urlPatterns = {"/deposit-order"})
+public class DepositOrderController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,10 +43,10 @@ public class ConfirmOrderController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ConfirmOrderController</title>");
+            out.println("<title>Servlet DepositOrderController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ConfirmOrderController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet DepositOrderController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -76,66 +78,73 @@ public class ConfirmOrderController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
+        String orderIDStr = request.getParameter("orderId");
 
-        String orderIDStr = request.getParameter("orderID");
+        // Lấy các tham số lọc để giữ lại khi redirect
+        String search = request.getParameter("search");
+        String status = request.getParameter("status");
+        String sort = request.getParameter("sort");
+        String page = request.getParameter("page");
+
+        // Tạo chuỗi query giữ lại filter
+        String baseQuery = "myorders?search=" + URLEncoder.encode(search != null ? search : "", StandardCharsets.UTF_8)
+                + "&status=" + URLEncoder.encode(status != null ? status : "", StandardCharsets.UTF_8)
+                + "&sort=" + URLEncoder.encode(sort != null ? sort : "", StandardCharsets.UTF_8)
+                + "&page=" + URLEncoder.encode(page != null ? page : "1", StandardCharsets.UTF_8);
 
         if (orderIDStr != null) {
             try {
                 int orderID = Integer.parseInt(orderIDStr);
-
                 OrderDAO orderDAO = new OrderDAO();
                 Order order = orderDAO.getOrderById(orderID);
 
-                if (order != null
-                        && order.getSellerID() == user.getUserID()
-                        && order.getStatus().equals("Pending")) {
+                if (order != null && order.getDealerID() == user.getUserID() && "Confirmed".equals(order.getStatus())) {
+                    long createdAtMillis = order.getProcessedDate().getTime();
+                    long nowMillis = System.currentTimeMillis();
+                    long diffInHours = (nowMillis - createdAtMillis) / (1000 * 60 * 60);
 
-                    java.time.Instant createdAt = order.getCreatedAt().toInstant();
-                    java.time.Instant now = java.time.Instant.now();
-                    java.time.Duration duration = java.time.Duration.between(createdAt, now);
-
-                    if (duration.toHours() > 24) {
-                        request.setAttribute("msg", "Không thể xác nhận đơn hàng vì đã quá 24 giờ kể từ khi tạo.");
-                        request.getRequestDispatcher("orders-request").forward(request, response);
+                    if (diffInHours >= 24) {
+                        String msg = URLEncoder.encode("Đơn hàng đã quá hạn 24 giờ và không thể đặt cọc.", StandardCharsets.UTF_8);
+                        response.sendRedirect(baseQuery + "&msg=" + msg);
                         return;
                     }
-                    
-                    boolean isUpdated = orderDAO.confirmOrder(orderID);
+
+                    boolean isUpdated = orderDAO.updateOrderStatus(orderID, "Deposited");
 
                     if (isUpdated) {
-                        String toEmail = order.getDealer().getEmail();
-                        String buyerName = order.getDealer().getFullName();
+                        String buyerEmail = order.getDealer().getEmail();
+                        String sellerEmail = order.getSeller().getEmail();
 
-                        String subject = "Đơn hàng #" + orderID + " đã được xác nhận";
-                        String content = "Xin chào " + buyerName + ",\n\n"
-                                + "Đơn hàng của bạn với mã #" + orderID + " đã được người bán xác nhận.\n"
-                                + "Vui lòng truy cập hệ thống để xem chi tiết đơn hàng.\n\n"
-                                + "Trân trọng,\nOnline Pig Market.";
+                        String subject = "Thông báo: Đơn hàng #" + orderID + " đã được đặt cọc";
+                        String content = "Đơn hàng #" + orderID + " đã được người mua đặt cọc thành công.\n"
+                                + "Hãy kiểm tra lại thông tin đơn hàng và chuẩn bị giao hàng.\n\n"
+                                + "Trân trọng,\nOnline Pig Market";
 
                         try {
-                            Email.sendEmail(toEmail, subject, content);
+                            Email.sendEmail(buyerEmail, subject, content);
+                            Email.sendEmail(sellerEmail, subject, content);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        String encodedMsg = java.net.URLEncoder.encode("Xác nhận đơn hàng thành công.", "UTF-8");
-                        response.sendRedirect("orders-request?msg=" + encodedMsg);
-                    } else {
-                        request.setAttribute("msg", "Lỗi: Không thể xác nhận đơn hàng.");
-                        request.getRequestDispatcher("orders-request").forward(request, response);
-                    }
-                } else {
-                    request.setAttribute("msg", "Bạn không có quyền xác nhận đơn hàng này.");
-                    request.getRequestDispatcher("orders-request").forward(request, response);
-                }
 
+                        String msg = URLEncoder.encode("Đặt cọc thành công cho đơn hàng #" + orderID, StandardCharsets.UTF_8);
+                        response.sendRedirect(baseQuery + "&msg=" + msg);
+                    } else {
+                        String msg = URLEncoder.encode("Không thể cập nhật trạng thái đơn hàng.", StandardCharsets.UTF_8);
+                        response.sendRedirect(baseQuery + "&msg=" + msg);
+                    }
+
+                } else {
+                    String msg = URLEncoder.encode("Bạn không có quyền đặt cọc đơn hàng này.", StandardCharsets.UTF_8);
+                    response.sendRedirect(baseQuery + "&msg=" + msg);
+                }
             } catch (NumberFormatException e) {
-                response.sendRedirect("orders-request");
+                response.sendRedirect(baseQuery);
             }
         } else {
-            response.sendRedirect("orders-request");
+            response.sendRedirect(baseQuery);
         }
     }
 

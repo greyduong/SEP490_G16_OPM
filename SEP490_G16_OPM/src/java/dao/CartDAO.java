@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import model.Cart;
+import model.Category;
+import model.Farm;
 import model.PigsOffer;
 import model.User;
 
@@ -19,32 +21,64 @@ import model.User;
  */
 public class CartDAO extends DBContext {
 
-    public List<Cart> getCartByUserIdWithPaging(int userId, int pageIndex) {
+    public List<Cart> getCartByUserIdWithFilter(int userId, int pageIndex, int pageSize, String search, String sort) {
         List<Cart> cartList = new ArrayList<>();
-        String sql = "SELECT c.CartID, c.UserID, c.OfferID, c.Quantity, "
-                + "       u.FullName, u.Email, u.Phone, u.Address, u.Wallet, "
-                + "       p.OfferID AS P_OfferID, p.Name, p.PigBreed, p.RetailPrice, "
-                + "       p.ImageURL, p.MinQuantity, p.Quantity AS OfferQuantity "
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT c.CartID, c.UserID, c.OfferID, c.Quantity, "
+                + "u.FullName, u.Email, u.Phone, u.Address, u.Wallet, "
+                + "p.OfferID AS P_OfferID, p.Name AS OfferName, p.PigBreed, p.RetailPrice, "
+                + "p.ImageURL, p.MinQuantity, p.Quantity AS OfferQuantity, "
+                + "p.MinDeposit, p.TotalOfferPrice, p.Description, p.StartDate, p.EndDate, "
+                + "f.FarmID, f.FarmName, cat.CategoryID, cat.Name AS CategoryName "
                 + "FROM Cart c "
                 + "JOIN UserAccount u ON c.UserID = u.UserID "
                 + "JOIN PigsOffer p ON c.OfferID = p.OfferID "
+                + "JOIN Farm f ON p.FarmID = f.FarmID "
+                + "JOIN Category cat ON p.CategoryID = cat.CategoryID "
                 + "WHERE c.UserID = ? "
-                + "ORDER BY c.CartID "
-                + "OFFSET ? ROWS FETCH NEXT 3 ROWS ONLY";
+        );
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, (pageIndex - 1) * 3);
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND p.Name LIKE ? ");
+        }
+
+        switch (sort != null ? sort.trim() : "") {
+            case "quantity_asc" ->
+                sql.append("ORDER BY c.Quantity ASC ");
+            case "quantity_desc" ->
+                sql.append("ORDER BY c.Quantity DESC ");
+            case "price_asc" ->
+                sql.append("ORDER BY p.RetailPrice ASC ");
+            case "price_desc" ->
+                sql.append("ORDER BY p.RetailPrice DESC ");
+            case "total_asc" ->
+                sql.append("ORDER BY (c.Quantity * p.RetailPrice) ASC ");
+            case "total_desc" ->
+                sql.append("ORDER BY (c.Quantity * p.RetailPrice) DESC ");
+            default ->
+                sql.append("ORDER BY c.CartID ");
+        }
+
+        sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            ps.setInt(paramIndex++, userId);
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + search.trim() + "%");
+            }
+            ps.setInt(paramIndex++, (pageIndex - 1) * pageSize);
+            ps.setInt(paramIndex, pageSize);
+
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                // Cart info
                 Cart cart = new Cart();
                 cart.setCartID(rs.getInt("CartID"));
                 cart.setUserID(rs.getInt("UserID"));
                 cart.setOfferID(rs.getInt("OfferID"));
                 cart.setQuantity(rs.getInt("Quantity"));
 
-                // User info
                 User user = new User();
                 user.setUserID(rs.getInt("UserID"));
                 user.setFullName(rs.getString("FullName"));
@@ -54,17 +88,31 @@ public class CartDAO extends DBContext {
                 user.setWallet(rs.getDouble("Wallet"));
                 cart.setUser(user);
 
-                // Offer info
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("P_OfferID"));
-                offer.setName(rs.getString("Name"));
+                offer.setName(rs.getString("OfferName"));
                 offer.setPigBreed(rs.getString("PigBreed"));
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
                 offer.setImageURL(rs.getString("ImageURL"));
                 offer.setMinQuantity(rs.getInt("MinQuantity"));
                 offer.setQuantity(rs.getInt("OfferQuantity"));
-                cart.setPigsOffer(offer);
+                offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                offer.setDescription(rs.getString("Description"));
+                offer.setStartDate(rs.getDate("StartDate"));
+                offer.setEndDate(rs.getDate("EndDate"));
 
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                offer.setFarm(farm);
+
+                Category cat = new Category();
+                cat.setCategoryID(rs.getInt("CategoryID"));
+                cat.setName(rs.getString("CategoryName"));
+                offer.setCategory(cat);
+
+                cart.setPigsOffer(offer);
                 cartList.add(cart);
             }
         } catch (Exception e) {
@@ -74,10 +122,17 @@ public class CartDAO extends DBContext {
         return cartList;
     }
 
-    public int countCartItemsByUser(int userId) {
-        String sql = "SELECT COUNT(*) FROM Cart WHERE UserID = ?";
+    public int countCartItemsByUserWithFilter(int userId, String search) {
+        String sql = "SELECT COUNT(*) FROM Cart c JOIN PigsOffer p ON c.OfferID = p.OfferID WHERE c.UserID = ? ";
+        if (search != null && !search.trim().isEmpty()) {
+            sql += "AND p.Name LIKE ? ";
+        }
+
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, userId);
+            if (search != null && !search.trim().isEmpty()) {
+                ps.setString(2, "%" + search.trim() + "%");
+            }
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -86,6 +141,50 @@ public class CartDAO extends DBContext {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public Cart getCartById(int cartId) {
+        String sql = "SELECT c.CartID, c.UserID, c.OfferID, c.Quantity, "
+                + "u.FullName, u.Email, u.Phone, u.Address, u.Wallet, "
+                + "p.Name AS OfferName, p.Quantity AS OfferQuantity, p.MinQuantity, p.RetailPrice "
+                + "FROM Cart c "
+                + "JOIN UserAccount u ON c.UserID = u.UserID "
+                + "JOIN PigsOffer p ON c.OfferID = p.OfferID "
+                + "WHERE c.CartID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, cartId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Cart cart = new Cart();
+                    cart.setCartID(rs.getInt("CartID"));
+                    cart.setQuantity(rs.getInt("Quantity"));
+
+                    // Set User
+                    User user = new User();
+                    user.setUserID(rs.getInt("UserID"));
+                    user.setFullName(rs.getString("FullName"));
+                    user.setEmail(rs.getString("Email"));
+                    user.setPhone(rs.getString("Phone"));
+                    user.setAddress(rs.getString("Address"));
+                    user.setWallet(rs.getDouble("Wallet"));
+                    cart.setUser(user);
+
+                    // Set PigsOffer
+                    PigsOffer offer = new PigsOffer();
+                    offer.setOfferID(rs.getInt("OfferID"));
+                    offer.setName(rs.getString("OfferName"));
+                    offer.setQuantity(rs.getInt("OfferQuantity"));
+                    offer.setMinQuantity(rs.getInt("MinQuantity"));
+                    offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                    cart.setPigsOffer(offer);
+
+                    return cart;
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public void addToCart(int userId, int offerId, int quantity) {
@@ -153,6 +252,36 @@ public class CartDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public PigsOffer getPigsOfferByCartId(int cartId) {
+        String sql = "SELECT p.* FROM Cart c "
+                + "JOIN PigsOffer p ON c.OfferID = p.OfferID "
+                + "WHERE c.CartID = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, cartId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    PigsOffer offer = new PigsOffer();
+                    offer.setOfferID(rs.getInt("OfferID"));
+                    offer.setName(rs.getString("Name"));
+                    offer.setQuantity(rs.getInt("Quantity"));
+                    offer.setMinQuantity(rs.getInt("MinQuantity"));
+                    offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                    offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                    offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                    offer.setDescription(rs.getString("Description"));
+                    offer.setStartDate(rs.getDate("StartDate"));
+                    offer.setEndDate(rs.getDate("EndDate"));
+                    // (Tuỳ bạn có cần thêm Farm, Category, Seller không)
+
+                    return offer;
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public void removeCartById(int cartId) {

@@ -192,4 +192,45 @@ public class Validation {
         }
         return null;
     }
+
+    public static String validateRecipientName(String name) {
+        if (isEmpty(name)) {
+            return "Tên người nhận không được để trống.";
+        }
+        if (name.length() > 100) {
+            return "Tên người nhận không vượt quá 100 ký tự.";
+        }
+        if (!isValidTextFormat(name)) {
+            return "Tên người nhận không được chứa ký tự đặc biệt hoặc 2 dấu cách liên tiếp.";
+        }
+        return null;
+    }
+
+    public static String validateDeliveryQuantity(int quantity, int remainingQuantity) {
+        if (quantity <= 0) {
+            return "Số lượng phải lớn hơn 0.";
+        }
+        if (quantity > remainingQuantity) {
+            return "Số lượng vượt quá phần còn lại của đơn hàng.";
+        }
+        return null;
+    }
+
+    public static String validateDeliveryPrice(double price, double remainingPrice) {
+        if (price <= 0) {
+            return "Tổng giá phải lớn hơn 0.";
+        }
+        if (price > remainingPrice) {
+            return "Tổng giá vượt quá phần còn lại của đơn hàng.";
+        }
+        return null;
+    }
+
+    public static String validateDeliveryComment(String comment) {
+        if (comment != null && comment.length() > 500) {
+            return "Ghi chú không được vượt quá 500 ký tự.";
+        }
+        return null;
+    }
+
 }

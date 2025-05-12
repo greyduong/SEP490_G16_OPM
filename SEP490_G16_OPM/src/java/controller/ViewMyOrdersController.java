@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.Order;
+import model.Page;
 import model.User;
 
 /**
@@ -23,6 +24,8 @@ import model.User;
  */
 @WebServlet(name = "ViewMyOrdersController", urlPatterns = {"/myorders"})
 public class ViewMyOrdersController extends HttpServlet {
+
+    private static final int PAGE_SIZE = 10;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -65,21 +68,37 @@ public class ViewMyOrdersController extends HttpServlet {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
 
-        if (currentUser == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         int userId = currentUser.getUserID();
+        String search = request.getParameter("search");
+        String status = request.getParameter("status");
+        String sort = request.getParameter("sort");
+        String pageRaw = request.getParameter("page");
+        int pageIndex = 1;
+
+        try {
+            if (pageRaw != null) {
+                pageIndex = Integer.parseInt(pageRaw);
+            }
+        } catch (NumberFormatException ignored) {
+        }
         OrderDAO orderDAO = new OrderDAO();
-        List<Order> myOrders = orderDAO.getOrdersByBuyerId(userId);
+        int totalData = orderDAO.countOrdersByBuyerWithFilter(userId, search, status);
+        List<Order> orders = orderDAO.getOrdersByBuyerWithFilter(userId, search, status, sort, pageIndex, PAGE_SIZE);
+
+        Page<Order> page = new Page<>();
+        page.setPageNumber(pageIndex);
+        page.setPageSize(PAGE_SIZE);
+        page.setTotalData(totalData);
+        page.setTotalPage((int) Math.ceil((double) totalData / PAGE_SIZE));
+        page.setData(orders);
+
+        request.setAttribute("page", page);
 
         String msg = request.getParameter("msg");
         if (msg != null) {
             request.setAttribute("msg", msg);
         }
 
-        request.setAttribute("orderList", myOrders);
         request.getRequestDispatcher("myorders.jsp").forward(request, response);
     }
 
@@ -94,7 +113,7 @@ public class ViewMyOrdersController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**
