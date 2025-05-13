@@ -5,6 +5,8 @@
 package controller;
 
 import dao.OrderDAO;
+import dao.UserDAO;
+import dao.WalletUseHistoryDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -110,6 +112,12 @@ public class DepositOrderController extends HttpServlet {
                         response.sendRedirect(baseQuery + "&msg=" + msg);
                         return;
                     }
+					long amount = (long) (order.getTotalPrice() * 0.1);
+					if (!new WalletUseHistoryDAO().use(user.getUserID(), amount)) {
+                        String msg = URLEncoder.encode("Không đủ tiền trong ví!", StandardCharsets.UTF_8);
+                        response.sendRedirect(baseQuery + "&msg=" + msg);
+                        return;
+					}
 
                     boolean isUpdated = orderDAO.updateOrderStatus(orderID, "Deposited");
 
