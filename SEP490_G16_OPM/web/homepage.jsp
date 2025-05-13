@@ -30,141 +30,84 @@
             #addToCartModal .btn {
                 font-size: 14px;
             }
-            /* Giữ nguyên danh sách dọc, nhưng không đẩy xuống các phần khác */
-            .hero__categories {
-                position: relative;
-            }
-
-            .hero__categories ul {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                z-index: 10;
-                background: white;
-                width: 100%;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                display: none;
-            }
-
-            .hero__categories.open ul {
-                display: block;
-            }
         </style>
     </head>
     <body>
-        <jsp:include page="component/header.jsp"></jsp:include>
-            <!-- Hero Section Begin -->
-            <section class="hero">
-                <div class="container">
-                    <div class="row">
-                        <!-- Cột bên trái: Danh mục -->
-                        <div class="col-lg-3">
-                            <div class="hero__categories">
-                                <div class="hero__categories__all">
-                                    <i class="fa fa-bars"></i>
-                                    <span>
-                                    <c:choose>
-                                        <c:when test="${not empty param.categoryName}">
-                                            ${param.categoryName}
-                                        </c:when>
-                                        <c:otherwise>
-                                            Loại Heo
-                                        </c:otherwise>
-                                    </c:choose>
-                                </span>
-                            </div>
-                            <ul>
-                                <li><a href="home">Tất cả</a></li>
-                                    <c:forEach var="c" items="${categoryList}">
-                                    <li><a href="home?categoryName=${c.name}">${c.name}</a></li>
-                                    </c:forEach>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Cột bên phải: Tìm kiếm -->
-                    <div class="col-lg-9">
-                        <div class="hero__search">
-                            <div class="hero__search__form">
-                                <form action="home" method="get">
-                                    <input type="text" name="keyword" placeholder="Nhập tên chào bán..." value="${param.keyword}">
-                                    <c:if test="${not empty param.categoryName}">
-                                        <input type="hidden" name="categoryName" value="${param.categoryName}" />
-                                    </c:if>
-                                    <button type="submit" class="site-btn">TÌM</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sort dropdown container riêng -->
-            <div class="container my-3">
-                <form action="home" method="get" class="form-inline">
-                    <input type="hidden" name="keyword" value="${param.keyword}">
-                    <input type="hidden" name="categoryName" value="${param.categoryName}">
-
-                    <label class="mr-2 font-weight-bold">Sắp xếp:</label>
-                    <select name="sort" class="form-control mr-2" onchange="this.form.submit()">
-                        <option value="none">-- Chọn --</option>
-                        <option value="quantity_asc" ${param.sort == 'quantity_asc' ? 'selected' : ''}>Số lượng ↑</option>
-                        <option value="quantity_desc" ${param.sort == 'quantity_desc' ? 'selected' : ''}>Số lượng ↓</option>
-                        <option value="price_asc" ${param.sort == 'price_asc' ? 'selected' : ''}>Giá cả ↑</option>
-                        <option value="price_desc" ${param.sort == 'price_desc' ? 'selected' : ''}>Giá cả ↓</option>
-                    </select>
-                </form>
-            </div>
-        </section>
-        <!-- Hero Section End -->
-
+        <jsp:include page="component/header.jsp" />
         <c:if test="${not empty msg}">
             <div class="alert alert-warning">${msg}</div>
         </c:if>
-
-        <!-- Featured Section Begin -->
-        <section class="featured spad">
-            <div class="container">
-
-                <div class="row featured__filter">
-                    <c:forEach var="o" items="${offerList}">
-                        <div class="col-lg-3 col-md-4 col-sm-6 mix fresh-meat">
-                            <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="${o.imageURL}">
-                                    <ul class="featured__item__pic__hover">
-                                        <li>
-                                            <a href="#" class="open-cart-modal" data-offer-id="${o.offerID}" data-max="${o.quantity}" data-min="${o.minQuantity}">
-                                                <i class="fa fa-shopping-cart"></i>
-                                            </a>
-
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="featured__item__text">
-                                    <h6><a href="PigsOfferDetails?offerId=${o.offerID}">${o.name}</a></h6>
-                                    <h5>Tổng giá: 
-                                        <fmt:formatNumber value="${o.totalOfferPrice}" type="number" groupingUsed="true"/> VND
-                                    </h5>
-                                    <p>Số lượng: ${o.quantity} con</p>
-                                </div>
-                            </div>
-                        </div>
-                    </c:forEach>
-                </div>
-                <div class="pagination-area mt-4 text-center">
-                    <nav>
-                        <ul class="pagination justify-content-center">
-                            <c:forEach var="i" begin="1" end="${totalPages}">
-                                <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                    <a class="page-link" href="home?page=${i}">${i}</a>
-                                </li>
-                            </c:forEach>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </section>
-
+		<div class="px-5">
+			<div class="flex relative">
+				<div class="sticky top-0 rounded-sm border border-slate-300 p-3 w-65 flex flex-col gap-5">
+					<form class="flex flex-col gap-2">
+						<label class="font-bold text-slate-600 text-sm !m-0">Sắp xếp</label>
+						<select name="sort" class="form-control" onchange="this.form.submit()">
+							<option value="none">-- Chọn --</option>
+							<option value="quantity_asc" ${param.sort == 'quantity_asc' ? 'selected' : ''}>Số lượng ↑</option>
+							<option value="quantity_desc" ${param.sort == 'quantity_desc' ? 'selected' : ''}>Số lượng ↓</option>
+							<option value="price_asc" ${param.sort == 'price_asc' ? 'selected' : ''}>Giá cả ↑</option>
+							<option value="price_desc" ${param.sort == 'price_desc' ? 'selected' : ''}>Giá cả ↓</option>
+						</select>
+					</form>
+					<div class="flex flex-col gap-2">
+						<div class="font-bold text-sm text-slate-600">Loại heo</div>
+						<div class="*:!text-slate-600 flex flex-col gap-2">
+							<a href="home">Tất cả</a>
+							<c:forEach var="c" items="${categoryList}">
+								<a href="home?categoryName=${c.name}">${c.name}</a>
+							</c:forEach>
+						</div>
+					</div>
+				</div>
+				<div class="grow-1">
+					<div class="mx-3 mb-2">
+						<form action="home" method="get" class="inline-flex items-center border border-slate-300 has-[:focus]:!border-slate-400 transitio-all rounded-sm overflow-hidden">
+							<input class="p-2" type="text" name="keyword" placeholder="Nhập tên chào bán..." value="${param.keyword}">
+							<c:if test="${not empty param.categoryName}">
+								<input type="hidden" name="categoryName" value="${param.categoryName}" />
+							</c:if>
+							<button type="submit" class="px-3 py-2 flex items-center bg-lime-600 text-white"><span class="mdi mdi-magnify text-lg"></span></button>
+						</form>
+					</div>
+					<div class="grid grid-cols-4 gap-5 grow-1 p-3">
+						<c:forEach var="o" items="${offerList}">
+							<div class="border border-slate-300 flex flex-col rounded-sm overflow-hidden">
+								<div class="relative">
+									<img src="${o.imageURL}" class="object-cover h-70" />
+									<a class="absolute block !text-slate-200 !text-shadow-sm !text-shadow-slate-600 bottom-0 p-2 right-0 left-0 text-lg truncate font-bold !no-underline" href="PigsOfferDetails?offerId=${o.offerID}">${o.name}</a>
+								</div>
+								<div class="p-3 flex flex-col gap-3 grow-1">
+									<div class="text-slate-600">${o.description}</div>
+									<div class="mt-auto flex flex-col gap-2">
+										<div class="text-yellow-600 text-md font-semibold text-slate-600">
+											<fmt:formatNumber value="${o.totalOfferPrice}" type="number" groupingUsed="true"/> VND / <span>${o.quantity} con</span>
+										</div>
+										<div>
+											<a href="#" class="open-cart-modal inline-flex items-center justify-center !bg-lime-600 hover:!bg-lime-700 text-white py-1 px-2 rounded-sm text-sm gap-2 !no-underline" data-offer-id="${o.offerID}" data-max="${o.quantity}" data-min="${o.minQuantity}">
+												<i class="fa fa-shopping-cart"></i>
+												<span>Thêm vào giỏ</span>
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</c:forEach>
+					</div>
+					<div class="pagination-area mt-4 text-center">
+						<nav>
+							<ul class="pagination justify-content-center">
+								<c:forEach var="i" begin="1" end="${totalPages}">
+									<li class="page-item ${i == currentPage ? 'active' : ''}">
+										<a class="page-link" href="home?page=${i}">${i}</a>
+									</li>
+								</c:forEach>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</div>
         <jsp:include page="component/footer.jsp" />
 
         <!-- Modal Add to Cart -->
