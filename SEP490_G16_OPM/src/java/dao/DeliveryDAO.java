@@ -260,5 +260,29 @@ public class DeliveryDAO extends DBContext {
         }
         return 0.0;
     }
-
+    
+    public void updateDeliveriesStatus(List<Delivery> deliveries, String status) {
+        var statement = batch("UPDATE Delivery SET DeliveryStatus = ? WHERE DeliveryID = ?");
+        deliveries.forEach(delivery -> {
+            statement.params(status, delivery.getDeliveryID());
+        });
+        statement.execute();
+    }
+    
+    public List<Delivery> getReadyDeliveries() {
+        return fetchAll(rs -> {
+            Delivery delivery = new Delivery();
+                delivery.setDeliveryID(rs.getInt("DeliveryID"));
+                delivery.setOrderID(rs.getInt("OrderID"));
+                delivery.setSellerID(rs.getInt("SellerID"));
+                delivery.setDealerID(rs.getInt("DealerID"));
+                delivery.setDeliveryStatus(rs.getString("DeliveryStatus"));
+                delivery.setRecipientName(rs.getString("RecipientName"));
+                delivery.setQuantity(rs.getInt("Quantity"));
+                delivery.setTotalPrice(rs.getDouble("TotalPrice"));
+                delivery.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                delivery.setComments(rs.getString("Comments"));
+                return delivery;
+        }, "SELECT * FROM Delivery WHERE DeliveryStatus = 'Pending' AND DATEDIFF(HOUR, GETDATE(), CreatedAt) >= 24");
+    }
 }

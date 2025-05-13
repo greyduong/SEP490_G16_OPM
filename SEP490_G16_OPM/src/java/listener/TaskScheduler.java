@@ -15,5 +15,6 @@ public class TaskScheduler implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         scheduler.scheduleAtFixedRate(new ProcessOrderTask(), 0, 5, TimeUnit.MINUTES);
         scheduler.scheduleAtFixedRate(new ProcessOfferTask(), 0, 5, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(new ProcessDeliveryTask(), 0, 5, TimeUnit.MINUTES);
     }
 }

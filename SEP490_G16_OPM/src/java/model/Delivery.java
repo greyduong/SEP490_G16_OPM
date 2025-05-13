@@ -117,6 +117,9 @@ public class Delivery {
     public void setComments(String comments) {
         this.comments = comments;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "Delivery{" + "deliveryID=" + deliveryID + ", orderID=" + orderID + ", sellerID=" + sellerID + ", dealerID=" + dealerID + ", deliveryStatus=" + deliveryStatus + ", recipientName=" + recipientName + ", quantity=" + quantity + ", totalPrice=" + totalPrice + ", createdAt=" + createdAt + ", comments=" + comments + '}';
+    }
 }
