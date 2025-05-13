@@ -43,7 +43,7 @@
                                 <td>${usr.getFullName()}</td>
                                 <td>${usr.getUsername()}</td>
                                 <td>
-                                    
+
                                     <c:choose>
                                         <c:when test="${usr.status == 'Active'}">Hoạt động</c:when>
                                         <c:when test="${usr.status == 'Inactive'}">Không hoạt động</c:when>
@@ -62,24 +62,26 @@
                                 </td>
                                 <td>
                                     <div class="flex items-center gap-2">
-                                        <a href="?action=edit&id=${usr.getUserID()}" class="btn_action hover:!bg-blue-700 !bg-blue-600 !text-white"><span class="mdi mdi-pencil"></span>Sửa</a>
-                                        <c:choose>
-                                            <c:when test="${usr.getStatus() == 'Active'}">
-                                                <form class="delete-user-form" method="POST" action="?action=delete&id=${usr.getUserID()}">
-                                                    <button class="delete-user btn_action bg-red-600 text-white hover:bg-red-700">
-                                                        <span class="mdi mdi-trash-can"></span><span>Xóa</span>
-                                                    </button>
-                                                </form>
-                                            </c:when>
-                                            <c:when test="${usr.getStatus() == 'Inactive'}">
-                                                <form class="recover-user-form" method="POST" action="?action=recover&id=${usr.getUserID()}">
-                                                    <button class="recover-user btn_action border border-slate-300 hover:border-slate-400">
-                                                        <span class="mdi mdi-restore"></span>
-                                                        <span>Phục hồi</span>
-                                                    </button>
-                                                </form>
-                                            </c:when>
-                                        </c:choose>
+										<c:if test="${sessionScope.user.userID != usr.userID}">
+											<a href="?action=edit&id=${usr.getUserID()}" class="btn_action hover:!bg-blue-700 !bg-blue-600 !text-white"><span class="mdi mdi-pencil"></span>Sửa</a>
+											<c:choose>
+												<c:when test="${usr.getStatus() == 'Active'}">
+													<form class="delete-user-form" method="POST" action="?action=delete&id=${usr.getUserID()}">
+														<button class="delete-user btn_action bg-red-600 text-white hover:bg-red-700">
+															<span class="mdi mdi-trash-can"></span><span>Chặn</span>
+														</button>
+													</form>
+												</c:when>
+												<c:when test="${usr.getStatus() == 'Inactive'}">
+													<form class="recover-user-form" method="POST" action="?action=recover&id=${usr.getUserID()}">
+														<button class="recover-user btn_action border border-slate-300 hover:border-slate-400">
+															<span class="mdi mdi-restore"></span>
+															<span>Phục hồi</span>
+														</button>
+													</form>
+												</c:when>
+											</c:choose>
+										</c:if>
                                     </div>
                                 </td>
                             </tr>

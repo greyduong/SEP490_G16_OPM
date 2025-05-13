@@ -18,28 +18,28 @@
                     <input name="id" value="${id}" type="text" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="fullname" class="font-bold">Full Name</label>
-                    <input name="fullname" value="${fullname}" type="text" class="form-control" id="fullname" placeholder="Enter full name">
+                    <label for="fullname" class="font-bold">Tên đầy đủ</label>
+                    <input name="fullname" value="${fullname}" type="text" class="form-control" id="fullname" placeholder="Điền tên đầy đủ">
                 </div>
                 <div class="form-group">
-                    <label for="username" class="font-bold">Username</label>
-                    <input name="username" value="${username}" type="text" class="form-control" id="username" placeholder="Enter username">
+                    <label for="username" class="font-bold">Tên đăng nhập</label>
+                    <input name="username" value="${username}" type="text" class="form-control" id="username" placeholder="Điền tên đăng nhập">
                 </div>
                 <div class="form-group">
                     <label for="email" class="font-bold">Email</label>
-                    <input name="email" value="${email}" type="email" class="form-control" id="email" placeholder="Enter email">
+                    <input name="email" value="${email}" type="email" class="form-control" id="email" placeholder="Điền email">
                 </div>
                 <div class="form-group">
-                    <label for="address" class="font-bold">Address</label>
-                    <input name="address" value="${address}" type="text" class="form-control" id="address" placeholder="Enter address">
+                    <label for="address" class="font-bold">Địa chỉ</label>
+                    <input name="address" value="${address}" type="text" class="form-control" id="address" placeholder="Điền địa chỉ">
                 </div>
                 <div class="form-group">
-                    <label for="phone" class="font-bold">Phone</label>
-                    <input name="phone" value="${phone}" type="text" class="form-control" id="phone" placeholder="Enter phone">
+                    <label for="phone" class="font-bold">Số điện thoại</label>
+                    <input name="phone" value="${phone}" type="text" class="form-control" id="phone" placeholder="Điền số điện thoại">
                 </div>
                 <div class="form-group">
-                    <label for="password" class="font-bold">Password</label>
-                    <input name="password" value="${password}" type="password" class="form-control" id="password" placeholder="Enter password">
+                    <label for="password" class="font-bold">Mật khẩu</label>
+                    <input name="password" value="${password}" type="password" class="form-control" id="password" placeholder="Điền mật khẩu">
                 </div>
                 <div class="form-group">
                     <label for="status" class="font-bold">Status</label>
@@ -49,7 +49,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="role" class="font-bold">Role</label>
+                    <label for="role" class="font-bold">Loại tài khoản</label>
                     <select name="role" class="form-control" id="role">
                         <option value="5" ${role == 5 ? 'selected' : ''}>Pig Dealer</option>
                         <option value="4" ${role == 4 ? 'selected' : ''}>Pig Seller</option>
@@ -59,8 +59,8 @@
                     </select>
                 </div>
                 <div>
-                    <button type="submit" class="btn btn-primary">Update</button>
-                    <a href="?" class="btn btn-secondary" id="cancel">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    <a href="?" class="btn btn-secondary" id="cancel">Hủy</a>
                 </div>
             </form>
         </main>
