@@ -151,7 +151,8 @@
                                             <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
                                             <c:when test="${o.status == 'Confirmed'}">
                                                 Đã xác nhận
-                                                <form action="deposit-order" method="post" class="d-inline ml-2">
+                                                <form action="deposit-order" method="post" class="depositForm d-inline ml-2">
+													<div class="hidden amount"><fmt:formatNumber value="${o.totalPrice * 0.01}" /></div>
                                                     <input type="hidden" name="orderId" value="${o.orderID}" />
                                                     <input type="hidden" name="search" value="${param.search}" />
                                                     <input type="hidden" name="status" value="${param.status}" />
@@ -215,7 +216,37 @@
                 </nav>
             </c:if>
         </div>
-
+		<div id="depositModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<div class="modal-title font-bold">Xác nhận</div>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						Bạn có muốn đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> cho đơn này?
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+						<button id="depositModalConfirm" type="button" class="btn btn-primary">Xác nhận</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+            $(".depositForm").on("submit", function (e) {
+                e.preventDefault();
+				const form = $(this);
+				$("#depositModalAmount").text(form.find(".amount").text());
+                $("#depositModal").modal();
+				$("#depositModalConfirm").on("click", function(e) {
+					e.preventDefault();
+					form.get(0).submit();
+				});
+            });
+		</script>
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>
