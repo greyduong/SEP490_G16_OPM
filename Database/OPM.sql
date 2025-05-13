@@ -297,12 +297,12 @@ VALUES
 
 INSERT INTO Application (UserID, Content, Reply, Status, SentAt, ProcessingDate, FilePath)
 VALUES
-(1, 'Request to expand farm capacity', 'Your request has been approved. You may proceed with the expansion.', 'Approved', GETDATE(), GETDATE(), 'expand_farm.pdf'),
-(2, 'Request to change supplier due to delay issues', 'Request denied. Please provide more documentation about the supplier’s delay.', 'Rejected', GETDATE(), GETDATE(), 'supplier_delay.pdf'),
-(3, 'Request for training course sponsorship', NULL, 'Approved', GETDATE(), GETDATE(), 'training_request.pdf'),
-(4, 'Request for additional feed stock', NULL, 'Rejected', GETDATE(), GETDATE(), NULL),
-(5, 'Request for marketing support', NULL, 'Pending', GETDATE(), NULL, 'marketing_support.pdf'),
-(5, 'Inquiry about partnership program', NULL, 'Pending', GETDATE(), NULL, NULL);
+(1, N'Yêu cầu mở rộng quy mô trang trại', N'Yêu cầu của bạn đã được phê duyệt. Bạn có thể tiến hành mở rộng.', N'Đã phê duyệt', GETDATE(), GETDATE(), 'expand_farm.pdf'),
+(2, N'Yêu cầu thay đổi nhà cung cấp do gặp sự cố chậm trễ', N'Yêu cầu bị từ chối. Vui lòng cung cấp thêm tài liệu liên quan đến sự chậm trễ của nhà cung cấp.', N'Đã từ chối', GETDATE(), GETDATE(), 'supplier_delay.pdf'),
+(3, N'Yêu cầu kiểm tra lại đơn hàng', NULL, N'Đã phê duyệt', GETDATE(), GETDATE(), 'KiemTra_DonHang_YeuCau.pdf'),
+(4, N'Yêu cầu bổ sung nguồn thức ăn chăn nuôi', NULL, N'Đã từ chối', GETDATE(), GETDATE(), NULL),
+(5, N'Yêu cầu hỗ trợ tiếp thị', NULL, N'Đang chờ xử lý', GETDATE(), NULL, 'marketing_support.pdf'),
+(5, N'Yêu cầu thông tin về chương trình hợp tác', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL);
 
  
 

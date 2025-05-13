@@ -30,13 +30,13 @@ public class StaffViewApplication extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (!isLoggedIn(session)) {
-            response.sendRedirect("login-register.jsp");
+            response.sendRedirect("login");
             return;
         }
 
         User user = (User) session.getAttribute("user");
         if (!isStaffOrManager(user)) {
-            response.sendRedirect("login-register.jsp?error=access-denied");
+            response.sendRedirect("login?error=access-denied");
             return;
         }
 
@@ -49,7 +49,7 @@ public class StaffViewApplication extends HttpServlet {
      @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect("login-register.jsp");
+        response.sendRedirect("login");
     }
 
     @Override

@@ -32,8 +32,18 @@ public class ApplicationController extends HttpServlet {
             return;
         }
 
+        User user = (User) session.getAttribute("user");
+        String keyword = request.getParameter("keyword");
+
         ApplicationDAO dao = new ApplicationDAO();
-        List<Application> applications = dao.getAllApplications();
+        List<Application> applications;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            applications = dao.searchByUserAndKeyword(user.getUserID(), keyword.trim());
+        } else {
+            applications = dao.getByUserId(user.getUserID());
+        }
+
         request.setAttribute("applicationList", applications);
         request.getRequestDispatcher("viewapplication.jsp").forward(request, response);
     }
@@ -63,13 +73,13 @@ public class ApplicationController extends HttpServlet {
             boolean success = dao.updateApplication(application);
 
             if (success) {
-                session.setAttribute("successMsg", "Application updated successfully.");
+                session.setAttribute("successMsg", "Cập nhật đơn đăng ký thành công.");
             } else {
-                session.setAttribute("errorMsg", "Failed to update application.");
+                session.setAttribute("errorMsg", "Cập nhật đơn đăng ký thất bại.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            session.setAttribute("errorMsg", "Error occurred while processing the application.");
+            session.setAttribute("errorMsg", "Đã xảy ra lỗi trong quá trình xử lý đơn đăng ký.");
         }
 
         // Always redirect to refresh the list and avoid form re-submission
