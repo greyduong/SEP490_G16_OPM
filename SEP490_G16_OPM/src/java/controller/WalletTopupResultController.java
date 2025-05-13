@@ -53,8 +53,7 @@ public class WalletTopupResultController extends HttpServlet {
         }
         
         long amount = Long.parseLong((String) req.getAttribute("vnp_Amount")) / 100;
-        String amountDisplay = NumberFormat.getCurrencyInstance(Locale.of("vi")).format(amount);
-        req.setAttribute("success", "Bạn đã nạp thành công %s VND vào tài khoản".formatted(amountDisplay));
+        req.setAttribute("success", "Bạn đã nạp thành công %s VND vào tài khoản".formatted(amount));
         req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
     }
     
