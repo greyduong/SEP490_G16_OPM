@@ -44,29 +44,29 @@ public class RegisterController extends HttpServlet {
 
         try {
             if (role == 0 || username.isEmpty() || password.isEmpty() || email.isEmpty() || fullname.isEmpty() || confirmPassword.isEmpty()) {
-                throw new AppException("Each fields cannot be empty!");
+                throw new AppException("Tất cả các trường không thể trống!");
             }
             if (role < 1 || role > 5) {
-                throw new AppException("Invalid role");
+                throw new AppException("Loại tài khoản không tồn tại");
             }
             if (!username.matches("^[a-zA-Z0-9]{4,100}$")) {
-                throw new AppException("Username must contain only a-z A-Z 0-9 character, length in range 4-100");
+                throw new AppException("Tên đăng nhập chỉ được sử dụng các ký tự a-z A-Z 0-9, độ dài trong khoảng 4-100 ký tự");
             }
             if (!password.equals(confirmPassword)) {
-                throw new AppException("Password and confirm password dont match!");
+                throw new AppException("Mật khẩu và xác nhận mật khẩu không khớp!");
             }
             if (!fullname.matches("^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐa-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐa-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*$")) {
-                throw new AppException("Fullname only contains alphabet (with accent) and space!");
+                throw new AppException("Tên đầy đủ chỉ được sử dụng các ký tự trong bảng chữ cái và dấu cách!");
             }
             if (!email.matches("^[\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,}$")) {
-                throw new AppException("Invalid email format!");
+                throw new AppException("Lỗi định dạng email!");
             }
             UserDAO db = new UserDAO();
             if (db.checkExistsUsername(username)) {
-                throw new AppException("Username already existed!");
+                throw new AppException("Tên đăng nhập đã tồn tại!");
             }
             if (db.count("SELECT COUNT(*) FROM UserAccount WHERE Email = ?", email) > 0) {
-                throw new AppException("Email already existed!");
+                throw new AppException("Email đã tồn tại!");
             }
             
             User user = new User();
@@ -79,7 +79,7 @@ public class RegisterController extends HttpServlet {
             user.setWallet(0);
             
             if (!db.addNewUser(user)) {
-                throw new AppException("Error occur when register new user. Contact admin page.");
+                throw new AppException("Lỗi hệ thống. Liên hệ admin để biết thêm thông tin.");
             }
             
             resp.sendRedirect(req.getContextPath() + "/login");
