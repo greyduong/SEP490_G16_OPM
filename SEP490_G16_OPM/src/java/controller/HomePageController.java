@@ -18,7 +18,7 @@ public class HomePageController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Optional<User> logged = Optional.ofNullable(request.getAttribute("user")).map(obj -> (User) obj);
+        Optional<User> logged = Optional.ofNullable(request.getSession().getAttribute("user")).map(obj -> (User) obj);
         if (logged.isEmpty()) {
             getDealerHomePage(request, response);
             return;
