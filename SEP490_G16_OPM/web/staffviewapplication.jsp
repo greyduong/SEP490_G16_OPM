@@ -13,10 +13,10 @@
     }
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>View Application - Online Pig Market</title>
+        <title>Xem đơn đăng ký - Chợ Heo Trực Tuyến</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
         <script src="js/jquery-3.3.1.min.js"></script>
@@ -25,6 +25,7 @@
 
         <jsp:include page="component/library.jsp" />
         <jsp:include page="component/header.jsp" />
+
         <c:if test="${not empty sessionScope.successMsg}">
             <div class="alert alert-success">${sessionScope.successMsg}</div>
             <c:remove var="successMsg" scope="session"/>
@@ -35,34 +36,20 @@
             <c:remove var="errorMsg" scope="session"/>
         </c:if>
 
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container text-center">
-                <div class="breadcrumb__text">
-                    <h2>Application List</h2>
-                    <div class="breadcrumb__option">
-                        <a href="home">Home</a>
-                        <span>Applications</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
-
-        <!-- Application Display Table -->
+        <!-- Danh sách đơn -->
         <section class="product-details spad">
             <div class="container">
-                <h4 class="mb-3">Applications</h4>
+                <h4 class="mb-3">Danh sách đơn đăng ký</h4>
                 <table class="table table-bordered table-hover">
                     <thead class="thead-light">
                         <tr>
-                            <th>Purpose</th>
-                            <th>Create Date</th>
-                            <th>File</th>
-                            <th>Status</th>
-                            <th>Processing Date</th>
-                            <th>Reply</th>
-                            <th>Action</th>
+                            <th>Mục đích</th>
+                            <th>Ngày gửi</th>
+                            <th>Tệp đính kèm</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày xử lý</th>
+                            <th>Phản hồi</th>
+                            <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,7 +62,7 @@
                                         <a href="${application.file}" target="_blank">${application.file}</a>
                                     </c:if>
                                     <c:if test="${empty application.file}">
-                                        No file available
+                                        Không có tệp đính kèm
                                     </c:if>
                                 </td>
                                 <td>${application.status}</td>
@@ -86,20 +73,20 @@
                                             ${application.reply}
                                         </c:when>
                                         <c:otherwise>
-                                            <span class="text-muted">No reply</span>
+                                            <span class="text-muted">Chưa có phản hồi</span>
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
                                 <td>
                                     <c:if test="${application.status eq 'Pending'}">
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#applicationModal" data-id="${application.applicationID}" data-status="${application.status}" data-content="${application.content}">Process</button>
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#applicationModal" data-id="${application.applicationID}" data-status="${application.status}" data-content="${application.content}">Xử lý</button>
                                     </c:if>
                                 </td>
                             </tr>
                         </c:forEach>
                         <c:if test="${empty applicationList}">
                             <tr>
-                                <td colspan="7" class="text-center text-muted">No applications available.</td>
+                                <td colspan="7" class="text-center text-muted">Không có đơn đăng ký nào.</td>
                             </tr>
                         </c:if>
                     </tbody>
@@ -112,8 +99,8 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Process Application</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h5 class="modal-title" id="exampleModalLabel">Xử lý đơn đăng ký</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -121,26 +108,24 @@
                         <form id="applicationForm" action="ProcessApplication" method="POST">
                             <input type="hidden" id="applicationId" name="applicationId" />
 
-                            <p><strong>Purpose:</strong> <span id="appContent"></span></p>
+                            <p><strong>Mục đích:</strong> <span id="appContent"></span></p>
 
                             <div class="form-group">
-                                <label for="replyText">Reply:</label>
-                                <textarea class="form-control" id="replyText" name="reply" rows="3" placeholder="Write your reply here..."></textarea>
+                                <label for="replyText">Phản hồi:</label>
+                                <textarea class="form-control" id="replyText" name="reply" rows="3" placeholder="Nhập phản hồi..."></textarea>
                             </div>
 
-                            <!-- Status Row -->
                             <div class="form-group d-flex align-items-center">
-                                <label for="statusSelect" class="mr-2 mb-0" style="min-width: 60px;">Status:</label>
+                                <label for="statusSelect" class="mr-2 mb-0" style="min-width: 60px;">Trạng thái:</label>
                                 <select class="form-control" id="statusSelect" name="action"
                                         style="height: 38px; padding: 6px 12px; line-height: 1.5; appearance: none;">
-                                    <option value="approve">Approve</option>
-                                    <option value="reject">Reject</option>
+                                    <option value="approve">Phê duyệt</option>
+                                    <option value="reject">Từ chối</option>
                                 </select>
                             </div>
 
-                            <!-- Submit Button Row -->
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary">Submit Reply</button>
+                                <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
                             </div>
                         </form>
                     </div>
@@ -154,26 +139,27 @@
         <script src="js/main.js"></script>
 
         <script>
-            // On modal show, populate fields
+            // Khi hiển thị modal, cập nhật dữ liệu
             $('#applicationModal').on('show.bs.modal', function (event) {
                 const button = $(event.relatedTarget);
                 const appId = button.data('id');
                 const appContent = button.data('content');
 
-
                 $('#applicationId').val(appId);
                 $('#appContent').text(appContent);
             });
 
-            // Intercept form submit with confirmation
+            // Xác nhận trước khi gửi
             document.getElementById("applicationForm").addEventListener("submit", function (e) {
-                e.preventDefault(); // prevent default submit
+                e.preventDefault();
 
                 const status = document.getElementById("statusSelect").value;
-                const confirmText = `Are you sure you want to ${status.toUpperCase()} this application?`;
+                const confirmText = status === 'approve'
+                        ? "Bạn có chắc chắn muốn PHÊ DUYỆT đơn đăng ký này?"
+                        : "Bạn có chắc chắn muốn TỪ CHỐI đơn đăng ký này?";
 
                 if (confirm(confirmText)) {
-                    this.submit(); // continue submit if confirmed
+                    this.submit();
                 }
             });
         </script>

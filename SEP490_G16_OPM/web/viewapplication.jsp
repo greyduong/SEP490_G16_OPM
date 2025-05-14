@@ -13,43 +13,36 @@
     }
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>View Application - Online Pig Market</title>
+        <title>Xem đơn - Chợ Heo Trực Tuyến</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
 
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
-            <div class="container text-center">
-                <div class="breadcrumb__text">
-                    <h2>Application List</h2>
-                    <div class="breadcrumb__option">
-                        <a href="home">Home</a>
-                        <span>Applications</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
-
-        <!-- Application Display Table -->
+        <!-- Bảng hiển thị đơn đăng ký -->
         <section class="product-details spad">
             <div class="container">
-                <h4 class="mb-3">Applications</h4>
+                <h4 class="mb-3">Đơn của tôi</h4>
+
+                <!-- Thanh tìm kiếm -->
+                <form class="form-inline mb-3" method="GET" action="application">
+                    <input type="text" name="keyword" class="form-control mr-sm-2" placeholder="Tìm theo mục đích hoặc trạng thái..." value="${param.keyword}">
+                    <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                </form>
+
                 <table class="table table-bordered table-hover">
                     <thead class="thead-light">
                         <tr>
-                            <th>Purpose</th>
-                            <th>Create Date</th>
-                            <th>File</th>
-                            <th>Status</th>
-                            <th>Processing Date</th>
-                            <th>Reply</th> <!-- New column -->
+                            <th>Mục đích</th>
+                            <th>Ngày gửi</th>
+                            <th>Tệp đính kèm</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày xử lý</th>
+                            <th>Phản hồi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,7 +55,7 @@
                                         <a href="<c:url value='/application/${application.file}' />" target="_blank">${application.file}</a>
                                     </c:if>
                                     <c:if test="${empty application.file}">
-                                        No file available
+                                        Không có tệp đính kèm
                                     </c:if>
                                 </td>
                                 <td>${application.status}</td>
@@ -73,22 +66,24 @@
                                             ${application.reply}
                                         </c:when>
                                         <c:otherwise>
-                                            No reply yet
+                                            Chưa có phản hồi
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
                             </tr>
                         </c:forEach>
-                        <!-- Display message when there are no applications -->
+
+                        <!-- Hiển thị nếu không có đơn đăng ký -->
                         <c:if test="${empty applicationList}">
                             <tr>
-                                <td colspan="5" class="text-center text-muted">No applications available.</td>
+                                <td colspan="6" class="text-center text-muted">Không có đơn đăng ký nào.</td>
                             </tr>
                         </c:if>
                     </tbody>
                 </table>
             </div>
         </section>
+
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>
