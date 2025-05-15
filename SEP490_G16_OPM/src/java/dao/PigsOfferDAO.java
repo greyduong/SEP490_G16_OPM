@@ -770,4 +770,75 @@ public class PigsOfferDAO extends DBContext {
            WHERE status = 'Available' AND GETDATE() > EndDate
            """);
     }
+
+    public List<PigsOffer> getOffersByFarmWithFilter(int farmId, String keyword, String categoryName, String sort) throws Exception {
+        List<PigsOffer> offers = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM PigsOffer WHERE FarmID = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(farmId);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND Name LIKE ?");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
+            sql.append(" AND CategoryID IN (SELECT CategoryID FROM Category WHERE Name = ?)");
+            params.add(categoryName.trim());
+        }
+
+        // Xử lý sắp xếp
+        if (sort != null) {
+            switch (sort) {
+                case "quantity_asc":
+                    sql.append(" ORDER BY Quantity ASC");
+                    break;
+                case "quantity_desc":
+                    sql.append(" ORDER BY Quantity DESC");
+                    break;
+                case "price_asc":
+                    sql.append(" ORDER BY (Quantity * RetailPrice) ASC");
+                    break;
+                case "price_desc":
+                    sql.append(" ORDER BY (Quantity * RetailPrice) DESC");
+                    break;
+            }
+        }
+
+        try (PreparedStatement stm = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    PigsOffer offer = new PigsOffer();
+                    offer.setOfferID(rs.getInt("OfferID"));
+                    offer.setSellerID(rs.getInt("SellerID"));
+                    offer.setFarmID(rs.getInt("FarmID"));
+                    offer.setCategoryID(rs.getInt("CategoryID"));
+                    offer.setName(rs.getString("Name"));
+                    offer.setPigBreed(rs.getString("PigBreed"));
+                    offer.setQuantity(rs.getInt("Quantity"));
+                    offer.setMinQuantity(rs.getInt("MinQuantity"));
+                    offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                    offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                    offer.setDescription(rs.getString("Description"));
+                    offer.setImageURL(rs.getString("ImageURL"));
+                    offer.setStartDate(rs.getDate("StartDate"));
+                    offer.setEndDate(rs.getDate("EndDate"));
+                    offer.setStatus(rs.getString("Status"));
+                    offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
+                    // Tính tổng giá = số lượng * giá lẻ
+                    offer.setTotalOfferPrice(offer.getQuantity() * offer.getRetailPrice());
+
+                    offers.add(offer);
+                }
+            }
+        }
+
+        return offers;
+    }
 }
