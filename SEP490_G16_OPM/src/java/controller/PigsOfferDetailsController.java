@@ -1,84 +1,76 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import model.PigsOffer;
-import dao.PigsOfferDAO;
 
-/**
- *
- * @author dangtuong
- */
+import dao.PigsOfferDAO;
+import model.PigsOffer;
+
+@WebServlet(name = "PigsOfferDetailsController", urlPatterns = {"/PigsOfferDetails"})
 public class PigsOfferDetailsController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String offerId = request.getParameter("offerId");
-        PigsOfferDAO dao = new PigsOfferDAO();
-        PigsOffer offer = dao.getOfferById(Integer.parseInt(offerId)); // Lấy Offer chính
-        ArrayList<PigsOffer> otherOffers = dao.getAllPigsOffers(); // Lấy Other Offers
-
-        request.setAttribute("offer", offer);
-        request.setAttribute("otherOffers", otherOffers);
-        request.getRequestDispatcher("pigsofferdetails.jsp").forward(request, response);
-
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        String offerIdParam = request.getParameter("offerId");
+
+        if (offerIdParam == null || !offerIdParam.matches("\\d+")) {
+            response.sendRedirect("home?msg=" + URLEncoder.encode("Mã chào bán không hợp lệ", "UTF-8"));
+            return;
+        }
+
+        int offerId = Integer.parseInt(offerIdParam);
+        PigsOfferDAO offerDAO = new PigsOfferDAO();
+        PigsOffer offer = offerDAO.getOfferById(offerId);
+
+        if (offer == null || !"Available".equalsIgnoreCase(offer.getStatus())) {
+            response.sendRedirect("home?msg=" + URLEncoder.encode("Chào bán không tồn tại hoặc đã ngừng bán", "UTF-8"));
+            return;
+        }
+
+        ArrayList<PigsOffer> suggestedOffers = new ArrayList<>();
+        String suggestedSource = "";
+
+        // Ưu tiên: cùng loại
+        suggestedOffers = offerDAO.getTop5OtherOffersByCategory(
+                offer.getCategory().getCategoryID(), offer.getOfferID());
+        if (!suggestedOffers.isEmpty()) {
+            suggestedSource = "category";
+        }
+
+        // Nếu không có → cùng trang trại
+        if (suggestedOffers.isEmpty()) {
+            suggestedOffers = offerDAO.getTop5OtherOffersByFarm(
+                    offer.getFarm().getFarmID(), offer.getOfferID());
+            if (!suggestedOffers.isEmpty()) {
+                suggestedSource = "farm";
+            }
+        }
+
+        // Nếu vẫn không có → mới nhất
+        if (suggestedOffers.isEmpty()) {
+            suggestedOffers = offerDAO.getTop5LatestOffers(offer.getOfferID());
+            if (!suggestedOffers.isEmpty()) {
+                suggestedSource = "latest";
+            }
+        }
+
+        request.setAttribute("offer", offer);
+        request.setAttribute("suggestedOffers", suggestedOffers);
+        request.setAttribute("suggestedSource", suggestedSource);
+        request.getRequestDispatcher("pigsofferdetails.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }

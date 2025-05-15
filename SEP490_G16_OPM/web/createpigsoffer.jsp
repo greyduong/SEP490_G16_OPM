@@ -67,8 +67,15 @@
 
                             <div class="form-group">
                                 <label for="image">Hình ảnh <span style="color: red">*</span></label>
-                                <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
+
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="image" name="image" accept="image/*" required>
+                                    <label class="custom-file-label" for="image">Chọn ảnh...</label>
+                                </div>
+
+                                <img id="previewImage" src="#" alt="Xem trước ảnh" class="img-thumbnail mt-2" style="max-height: 250px; display: none;">
                             </div>
+
                         </div>
 
                         <!-- Cột phải -->
@@ -133,5 +140,29 @@
         </section>
 
         <jsp:include page="component/footer.jsp" />
+        <script>
+            document.getElementById("image").addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById("previewImage");
+
+                // Cập nhật label tên file
+                const fileName = file ? file.name : "Chọn ảnh...";
+                event.target.nextElementSibling.innerText = fileName;
+
+                // Hiển thị ảnh xem trước
+                if (file && file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.style.display = "block";
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.src = "#";
+                    preview.style.display = "none";
+                }
+            });
+        </script>
+
     </body>
 </html>

@@ -25,7 +25,7 @@ public class HomePageController extends HttpServlet {
         }
         switch (logged.get().getRoleID()) {
             case 5 ->
-                getDealerHomePage(request, response);
+                getDealerHomePage(request, response); // Dealer
             case 4 ->
                 response.sendRedirect(request.getContextPath() + "/seller");
             case 3 ->
@@ -40,29 +40,31 @@ public class HomePageController extends HttpServlet {
     private void getDealerHomePage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String categoryName = request.getParameter("categoryName");
         String keyword = request.getParameter("keyword");
-        String sort = request.getParameter("sort"); // e.g., "quantity_asc", "price_desc"
+        String sort = request.getParameter("sort"); // "quantity_asc", "price_desc", "newest", "oldest"
 
         int page = 1;
         final int pageSize = 8;
-        String pageParam = request.getParameter("page");
-        if (pageParam != null) {
-            try {
+        try {
+            String pageParam = request.getParameter("page");
+            if (pageParam != null) {
                 page = Integer.parseInt(pageParam);
-            } catch (NumberFormatException e) {
-                page = 1;
             }
+        } catch (NumberFormatException e) {
+            page = 1;
         }
 
         // Load categories
         CategoryDAO categoryDAO = new CategoryDAO();
         ArrayList<Category> categoryList = categoryDAO.getAllCategories();
 
-        // Load offers
+        // Load offers with flexible search + sort + pagination
         PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
         ArrayList<PigsOffer> offerList;
         int totalOffers;
 
-        if ((keyword != null && !keyword.trim().isEmpty()) || (categoryName != null && !categoryName.trim().isEmpty())) {
+        boolean hasSearch = (keyword != null && !keyword.trim().isEmpty()) || (categoryName != null && !categoryName.trim().isEmpty());
+
+        if (hasSearch) {
             offerList = pigsOfferDAO.searchOffersFlexible(keyword, categoryName, sort, page, pageSize);
             totalOffers = pigsOfferDAO.countOffersFlexible(keyword, categoryName);
         } else {
@@ -72,7 +74,7 @@ public class HomePageController extends HttpServlet {
 
         int totalPages = (int) Math.ceil((double) totalOffers / pageSize);
 
-        // Set attributes for JSP
+        // Truyền dữ liệu cho homepage.jsp
         request.setAttribute("categoryList", categoryList);
         request.setAttribute("offerList", offerList);
         request.setAttribute("currentPage", page);

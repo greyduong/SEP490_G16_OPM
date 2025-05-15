@@ -57,7 +57,7 @@ public class ProcessFarmController extends HttpServlet {
         try {
             if ("approve".equalsIgnoreCase(action)) {
                 farm.setStatus("Active");
-                farm.setNote(null);
+                farm.setNote("Đã phê duyệt");
                 boolean success = dao.updateStatusAndNote(farm);
 
                 if (success) {

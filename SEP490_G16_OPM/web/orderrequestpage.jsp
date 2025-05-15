@@ -84,6 +84,7 @@
                 <table class="table table-bordered text-center">
                     <thead class="thead-dark">
                         <tr>
+                            <th>STT</th>
                             <th>
                                 Mã
                                 <a href="orders-request?sort=${nextOrderSort}&search=${param.search}&farmId=${param.farmId}" class="btn btn-sm btn-outline-light ml-1">
@@ -132,8 +133,10 @@
                         </tr>
                     </thead>
                     <tbody>
+                    <tbody>
                         <c:forEach var="o" items="${page.data}" varStatus="loop">
                             <tr>
+                                <td>${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</td>
                                 <td>
                                     <a href="#" data-toggle="modal" data-target="#orderModal${o.orderID}">
                                         ${o.orderID}
@@ -162,17 +165,14 @@
                                             <input type="hidden" name="orderID" value="${o.orderID}" />
                                             <button type="submit" class="btn btn-success btn-sm">Xác nhận</button>
                                         </form>
-
-                                        <form action="reject-order" method="post" class="d-inline ml-1">
-                                            <input type="hidden" name="orderID" value="${o.orderID}" />
-                                            <button type="submit" class="btn btn-outline-danger btn-sm"
-                                                    onclick="return confirm('Bạn có chắc chắn muốn từ chối đơn hàng này không?')">
-                                                Từ chối
-                                            </button>
-                                        </form>
+                                        <!-- Nút mở modal -->
+                                        <button type="button" class="btn btn-outline-danger btn-sm ml-1"
+                                                data-toggle="modal" data-target="#rejectModal${o.orderID}">
+                                            Từ chối
+                                        </button>
                                     </c:if>
                                 </td>
-                            </tr>
+                            </tr>                          
                         </c:forEach>
                     </tbody>
                 </table>
@@ -211,7 +211,7 @@
                 </nav>
 
                 <!-- Modal hiển thị chi tiết đơn hàng -->
-                <c:forEach var="o" items="${page.data}">
+                <c:forEach var="o" items="${page.data}" varStatus="loop">
                     <div class="modal fade" id="orderModal${o.orderID}" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel${o.orderID}" aria-hidden="true">
                         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                             <div class="modal-content">
@@ -264,7 +264,18 @@
                                                 </tr>
                                                 <tr>
                                                     <th>Trạng thái</th>
-                                                    <td>${o.status}</td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
+                                                            <c:when test="${o.status == 'Confirmed'}">Đã xác nhận</c:when>
+                                                            <c:when test="${o.status == 'Rejected'}">Đã từ chối</c:when>
+                                                            <c:when test="${o.status == 'Canceled'}">Đã hủy</c:when>
+                                                            <c:when test="${o.status == 'Processing'}">Đang xử lý</c:when>
+                                                            <c:when test="${o.status == 'Deposited'}">Đã đặt cọc</c:when>
+                                                            <c:when test="${o.status == 'Completed'}">Hoàn thành</c:when>
+                                                            <c:otherwise>${o.status}</c:otherwise>
+                                                        </c:choose>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <th>Ngày tạo</th>
@@ -279,14 +290,10 @@
                                                         <input type="hidden" name="orderID" value="${o.orderID}" />
                                                         <button type="submit" class="btn btn-success">Xác nhận</button>
                                                     </form>
-
-                                                    <form action="reject-order" method="post" class="d-inline ml-2">
-                                                        <input type="hidden" name="orderID" value="${o.orderID}" />
-                                                        <button type="submit" class="btn btn-outline-danger"
-                                                                onclick="return confirm('Bạn có chắc chắn muốn từ chối đơn hàng này không?')">
-                                                            Từ chối
-                                                        </button>
-                                                    </form>
+                                                    <!-- Nút mở modal từ chối -->
+                                                    <button type="button" class="btn btn-outline-danger btn-sm ml-1" data-toggle="modal" data-target="#rejectModal${o.orderID}">
+                                                        Từ chối
+                                                    </button>                                                   
                                                 </c:if>
                                             </div>
                                         </div>
@@ -346,6 +353,34 @@
                     overlay.remove();
             });
         </script>
+
+        <!-- Modal từ chối cho chi tiết đơn hàng -->
+        <c:forEach var="o" items="${page.data}">
+            <c:if test="${o.status == 'Pending'}">
+                <div class="modal fade" id="rejectModal${o.orderID}" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel${o.orderID}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form action="reject-order" method="post">
+                            <input type="hidden" name="orderID" value="${o.orderID}" />
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="rejectModalLabel${o.orderID}">Lý do từ chối đơn hàng #${o.orderID}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <textarea name="rejectReason" class="form-control" rows="4" placeholder="Nhập lý do từ chối..." required></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                    <button type="submit" class="btn btn-danger">Từ chối đơn</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </c:if>
+        </c:forEach>
 
         <jsp:include page="component/footer.jsp" />
     </body>

@@ -38,7 +38,7 @@ public class OrderDAO extends DBContext {
     public List<Order> getOrdersByBuyerWithFilter(int buyerId, String search, String status, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
-                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, o.Note, "
                 + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, p.MinQuantity, p.MinDeposit, p.TotalOfferPrice, p.Description, "
                 + "f.FarmID, f.FarmName, f.Location, u.FullName AS SellerName "
                 + "FROM Orders o "
@@ -123,6 +123,7 @@ public class OrderDAO extends DBContext {
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
+                order.setNote(rs.getString("Note"));
 
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
@@ -199,7 +200,7 @@ public class OrderDAO extends DBContext {
         List<Order> orders = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, o.Note, "
                 + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, p.MinQuantity, p.MinDeposit, p.TotalOfferPrice, p.Description, "
                 + "f.FarmID, f.FarmName, f.Location, "
                 + "u.FullName AS DealerName "
@@ -284,6 +285,7 @@ public class OrderDAO extends DBContext {
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
+                order.setNote(rs.getString("Note"));
 
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
@@ -360,7 +362,7 @@ public class OrderDAO extends DBContext {
         List<Order> orders = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, "
+                "SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice, o.Status, o.CreatedAt, o.ProcessedDate, o.Note, "
                 + "p.Name AS OfferName, p.ImageURL, p.RetailPrice, "
                 + "f.FarmID, f.FarmName, u.FullName AS DealerName "
                 + "FROM Orders o "
@@ -413,7 +415,6 @@ public class OrderDAO extends DBContext {
                 break;
             default:
                 sql.append("ORDER BY o.CreatedAt DESC ");
-                break;
         }
 
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
@@ -449,6 +450,7 @@ public class OrderDAO extends DBContext {
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
+                order.setNote(rs.getString("Note"));
 
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
@@ -538,17 +540,15 @@ public class OrderDAO extends DBContext {
                 order.setStatus(rs.getString("Status"));
                 order.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 order.setProcessedDate(rs.getTimestamp("ProcessedDate"));
+                order.setNote(rs.getString("Note"));
 
-                // Lấy người mua và người bán
                 UserDAO userDAO = new UserDAO();
                 order.setDealer(userDAO.getUserById(order.getDealerID()));
                 order.setSeller(userDAO.getUserById(order.getSellerID()));
 
-                // Lấy thông tin Offer
                 PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
                 PigsOffer offer = pigsOfferDAO.getOfferById(order.getOfferID());
 
-                // Lấy thông tin Farm từ Offer
                 if (offer != null) {
                     FarmDAO farmDAO = new FarmDAO();
                     Farm farm = farmDAO.getFarmById(offer.getFarmID());
@@ -585,6 +585,18 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
+    public boolean cancelOrder(int orderID) {
+        String sql = "UPDATE Orders SET Status = 'Canceled', ProcessedDate = GETDATE() "
+                + "WHERE OrderID = ? AND Status = 'Pending'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public boolean confirmOrder(int orderID) {
         String sql = "UPDATE Orders SET Status = 'Confirmed', ProcessedDate = GETDATE() "
                 + "WHERE OrderID = ? AND Status = 'Pending'";
@@ -602,6 +614,18 @@ public class OrderDAO extends DBContext {
                 + "WHERE OrderID = ? AND Status = 'Pending'";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateOrderNote(int orderId, String note) {
+        String sql = "UPDATE Orders SET Note = ? WHERE OrderID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, note);
+            ps.setInt(2, orderId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -827,7 +851,7 @@ public class OrderDAO extends DBContext {
     }
 
     public boolean cancelOrders(List<Order> orders) {
-        var statement = batch("UPDATE Orders SET status = 'Cancelled' WHERE OrderID = ?");
+        var statement = batch("UPDATE Orders SET status = 'Canceled' WHERE OrderID = ?");
         var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?");
         orders.forEach(order -> {
             statement.params(order.getOrderID());

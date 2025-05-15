@@ -89,6 +89,7 @@ public class ShoppingCartController extends HttpServlet {
         request.setAttribute("cartList", cartList);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("currentPage", pageIndex);
+        request.setAttribute("totalItems", totalItems);
         request.setAttribute("param", request.getParameterMap()); // giữ lại filter khi phân trang
 
         request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);

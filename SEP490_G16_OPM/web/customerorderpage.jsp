@@ -92,6 +92,7 @@
                     <table class="table table-bordered text-center">
                         <thead class="thead-dark">
                             <tr>
+                                <th>STT</th>
                                 <th>Mã đơn
                                     <a href="customer-orders?sort=${nextOrderIdSort}&search=${param.search}&status=${param.status}&farmId=${param.farmId}" class="btn btn-sm btn-outline-light ml-1">
                                         <c:choose>
@@ -121,6 +122,7 @@
                                     </a>
                                 </th>
                                 <th style="min-width: 140px;">Trạng thái</th>
+                                <th>Ghi chú</th>
                                 <th>Ngày tạo
                                     <a href="customer-orders?sort=${nextCreatedAtSort}&search=${param.search}&status=${param.status}&farmId=${param.farmId}" class="btn btn-sm btn-outline-light ml-1">
                                         <c:choose>
@@ -143,8 +145,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="o" items="${page.data}">
+                            <c:forEach var="o" items="${page.data}" varStatus="loop">
                                 <tr>
+                                    <td>${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</td>
                                     <td><a href="customer-order-details?id=${o.orderID}">${o.orderID}</a></td>
                                     <td>${o.pigsOffer.name}</td>
                                     <td>${o.quantity}</td>
@@ -161,7 +164,14 @@
                                             <c:otherwise>${o.status}</c:otherwise>
                                         </c:choose>
                                     </td>
-
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty o.note}">
+                                                ${o.note}
+                                            </c:when>
+                                            <c:otherwise>-</c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td><fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy" /></td>
                                     <td>
                                         <c:choose>

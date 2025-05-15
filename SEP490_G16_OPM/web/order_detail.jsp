@@ -92,6 +92,18 @@
                                 </c:choose>
                             </td>
                         </tr>
+                        <tr>
+                            <th>Ghi chú</th>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty order.note}">
+                                        ${order.note}
+                                    </c:when>
+                                    <c:otherwise>-</c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+
                     </table>
                 </div>
             </div>
@@ -102,19 +114,21 @@
                     <table class="table table-bordered text-center">
                         <thead class="thead-dark">
                             <tr>
+                                <th>STT</th>
                                 <th>Mã</th>
                                 <th>Trạng thái</th>
                                 <th>Người nhận</th>
                                 <th>Số lượng</th>
-                                <th>Tổng giá</th>
+                                <th>Thành tiền</th>
                                 <th>Ngày tạo</th>
                                 <th>Ghi chú</th>
                                 <th>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="d" items="${deliveryList}">
+                            <c:forEach var="d" items="${deliveryList}" varStatus="loop">
                                 <tr>
+                                    <td>${loop.index + 1}</td>
                                     <td>${d.deliveryID}</td>
                                     <td class="status-${d.deliveryStatus}">
                                         <c:choose>
@@ -124,7 +138,7 @@
                                             <c:otherwise>${d.deliveryStatus}</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>${d.recipientName}</td>
+                                    <td>${d.recipientName} - ${d.phone}</td>
                                     <td>${d.quantity}</td>
                                     <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true"/></td>
                                     <td><fmt:formatDate value="${d.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
@@ -135,38 +149,62 @@
                                                 <input type="hidden" name="deliveryID" value="${d.deliveryID}" />
                                                 <button type="submit" class="btn btn-sm btn-success">Xác nhận</button>
                                             </form>
-                                            <form action="cancel-delivery" method="post" style="display:inline-block;">
-                                                <input type="hidden" name="deliveryID" value="${d.deliveryID}" />
-                                                <button type="submit" class="btn btn-sm btn-danger">Hủy</button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#cancelModal${d.deliveryID}">
+                                                Hủy
+                                            </button>
                                         </c:if>
                                     </td>
                                 </tr>
-                            </c:forEach>
-                            <tr class="table-info font-weight-bold">
-                                <td colspan="3">✅ Tổng đã giao</td>
-                                <td>${totalDeliveredQuantity}</td>
-                                <td><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/></td>
-                                <td colspan="3"></td>
-                            </tr>
-                            <tr class="table-warning font-weight-bold">
-                                <td colspan="3">⏳ Đang chờ xác nhận</td>
-                                <td>${totalPendingQuantity}</td>
-                                <td><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/></td>
-                                <td colspan="3"></td>
-                            </tr>
-                            <tr class="table-primary font-weight-bold">
-                                <td colspan="3">📦 Tổng đã tạo</td>
-                                <td>${totalCreatedQuantity}</td>
-                                <td><fmt:formatNumber value="${totalCreatedPrice}" type="number" groupingUsed="true"/></td>
-                                <td colspan="3"></td>
-                            </tr>
-                            <tr class="table-danger font-weight-bold">
-                                <td colspan="3">🧮 Còn lại</td>
-                                <td>${realRemainingQuantity}</td>
-                                <td><fmt:formatNumber value="${realRemainingPrice}" type="number" groupingUsed="true"/></td>
-                                <td colspan="3"></td>
-                            </tr>
+
+                                <!-- Modal Hủy Giao Hàng -->
+                            <div class="modal fade" id="cancelModal${d.deliveryID}" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel${d.deliveryID}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <form action="cancel-delivery" method="post">
+                                        <input type="hidden" name="deliveryID" value="${d.deliveryID}" />
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="cancelModalLabel${d.deliveryID}">Nhập lý do hủy giao hàng</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <textarea name="cancelReason" class="form-control" rows="4" placeholder="Nhập lý do hủy..." required></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                                <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </c:forEach>
+
+                        <tr class="table-info font-weight-bold">
+                            <td colspan="4">✅ Tổng đã giao</td>
+                            <td>${totalDeliveredQuantity}</td>
+                            <td><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/></td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr class="table-warning font-weight-bold">
+                            <td colspan="4">⏳ Đang chờ xác nhận</td>
+                            <td>${totalPendingQuantity}</td>
+                            <td><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/></td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr class="table-primary font-weight-bold">
+                            <td colspan="4">📦 Tổng đã tạo</td>
+                            <td>${totalCreatedQuantity}</td>
+                            <td><fmt:formatNumber value="${totalCreatedPrice}" type="number" groupingUsed="true"/></td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr class="table-danger font-weight-bold">
+                            <td colspan="4">🧮 Còn lại</td>
+                            <td>${realRemainingQuantity}</td>
+                            <td><fmt:formatNumber value="${realRemainingPrice}" type="number" groupingUsed="true"/></td>
+                            <td colspan="3"></td>
+                        </tr>
                         </tbody>
                     </table>
                 </c:when>

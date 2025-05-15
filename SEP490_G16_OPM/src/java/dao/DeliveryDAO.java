@@ -31,6 +31,7 @@ public class DeliveryDAO extends DBContext {
                 delivery.setDealerID(rs.getInt("DealerID"));
                 delivery.setDeliveryStatus(rs.getString("DeliveryStatus"));
                 delivery.setRecipientName(rs.getString("RecipientName"));
+                delivery.setPhone(rs.getString("Phone"));
                 delivery.setQuantity(rs.getInt("Quantity"));
                 delivery.setTotalPrice(rs.getDouble("TotalPrice"));
                 delivery.setCreatedAt(rs.getTimestamp("CreatedAt"));
@@ -131,19 +132,19 @@ public class DeliveryDAO extends DBContext {
         return 0;
     }
 
-    public int createDelivery(int orderId, int sellerId, int dealerId, String recipientName, int quantity, double totalPrice, String comments) {
-        String sql = "INSERT INTO Delivery (OrderID, SellerID, DealerID, RecipientName, Quantity, TotalPrice, Comments, DeliveryStatus, CreatedAt) "
+    public int createDelivery(int orderId, int sellerId, int dealerId, String recipientName, String phone, int quantity, double totalPrice, String comments) {
+        String sql = "INSERT INTO Delivery (OrderID, SellerID, DealerID, RecipientName, Phone, Quantity, TotalPrice, Comments, DeliveryStatus, CreatedAt) "
                 + "OUTPUT INSERTED.DeliveryID "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', GETDATE())";
-
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', GETDATE())";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             ps.setInt(2, sellerId);
             ps.setInt(3, dealerId);
             ps.setString(4, recipientName);
-            ps.setInt(5, quantity);
-            ps.setDouble(6, totalPrice);
-            ps.setString(7, comments);
+            ps.setString(5, phone);
+            ps.setInt(6, quantity);
+            ps.setDouble(7, totalPrice);
+            ps.setString(8, comments);
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -152,7 +153,7 @@ public class DeliveryDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return -1; // Thất bại
+        return -1;
     }
 
     public int getDealerIdByDeliveryId(int deliveryID) {
@@ -179,6 +180,18 @@ public class DeliveryDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean appendToDeliveryComments(int deliveryId, String note) {
+        String sql = "UPDATE Delivery SET comments = ISNULL(comments, '') + CHAR(13) + ? WHERE deliveryID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, note);
+            stm.setInt(2, deliveryId);
+            return stm.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean confirmDelivery(int deliveryID) {
@@ -260,7 +273,7 @@ public class DeliveryDAO extends DBContext {
         }
         return 0.0;
     }
-    
+
     public void updateDeliveriesStatus(List<Delivery> deliveries, String status) {
         var statement = batch("UPDATE Delivery SET DeliveryStatus = ? WHERE DeliveryID = ?");
         deliveries.forEach(delivery -> {
@@ -268,21 +281,22 @@ public class DeliveryDAO extends DBContext {
         });
         statement.execute();
     }
-    
+
     public List<Delivery> getReadyDeliveries() {
         return fetchAll(rs -> {
             Delivery delivery = new Delivery();
-                delivery.setDeliveryID(rs.getInt("DeliveryID"));
-                delivery.setOrderID(rs.getInt("OrderID"));
-                delivery.setSellerID(rs.getInt("SellerID"));
-                delivery.setDealerID(rs.getInt("DealerID"));
-                delivery.setDeliveryStatus(rs.getString("DeliveryStatus"));
-                delivery.setRecipientName(rs.getString("RecipientName"));
-                delivery.setQuantity(rs.getInt("Quantity"));
-                delivery.setTotalPrice(rs.getDouble("TotalPrice"));
-                delivery.setCreatedAt(rs.getTimestamp("CreatedAt"));
-                delivery.setComments(rs.getString("Comments"));
-                return delivery;
+            delivery.setDeliveryID(rs.getInt("DeliveryID"));
+            delivery.setOrderID(rs.getInt("OrderID"));
+            delivery.setSellerID(rs.getInt("SellerID"));
+            delivery.setDealerID(rs.getInt("DealerID"));
+            delivery.setDeliveryStatus(rs.getString("DeliveryStatus"));
+            delivery.setRecipientName(rs.getString("RecipientName"));
+            delivery.setPhone(rs.getString("Phone"));
+            delivery.setQuantity(rs.getInt("Quantity"));
+            delivery.setTotalPrice(rs.getDouble("TotalPrice"));
+            delivery.setCreatedAt(rs.getTimestamp("CreatedAt"));
+            delivery.setComments(rs.getString("Comments"));
+            return delivery;
         }, "SELECT * FROM Delivery WHERE DeliveryStatus = 'Pending' AND DATEDIFF(HOUR, GETDATE(), CreatedAt) >= 24");
     }
 }

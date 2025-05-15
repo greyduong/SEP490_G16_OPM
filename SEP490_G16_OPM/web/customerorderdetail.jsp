@@ -90,6 +90,17 @@
                                     </c:choose>
                                 </td>
                             </tr>
+                            <tr>
+                                <th>Ghi chú</th>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${not empty order.note}">
+                                            ${order.note}
+                                        </c:when>
+                                        <c:otherwise>-</c:otherwise>
+                                    </c:choose>
+                                </td>
+                            </tr>
                         </table>
 
                         <c:if test="${canCreateDelivery}">
@@ -110,13 +121,21 @@
                             <table class="table table-bordered text-center">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th>Mã</th><th>Trạng thái</th><th>Người nhận</th>
-                                        <th>Số lượng</th><th>Tổng giá (VND)</th><th>Ngày tạo</th><th>Ghi chú</th>
+                                        <th>STT</th>
+                                        <th>Mã</th>
+                                        <th>Trạng thái</th>
+                                        <th>Người nhận</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền (VND)</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Ghi chú</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    <c:forEach var="d" items="${deliveryList}">
+                                    <c:forEach var="d" items="${deliveryList}" varStatus="loop">
                                         <tr>
+                                            <td>${loop.index + 1}</td>
                                             <td>${d.deliveryID}</td>
                                             <td class="status-${d.deliveryStatus}">
                                                 <c:choose>
@@ -126,31 +145,33 @@
                                                     <c:otherwise>${d.deliveryStatus}</c:otherwise>
                                                 </c:choose>
                                             </td>
-
-                                            <td>${d.recipientName}</td>
+                                            <td>
+                                                ${d.recipientName} - ${d.phone}
+                                            </td>
                                             <td>${d.quantity}</td>
                                             <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true" /></td>
                                             <td><fmt:formatDate value="${d.createdAt}" pattern="dd/MM/yyyy HH:mm" /></td>
                                             <td>${d.comments}</td>
                                         </tr>
                                     </c:forEach>
+
                                     <tr class="table-info font-weight-bold">
-                                        <td colspan="3">✅ Tổng đã giao</td>
+                                        <td colspan="4">✅ Tổng đã giao</td>
                                         <td>${totalDeliveredQuantity}</td>
                                         <td colspan="3"><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                     <tr class="table-warning font-weight-bold">
-                                        <td colspan="3">⏳ Đang chờ xác nhận</td>
+                                        <td colspan="4">⏳ Đang chờ xác nhận</td>
                                         <td>${totalPendingQuantity}</td>
                                         <td colspan="3"><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                     <tr class="table-primary font-weight-bold">
-                                        <td colspan="3">📦 Tổng đã tạo</td>
+                                        <td colspan="4">📦 Tổng đã tạo</td>
                                         <td>${totalCreatedQuantity}</td>
                                         <td colspan="3"><fmt:formatNumber value="${totalCreatedPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                     <tr class="table-danger font-weight-bold">
-                                        <td colspan="3">🧮 Còn lại</td>
+                                        <td colspan="4">🧮 Còn lại</td>
                                         <td>${realRemainingQuantity}</td>
                                         <td colspan="3"><fmt:formatNumber value="${realRemainingPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
@@ -199,10 +220,21 @@
                                 <c:if test="${realRemainingQuantity > 0 || realRemainingPrice > 0}">
                                     <div class="form-group">
                                         <label>Tên người nhận:</label>
-                                        <input type="text" name="recipientName" class="form-control" value="${sessionScope.prevRecipient}" required />
+                                        <input type="text" name="recipientName" class="form-control"
+                                               value="${empty sessionScope.prevRecipient ? order.dealer.fullName : sessionScope.prevRecipient}" required />
                                         <c:if test="${not empty sessionScope.recipientError}">
                                             <div class="text-danger">${recipientError}</div>
                                             <c:remove var="recipientError" scope="session"/>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Số điện thoại người nhận:</label>
+                                        <input type="text" name="phone" class="form-control" maxlength="20"
+                                               value="${empty sessionScope.prevPhone ? order.dealer.phone : sessionScope.prevPhone}" required />
+                                        <c:if test="${not empty sessionScope.phoneError}">
+                                            <div class="text-danger">${phoneError}</div>
+                                            <c:remove var="phoneError" scope="session"/>
                                         </c:if>
                                     </div>
 

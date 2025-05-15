@@ -58,15 +58,19 @@
                                 <table class="table table-bordered text-center align-middle">
                                     <thead class="thead-dark">
                                         <tr>
-                                            <th>Sản phẩm</th>
-                                            <th>Số lượng</th><th>Tổng giá</th>
-
+                                            <th>STT</th>
+                                            <th>Chào bán</th>
+                                            <th>Số lượng</th>
+                                            <th>Tổng giá</th>
                                             <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <c:set var="index" value="${(currentPage - 1) * 3}" />
                                         <c:forEach var="cart" items="${cartList}">
+                                            <c:set var="index" value="${index + 1}" />
                                             <tr>
+                                                <td>${index}</td>
                                                 <td class="text-left">
                                                     <div class="d-flex align-items-center" style="gap: 10px;">
                                                         <img src="${cart.pigsOffer.imageURL}" alt="image" class="cart-item-image">
@@ -130,7 +134,8 @@
                                             </tr>
                                         </c:forEach>
                                     </tbody>
-                                </table>
+                                </table>    
+                                <p><strong>Tổng số đơn chào bán:</strong> ${totalItems}</p>
                             </div>
                             <!-- Phân trang giữ search & sort -->
                             <div class="shoping__cart__pagination text-center mt-4">
@@ -155,7 +160,6 @@
                         <span>Số lượng mua tối thiểu: <strong id="updateMin"></strong></span><br>
                         <span>Số lượng tối đa còn lại: <strong id="updateMax"></strong></span>
                     </p>
-
 
                     <form action="update-cart" method="post" id="updateCartForm">
                         <input type="hidden" name="cartId" id="modalCartId" />

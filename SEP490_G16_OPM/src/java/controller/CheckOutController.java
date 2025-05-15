@@ -126,7 +126,15 @@ public class CheckOutController extends HttpServlet {
 
             // Thêm đơn hàng
             orderDAO.insertOrder(user.getUserID(), offer.getSellerID(), offerId, quantity, totalPrice);
+            // Cập nhật số lượng sau checkout
             offerDAO.updateOfferQuantityAfterCheckout(offerId, quantity);
+
+            // Kiểm tra lại số lượng sau khi trừ
+            PigsOffer updatedOffer = offerDAO.getOfferById(offerId);
+            if (updatedOffer.getQuantity() == 0) {
+                // Cập nhật trạng thái chào bán thành ngưng bán
+                offerDAO.updateOfferStatus(offerId, "Unavailable");
+            }
 
             // Xoá cart
             cartDAO.deleteCartById(cartId);
