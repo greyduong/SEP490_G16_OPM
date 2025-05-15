@@ -84,6 +84,7 @@
                     <table class="table table-bordered text-center">
                         <thead class="thead-dark">
                             <tr>
+                                <th>STT</th>
                                 <th>
                                     Mã đơn
                                     <a href="myorders?sort=${nextOrderIdSort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-outline-light ml-1">
@@ -114,6 +115,7 @@
                                     </a>
                                 </th>
                                 <th>Trạng thái</th>
+                                <th>Ghi chú</th>
                                 <th>Ngày tạo
                                     <a href="myorders?sort=${nextCreatedAtSort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-outline-light ml-1">
                                         <c:choose>
@@ -135,8 +137,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="o" items="${page.data}">
+                            <c:set var="startIndex" value="${(page.pageNumber - 1) * page.pageSize}" />
+                            <c:forEach var="o" items="${page.data}" varStatus="status">
                                 <tr>
+                                    <td>${startIndex + status.index + 1}</td>
                                     <td>
                                         <form action="view-order-detail" method="get" class="d-inline">
                                             <input type="hidden" name="id" value="${o.orderID}" />
@@ -148,11 +152,16 @@
                                     <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
                                     <td class="status-${o.status}">
                                         <c:choose>
-                                            <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
+                                            <c:when test="${o.status == 'Pending'}">
+                                                Chờ xác nhận
+                                                <button type="button" class="btn btn-sm btn-danger ml-2" data-toggle="modal" data-target="#cancelOrderModal${o.orderID}">
+                                                    Hủy
+                                                </button>
+                                            </c:when>
                                             <c:when test="${o.status == 'Confirmed'}">
                                                 Đã xác nhận
                                                 <form action="deposit-order" method="post" class="depositForm d-inline ml-2">
-													<div class="hidden amount"><fmt:formatNumber value="${o.totalPrice * 0.01}" /></div>
+                                                    <div class="hidden amount"><fmt:formatNumber value="${o.totalPrice * 0.01}" /></div>
                                                     <input type="hidden" name="orderId" value="${o.orderID}" />
                                                     <input type="hidden" name="search" value="${param.search}" />
                                                     <input type="hidden" name="status" value="${param.status}" />
@@ -167,6 +176,14 @@
                                             <c:when test="${o.status == 'Deposited'}">Đã đặt cọc</c:when>
                                             <c:when test="${o.status == 'Completed'}">Hoàn thành</c:when>
                                             <c:otherwise>${o.status}</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty o.note}">
+                                                ${o.note}
+                                            </c:when>
+                                            <c:otherwise>-</c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td><fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy"/></td>
@@ -216,37 +233,68 @@
                 </nav>
             </c:if>
         </div>
-		<div id="depositModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<div class="modal-title font-bold">Xác nhận</div>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						Bạn có muốn đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> cho đơn này?
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-						<button id="depositModalConfirm" type="button" class="btn btn-primary">Xác nhận</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<script>
+        <div id="depositModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title font-bold">Xác nhận</div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn có muốn đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> cho đơn này?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button id="depositModalConfirm" type="button" class="btn btn-primary">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <c:forEach var="o" items="${page.data}">
+            <c:if test="${o.status == 'Pending'}">
+                <!-- Modal hủy đơn hàng -->
+                <div class="modal fade" id="cancelOrderModal${o.orderID}" tabindex="-1" role="dialog"
+                     aria-labelledby="cancelOrderModalLabel${o.orderID}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form action="cancel-order" method="post">
+                            <input type="hidden" name="orderId" value="${o.orderID}" />
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="cancelOrderModalLabel${o.orderID}">Lý do hủy đơn hàng #${o.orderID}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <textarea name="cancelReason" class="form-control" rows="4"
+                                              placeholder="Nhập lý do hủy..." required></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                    <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </c:if>
+        </c:forEach>
+
+        <script>
             $(".depositForm").on("submit", function (e) {
                 e.preventDefault();
-				const form = $(this);
-				$("#depositModalAmount").text(form.find(".amount").text());
+                const form = $(this);
+                $("#depositModalAmount").text(form.find(".amount").text());
                 $("#depositModal").modal();
-				$("#depositModalConfirm").on("click", function(e) {
-					e.preventDefault();
-					form.get(0).submit();
-				});
+                $("#depositModalConfirm").on("click", function (e) {
+                    e.preventDefault();
+                    form.get(0).submit();
+                });
             });
-		</script>
+        </script>
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>

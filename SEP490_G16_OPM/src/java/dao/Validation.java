@@ -206,6 +206,19 @@ public class Validation {
         return null;
     }
 
+    public static String validatePhone(String phone) {
+        if (isEmpty(phone)) {
+            return "Số điện thoại không được để trống.";
+        }
+        if (phone.length() > 20) {
+            return "Số điện thoại không được vượt quá 20 ký tự.";
+        }
+        if (!phone.matches("^\\+?\\d{5,19}$")) {
+            return "Số điện thoại chỉ được chứa số và có thể bắt đầu bằng dấu '+'.";
+        }
+        return null;
+    }
+
     public static String validateDeliveryQuantity(int quantity, int remainingQuantity) {
         if (quantity <= 0) {
             return "Số lượng phải lớn hơn 0.";
@@ -229,6 +242,33 @@ public class Validation {
     public static String validateDeliveryComment(String comment) {
         if (comment != null && comment.length() > 500) {
             return "Ghi chú không được vượt quá 500 ký tự.";
+        }
+        return null;
+    }
+
+    public static String validateCancelReason(String reason) {
+        if (isEmpty(reason)) {
+            return "Lý do hủy không được để trống.";
+        }
+        if (reason.length() > 255) {
+            return "Lý do hủy không được vượt quá 255 ký tự.";
+        }
+        if (!reason.matches("^(?!.* {2})[\\p{L}\\d ,.?!-]{1,}$")) {
+            return "Lý do hủy không hợp lệ (không được chứa ký tự đặc biệt lạ hoặc 2 dấu cách liên tiếp).";
+        }
+        return null;
+    }
+
+    public static String validateRejectReason(String reason) {
+        if (isEmpty(reason)) {
+            return "Lý do từ chối không được để trống.";
+        }
+        if (reason.length() > 255) {
+            return "Lý do từ chối không được vượt quá 255 ký tự.";
+        }
+        // Không chứa ký tự đặc biệt lạ và không có 2 khoảng trắng liên tiếp
+        if (!reason.matches("^(?!.* {2})[\\p{L}\\d ,.?!()-]{1,}$")) {
+            return "Lý do từ chối không hợp lệ (không được chứa ký tự đặc biệt lạ hoặc 2 dấu cách liên tiếp).";
         }
         return null;
     }

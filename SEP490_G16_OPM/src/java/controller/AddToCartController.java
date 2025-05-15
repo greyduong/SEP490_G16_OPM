@@ -13,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.PigsOffer;
 import model.User;
 
@@ -75,10 +76,11 @@ public class AddToCartController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
         try {
-
-            User user = (User) request.getSession().getAttribute("user");
-
             int userId = user.getUserID();
             int offerId = Integer.parseInt(request.getParameter("offerId"));
             int quantity = Integer.parseInt(request.getParameter("quantity"));
@@ -86,25 +88,35 @@ public class AddToCartController extends HttpServlet {
             PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
             PigsOffer pigsOffer = pigsOfferDAO.getOfferById(offerId);
 
-            if (!pigsOffer.getStatus().equals("Available")) {
-                request.getSession().setAttribute("msg", "Chào bán đã ngưng bán!");
+            if (pigsOffer == null || !"Available".equalsIgnoreCase(pigsOffer.getStatus())) {
+                session.setAttribute("msg", "Chào bán đã ngưng bán hoặc không tồn tại!");
                 response.sendRedirect("home");
                 return;
             }
 
-            if (pigsOffer.getMinQuantity() > quantity || quantity > pigsOffer.getQuantity()) {
-                request.getSession().setAttribute("msg", "Số lượng không phù hợp!");
+            if (quantity < pigsOffer.getMinQuantity() || quantity > pigsOffer.getQuantity()) {
+                session.setAttribute("msg", "Số lượng không phù hợp!");
                 response.sendRedirect("home");
                 return;
             }
 
             CartDAO cartDAO = new CartDAO();
             cartDAO.addToCart(userId, offerId, quantity);
-            response.sendRedirect("cart");
 
+            // Lấy tên offer để search
+            String offerName = pigsOffer.getName();
+
+            // Redirect sang giỏ hàng với search theo tên offer vừa thêm
+            String redirectUrl = "cart?search=" + java.net.URLEncoder.encode(offerName, "UTF-8");
+            response.sendRedirect(redirectUrl);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            session.setAttribute("msg", "Dữ liệu nhập không hợp lệ.");
+            response.sendRedirect("home");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Something went wrong.");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Có lỗi xảy ra trong quá trình xử lý.");
         }
     }
 

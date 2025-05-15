@@ -5,20 +5,12 @@
         <servlet-class>controller.HomePageController</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>PigsOfferDetailsController</servlet-name>
-        <servlet-class>controller.PigsOfferDetailsController</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ImageServlet</servlet-name>
         <servlet-class>controller.ImageServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>HomePageController</servlet-name>
         <url-pattern>/home</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>PigsOfferDetailsController</servlet-name>
-        <url-pattern>/PigsOfferDetails</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageServlet</servlet-name>

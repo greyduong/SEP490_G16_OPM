@@ -129,7 +129,8 @@ CREATE TABLE Orders (
     TotalPrice DECIMAL(15,2),
     Status NVARCHAR(20) DEFAULT 'Pending',
     CreatedAt DATETIME DEFAULT GETDATE(),
-    ProcessedDate DATETIME DEFAULT GETDATE()
+    ProcessedDate DATETIME DEFAULT GETDATE(),
+	Note NVARCHAR(MAX) NULL
 );
 
 CREATE TABLE Delivery (
@@ -138,7 +139,8 @@ CREATE TABLE Delivery (
     SellerID INT FOREIGN KEY REFERENCES UserAccount(UserID),  
     DealerID INT FOREIGN KEY REFERENCES UserAccount(UserID),  
     DeliveryStatus NVARCHAR(50) DEFAULT 'Pending', 
-    RecipientName NVARCHAR(100), 
+    RecipientName NVARCHAR(100),
+	Phone NVARCHAR(20),
     Quantity INT, 
     TotalPrice DECIMAL(15, 2), 
     CreatedAt DATETIME DEFAULT GETDATE(), 
@@ -268,37 +270,34 @@ VALUES
 (5, 2, 2);  
 
 
-INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
 VALUES
-(5, 4, 2, 2, 5, 25000000, 'Confirmed', GETDATE(), GETDATE()), 
-(5, 4, 2, 3, 8, 46400000, 'Pending',   GETDATE(), NULL), 
-(5, 4, 2, 4, 6, 24600000, 'Confirmed', GETDATE(), GETDATE()),
-(5, 4, 2, 5, 7, 24600000, 'Pending',   GETDATE(), NULL),
-(5, 4, 2, 6, 10, 24600000, 'Deposited', GETDATE(), GETDATE());
+(5, 4, 2, 2, 5, 25000000, 'Processing', GETDATE(), GETDATE(), N'Đơn đang được xử lý'),
+(5, 4, 2, 3, 8, 46400000, 'Pending',   GETDATE(), NULL, N'Đơn chờ xác nhận'),
+(5, 4, 2, 4, 6, 24600000, 'Processing', GETDATE(), GETDATE(), N'Đơn đang được xử lý'),
+(5, 4, 2, 5, 7, 24600000, 'Processing',   GETDATE(), NULL, N'Đơn đang được xử lý'),
+(5, 4, 2, 6, 10, 24600000, 'Deposited', GETDATE(), GETDATE(), N'Đơn đã đặt cọc');
 
-INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
 VALUES
-(5, 4, 2, 3, 3, 15000000, 'Confirmed', '2025-01-10', '2025-01-11'),
-(5, 4, 2, 4, 4, 18000000, 'Pending',   '2025-02-20', NULL),
-(5, 4, 2, 5, 2, 10000000, 'Deposited', '2025-03-01', '2025-03-02'),
-(5, 4, 2, 6, 8, 30000000, 'Confirmed', '2025-03-21', '2025-03-22'),
-(5, 4, 2, 7, 6, 24000000, 'Confirmed', '2025-04-05', '2025-04-06'),
-(5, 4, 2, 8, 9, 29000000, 'Pending',   '2025-04-25', NULL),
-(5, 4, 2, 9, 5, 27500000, 'Deposited', '2025-05-03', '2025-05-04'),
-(5, 4, 2, 10, 7, 26500000, 'Confirmed','2025-05-20', '2025-05-21'),
-(5, 4, 2, 11, 4, 25500000, 'Pending',  '2025-06-15', NULL);
+(5, 4, 2, 3, 3, 15000000, 'Confirmed', '2025-01-10', '2025-01-11', N'Đơn đã được xác nhận'),
+(5, 4, 2, 4, 4, 18000000, 'Pending',   '2025-02-20', NULL, N'Đơn chờ xác nhận'),
+(5, 4, 2, 5, 2, 10000000, 'Deposited', '2025-03-01', '2025-03-02', N'Đơn đã đặt cọc'),
+(5, 4, 2, 6, 8, 30000000, 'Confirmed', '2025-03-21', '2025-03-22', N'Đơn đã được xác nhận'),
+(5, 4, 2, 7, 6, 24000000, 'Confirmed', '2025-04-05', '2025-04-06', N'Đơn đã được xác nhận'),
+(5, 4, 2, 8, 9, 29000000, 'Pending',   '2025-04-25', NULL, N'Đơn chờ xác nhận'),
+(5, 4, 2, 9, 5, 27500000, 'Deposited', '2025-05-03', '2025-05-04', N'Đơn đã đặt cọc'),
+(5, 4, 2, 10, 7, 26500000, 'Confirmed','2025-05-07', '2025-05-21', N'Đơn đã được xác nhận'),
+(5, 4, 2, 11, 4, 25500000, 'Pending',  '2025-05-15', NULL, N'Đơn chờ xác nhận');
 
 
-
--- Insert Delivery records for different order statuses
-INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Quantity, TotalPrice, Comments)
+INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
 VALUES
-(1, 4, 5, 'In Transit', 'John Doe', 5, 25000000, 'Delivery in progress for confirmed order'),  -- OrderID 1
-(2, 4, 5, 'Delivered', 'Jane Smith', 8, 46400000, 'Order delivered to the dealer'),           -- OrderID 2
-(3, 4, 5, 'In Transit', 'Alice Johnson', 6, 24600000, 'Delivery in progress for confirmed order'),  -- OrderID 3
-(4, 4, 5, 'Pending', 'Bob Brown', 7, 24600000, 'Waiting for shipment approval'),    -- OrderID 4
-(5, 4, 5, 'Delivered', 'Charlie Wilson', 10, 24600000, 'Order has been delivered to the dealer');  -- OrderID 5
-
+(1, 4, 5, 'Pending', 'John Doe', '0909123456', 5, 25000000, 'Delivery in progress for confirmed order'),
+(2, 4, 5, 'Delivered', 'Jane Smith', '0909988776', 8, 46400000, 'Order delivered to the dealer'),
+(3, 4, 5, 'Pending', 'Alice Johnson', '0911223344', 6, 24600000, 'Delivery in progress for confirmed order'),
+(4, 4, 5, 'Pending', 'Bob Brown', '0911555666', 7, 24600000, 'Waiting for shipment approval'),
+(5, 4, 5, 'Delivered', 'Charlie Wilson', '0909778899', 10, 24600000, 'Order has been delivered to the dealer');
 
  
 

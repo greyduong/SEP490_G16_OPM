@@ -61,6 +61,7 @@ public class CreateDeliveryController extends HttpServlet {
 
         try {
             String recipientName = request.getParameter("recipientName");
+            String phone = request.getParameter("phone");
             String quantityStr = request.getParameter("quantity");
             String totalPriceStr = request.getParameter("totalPrice");
             String comments = request.getParameter("comments");
@@ -68,6 +69,7 @@ public class CreateDeliveryController extends HttpServlet {
             int dealerId = Integer.parseInt(request.getParameter("dealerID"));
 
             session.setAttribute("prevRecipient", recipientName);
+            session.setAttribute("prevPhone", phone);
             session.setAttribute("prevQuantity", quantityStr);
             session.setAttribute("prevTotalPrice", totalPriceStr);
             session.setAttribute("prevComment", comments);
@@ -110,6 +112,12 @@ public class CreateDeliveryController extends HttpServlet {
                 hasError = true;
             }
 
+            String phoneError = Validation.validatePhone(phone);
+            if (phoneError != null) {
+                session.setAttribute("phoneError", phoneError);
+                hasError = true;
+            }
+
             if (quantity > 0) {
                 String quantityError = Validation.validateDeliveryQuantity(quantity, remainingQty);
                 if (quantityError != null) {
@@ -141,10 +149,12 @@ public class CreateDeliveryController extends HttpServlet {
             session.removeAttribute("quantityError");
             session.removeAttribute("priceError");
             session.removeAttribute("commentError");
+            session.removeAttribute("phoneError");
 
-            int deliveryID = deliveryDAO.createDelivery(orderID, sellerId, dealerId, recipientName.trim(), quantity, totalPrice, comments);
+            int deliveryID = deliveryDAO.createDelivery(orderID, sellerId, dealerId, recipientName.trim(), phone.trim(), quantity, totalPrice, comments);
 
             session.removeAttribute("prevRecipient");
+            session.removeAttribute("prevPhone");
             session.removeAttribute("prevQuantity");
             session.removeAttribute("prevTotalPrice");
             session.removeAttribute("prevComment");
@@ -153,6 +163,8 @@ public class CreateDeliveryController extends HttpServlet {
                 if (!"Completed".equals(order.getStatus())) {
                     orderDAO.updateOrderStatus(orderID, "Processing");
                 }
+
+                orderDAO.updateOrderNote(orderID, "Đơn hàng đang được xử lý.");
 
                 UserDAO userDAO = new UserDAO();
                 User seller = userDAO.getUserById(sellerId);
@@ -167,6 +179,7 @@ public class CreateDeliveryController extends HttpServlet {
                         + "Người bán đã tạo một giao hàng mới cho đơn hàng #" + orderID + ".\n"
                         + "- Mã giao hàng: #" + deliveryID + "\n"
                         + "- Người nhận: " + recipientName + "\n"
+                        + "- SĐT người nhận: " + phone + "\n"
                         + "- Số lượng: " + quantity + "\n"
                         + "- Tổng giá trị: " + formattedPrice + "\n"
                         + "- Ghi chú: " + comments + "\n\n"
@@ -176,6 +189,7 @@ public class CreateDeliveryController extends HttpServlet {
                         + "Bạn đã tạo thành công một giao hàng mới cho đơn hàng #" + orderID + ".\n"
                         + "- Mã giao hàng: #" + deliveryID + "\n"
                         + "- Người nhận: " + recipientName + "\n"
+                        + "- SĐT người nhận: " + phone + "\n"
                         + "- Số lượng: " + quantity + "\n"
                         + "- Tổng giá trị: " + formattedPrice + "\n"
                         + "- Ghi chú: " + comments + "\n\n"

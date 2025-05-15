@@ -3,6 +3,7 @@ package controller;
 import dao.DeliveryDAO;
 import dao.OrderDAO;
 import dao.UserDAO;
+import dao.Validation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
@@ -41,6 +42,7 @@ public class CancelDeliveryController extends HttpServlet {
 
             String deliveryStatus = deliveryDAO.getDeliveryStatusById(deliveryID);
             String orderStatus = deliveryDAO.getOrderStatusByDeliveryId(deliveryID);
+            String cancelReason = request.getParameter("cancelReason");
 
             if (!"Pending".equalsIgnoreCase(deliveryStatus) || !"Processing".equalsIgnoreCase(orderStatus)) {
                 response.sendRedirect("view-order-detail?id=" + orderID + "&msg="
@@ -48,7 +50,20 @@ public class CancelDeliveryController extends HttpServlet {
                 return;
             }
 
+            String validationError = Validation.validateCancelReason(cancelReason);
+            if (validationError != null) {
+                response.sendRedirect("view-order-detail?id=" + orderID + "&msg="
+                        + URLEncoder.encode(validationError, "UTF-8"));
+                return;
+            }
+
+            String cleanedReason = cancelReason.trim().replaceAll("\\s{2,}", " ");
+
             boolean canceled = deliveryDAO.updateDeliveryStatus(deliveryID, "Canceled");
+            if (canceled) {
+                deliveryDAO.appendToDeliveryComments(deliveryID, "[HỦY] Lý do: " + cleanedReason);
+            }
+
             String msg;
             if (canceled) {
                 OrderDAO orderDAO = new OrderDAO();
@@ -69,13 +84,15 @@ public class CancelDeliveryController extends HttpServlet {
                 String contentForSeller = "Xin chào " + seller.getFullName() + ",\n\n"
                         + "Giao hàng (Mã giao hàng: #" + deliveryID + ") trong đơn hàng #" + orderID + " đã bị người mua hủy.\n"
                         + "- Số lượng: " + canceledQuantity + " con\n"
-                        + "- Tổng giá trị: " + formattedPrice + "\n\n"
+                        + "- Tổng giá trị: " + formattedPrice + "\n"
+                        + "- Lý do: " + cleanedReason + "\n\n"
                         + "Vui lòng kiểm tra đơn hàng trong hệ thống.\n\nOnline Pig Market.";
 
                 String contentForDealer = "Xin chào " + dealer.getFullName() + ",\n\n"
                         + "Bạn đã hủy thành công giao hàng (Mã giao hàng: #" + deliveryID + ") trong đơn hàng #" + orderID + ".\n"
                         + "- Số lượng: " + canceledQuantity + " con\n"
-                        + "- Tổng giá trị: " + formattedPrice + "\n\n"
+                        + "- Tổng giá trị: " + formattedPrice + "\n"
+                        + "- Lý do: " + cleanedReason + "\n\n"
                         + "Nếu đây không phải là bạn thực hiện, vui lòng liên hệ hỗ trợ ngay.\n\nOnline Pig Market.";
 
                 try {
@@ -100,7 +117,7 @@ public class CancelDeliveryController extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Handles delivery cancellation with notification.";
+        return "Handles delivery cancellation with validation and notification.";
     }
 
     @Override

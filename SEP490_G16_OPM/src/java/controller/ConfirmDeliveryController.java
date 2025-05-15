@@ -60,6 +60,7 @@ public class ConfirmDeliveryController extends HttpServlet {
             String msg;
 
             if (updated) {
+                orderDAO.updateOrderNote(orderID, "Đơn hàng đang được xử lý.");
                 Order order = orderDAO.getOrderById(orderID);
                 int deliveredQuantity = deliveryDAO.getTotalDeliveredQuantity(orderID);
                 double deliveredPrice = deliveryDAO.getTotalDeliveredPrice(orderID);
@@ -94,6 +95,7 @@ public class ConfirmDeliveryController extends HttpServlet {
 
                 if (deliveredQuantity >= order.getQuantity() && Math.abs(deliveredPrice - order.getTotalPrice()) < 0.001) {
                     orderDAO.updateOrderStatus(orderID, "Completed");
+                    orderDAO.updateOrderNote(orderID, "Đơn hàng đã hoàn tất.");
                     msg = "Giao hàng đã được xác nhận. Đơn hàng đã hoàn tất.";
 
                     String completedSubject = "Đơn hàng #" + orderID + " đã hoàn tất";

@@ -364,16 +364,18 @@ public class PigsOfferDAO extends DBContext {
         return count;
     }
 
-    //get offer by Id
     public PigsOffer getOfferById(int id) {
         PigsOffer offer = null;
-        String sql = "SELECT o.*, f.FarmName, u.FullName AS SellerName "
+        String sql = "SELECT o.*, "
+                + "f.FarmName, f.Location AS FarmLocation, f.Description AS FarmDescription, f.Status AS FarmStatus, "
+                + "u.FullName AS SellerName, u.Username, u.Email, u.Phone, u.Address, "
+                + "c.Name AS CategoryName "
                 + "FROM PigsOffer o "
                 + "JOIN Farm f ON o.FarmID = f.FarmID "
                 + "JOIN UserAccount u ON o.SellerID = u.UserID "
+                + "JOIN Category c ON o.CategoryID = c.CategoryID "
                 + "WHERE o.OfferID = ?";
-        try {
-            PreparedStatement stm = connection.prepareStatement(sql);
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, id);
             ResultSet rs = stm.executeQuery();
             if (rs.next()) {
@@ -395,12 +397,163 @@ public class PigsOfferDAO extends DBContext {
                 offer.setEndDate(rs.getDate("EndDate"));
                 offer.setStatus(rs.getString("Status"));
                 offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
+                // Set Farm
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                farm.setLocation(rs.getString("FarmLocation"));
+                farm.setDescription(rs.getString("FarmDescription"));
+                farm.setStatus(rs.getString("FarmStatus"));
+                offer.setFarm(farm);
+
+                // Set Seller
+                User seller = new User();
+                seller.setUserID(rs.getInt("SellerID"));
+                seller.setFullName(rs.getString("SellerName"));
+                seller.setUsername(rs.getString("Username"));
+                seller.setEmail(rs.getString("Email"));
+                seller.setPhone(rs.getString("Phone"));
+                seller.setAddress(rs.getString("Address"));
+                offer.setSeller(seller);
+
+                // Set Category
+                Category category = new Category();
+                category.setCategoryID(rs.getInt("CategoryID"));
+                category.setName(rs.getString("CategoryName"));
+                offer.setCategory(category);
             }
-            rs.close();
-            stm.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return offer;
+    }
+
+    public ArrayList<PigsOffer> getTop5OtherOffersByCategory(int categoryId, int excludeOfferId) {
+        ArrayList<PigsOffer> list = new ArrayList<>();
+        String sql = "SELECT TOP 5 o.*, "
+                + "f.FarmName, f.Location AS FarmLocation, f.Description AS FarmDescription, f.Status AS FarmStatus, "
+                + "u.FullName AS SellerName, u.Username, u.Email, u.Phone, u.Address, "
+                + "c.Name AS CategoryName "
+                + "FROM PigsOffer o "
+                + "JOIN Farm f ON o.FarmID = f.FarmID "
+                + "JOIN UserAccount u ON o.SellerID = u.UserID "
+                + "JOIN Category c ON o.CategoryID = c.CategoryID "
+                + "WHERE o.CategoryID = ? AND o.OfferID <> ? AND o.Status = 'Available' "
+                + "ORDER BY o.StartDate DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, categoryId);
+            stm.setInt(2, excludeOfferId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                PigsOffer offer = extractOfferFromResultSet(rs);
+                list.add(offer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public ArrayList<PigsOffer> getTop5OtherOffersByFarm(int farmId, int excludeOfferId) {
+        ArrayList<PigsOffer> list = new ArrayList<>();
+        String sql = "SELECT TOP 5 o.*, "
+                + "f.FarmName, f.Location AS FarmLocation, f.Description AS FarmDescription, f.Status AS FarmStatus, "
+                + "u.FullName AS SellerName, u.Username, u.Email, u.Phone, u.Address, "
+                + "c.Name AS CategoryName "
+                + "FROM PigsOffer o "
+                + "JOIN Farm f ON o.FarmID = f.FarmID "
+                + "JOIN UserAccount u ON o.SellerID = u.UserID "
+                + "JOIN Category c ON o.CategoryID = c.CategoryID "
+                + "WHERE o.FarmID = ? AND o.OfferID <> ? AND o.Status = 'Available' "
+                + "ORDER BY o.StartDate DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, farmId);
+            stm.setInt(2, excludeOfferId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                PigsOffer offer = extractOfferFromResultSet(rs);
+                list.add(offer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public ArrayList<PigsOffer> getTop5LatestOffers(int excludeOfferId) {
+        ArrayList<PigsOffer> list = new ArrayList<>();
+        String sql = "SELECT TOP 5 o.*, "
+                + "f.FarmName, f.Location AS FarmLocation, f.Description AS FarmDescription, f.Status AS FarmStatus, "
+                + "u.FullName AS SellerName, u.Username, u.Email, u.Phone, u.Address, "
+                + "c.Name AS CategoryName "
+                + "FROM PigsOffer o "
+                + "JOIN Farm f ON o.FarmID = f.FarmID "
+                + "JOIN UserAccount u ON o.SellerID = u.UserID "
+                + "JOIN Category c ON o.CategoryID = c.CategoryID "
+                + "WHERE o.OfferID <> ? AND o.Status = 'Available' "
+                + "ORDER BY o.CreatedAt DESC";
+
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, excludeOfferId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                PigsOffer offer = extractOfferFromResultSet(rs);
+                list.add(offer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    private PigsOffer extractOfferFromResultSet(ResultSet rs) throws Exception {
+        PigsOffer offer = new PigsOffer();
+        offer.setOfferID(rs.getInt("OfferID"));
+        offer.setSellerID(rs.getInt("SellerID"));
+        offer.setFarmID(rs.getInt("FarmID"));
+        offer.setCategoryID(rs.getInt("CategoryID"));
+        offer.setName(rs.getString("Name"));
+        offer.setPigBreed(rs.getString("PigBreed"));
+        offer.setQuantity(rs.getInt("Quantity"));
+        offer.setMinQuantity(rs.getInt("MinQuantity"));
+        offer.setMinDeposit(rs.getDouble("MinDeposit"));
+        offer.setRetailPrice(rs.getDouble("RetailPrice"));
+        offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+        offer.setDescription(rs.getString("Description"));
+        offer.setImageURL(rs.getString("ImageURL"));
+        offer.setStartDate(rs.getDate("StartDate"));
+        offer.setEndDate(rs.getDate("EndDate"));
+        offer.setStatus(rs.getString("Status"));
+        offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
+        // Farm
+        Farm farm = new Farm();
+        farm.setFarmID(rs.getInt("FarmID"));
+        farm.setFarmName(rs.getString("FarmName"));
+        farm.setLocation(rs.getString("FarmLocation"));
+        farm.setDescription(rs.getString("FarmDescription"));
+        farm.setStatus(rs.getString("FarmStatus"));
+        offer.setFarm(farm);
+
+        // Seller
+        User seller = new User();
+        seller.setUserID(rs.getInt("SellerID"));
+        seller.setFullName(rs.getString("SellerName"));
+        seller.setUsername(rs.getString("Username"));
+        seller.setEmail(rs.getString("Email"));
+        seller.setPhone(rs.getString("Phone"));
+        seller.setAddress(rs.getString("Address"));
+        offer.setSeller(seller);
+
+        // Category
+        Category category = new Category();
+        category.setCategoryID(rs.getInt("CategoryID"));
+        category.setName(rs.getString("CategoryName"));
+        offer.setCategory(category);
+
         return offer;
     }
 
@@ -473,6 +626,51 @@ public class PigsOfferDAO extends DBContext {
         }
     }
 
+    public void setOfferStatus(int offerId, String status) {
+        String sql = "UPDATE PigsOffer SET Status = ? WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, offerId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateOfferStatus(int offerId, String status) throws Exception {
+        String sql = "UPDATE PigsOffer SET Status = ? WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, offerId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void updateOfferQuantity(int offerId, int quantityToAdd) {
+        String sql = "UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, quantityToAdd);
+            ps.setInt(2, offerId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getOfferQuantity(int offerId) {
+        String sql = "SELECT Quantity FROM PigsOffer WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("Quantity");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public ArrayList<PigsOffer> getPagedPigsOffersWithSort(String sortOption, int page, int pageSize) {
         ArrayList<PigsOffer> list = new ArrayList<>();
         int offset = (page - 1) * pageSize;
@@ -488,6 +686,10 @@ public class PigsOfferDAO extends DBContext {
                     orderClause = "ORDER BY RetailPrice ASC";
                 case "price_desc" ->
                     orderClause = "ORDER BY RetailPrice DESC";
+                case "oldest" ->
+                    orderClause = "ORDER BY CreatedAt ASC";
+                case "newest" ->
+                    orderClause = "ORDER BY CreatedAt DESC";
             }
         }
 
@@ -543,7 +745,7 @@ public class PigsOfferDAO extends DBContext {
         }
 
         String orderClause;
-        if (sortOption == null) {
+        if (sortOption == null || sortOption.isEmpty()) {
             orderClause = "ORDER BY po.CreatedAt DESC ";
         } else {
             switch (sortOption) {
@@ -555,13 +757,17 @@ public class PigsOfferDAO extends DBContext {
                     orderClause = "ORDER BY po.RetailPrice ASC ";
                 case "price_desc" ->
                     orderClause = "ORDER BY po.RetailPrice DESC ";
+                case "oldest" ->
+                    orderClause = "ORDER BY po.CreatedAt ASC ";
+                case "newest" ->
+                    orderClause = "ORDER BY po.CreatedAt DESC ";
                 default ->
                     orderClause = "ORDER BY po.CreatedAt DESC ";
             }
         }
         sql.append(orderClause);
-
         sql.append("OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
         params.add(offset);
         params.add(pageSize);
 

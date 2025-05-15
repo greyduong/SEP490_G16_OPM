@@ -37,7 +37,7 @@ public class ViewFarmDetailController extends HttpServlet {
                 response.sendRedirect("home?error=farm-not-found");
                 return;
             }
-
+            // copy nguyên home  getDealerHomePage bỏ sang
             List<PigsOffer> offers = offerDAO.getOffersByFarmId(farmId);
 
             request.setAttribute("farm", farm);

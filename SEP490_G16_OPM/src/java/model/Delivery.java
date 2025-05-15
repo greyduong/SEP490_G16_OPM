@@ -11,13 +11,15 @@ import java.sql.Timestamp;
  * @author duong
  */
 public class Delivery {
-    private int deliveryID;          
-    private int orderID;            
-    private int sellerID;           
+
+    private int deliveryID;
+    private int orderID;
+    private int sellerID;
     private int dealerID;
-    private String deliveryStatus; 
-    private String recipientName; 
-    private int quantity;     
+    private String deliveryStatus;
+    private String recipientName;
+    private String phone;
+    private int quantity;
     private double totalPrice;
     private Timestamp createdAt;
     private String comments;
@@ -25,13 +27,14 @@ public class Delivery {
     public Delivery() {
     }
 
-    public Delivery(int deliveryID, int orderID, int sellerID, int dealerID, String deliveryStatus, String recipientName, int quantity, double totalPrice, Timestamp createdAt, String comments) {
+    public Delivery(int deliveryID, int orderID, int sellerID, int dealerID, String deliveryStatus, String recipientName, String phone, int quantity, double totalPrice, Timestamp createdAt, String comments) {
         this.deliveryID = deliveryID;
         this.orderID = orderID;
         this.sellerID = sellerID;
         this.dealerID = dealerID;
         this.deliveryStatus = deliveryStatus;
         this.recipientName = recipientName;
+        this.phone = phone;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.createdAt = createdAt;
@@ -84,6 +87,14 @@ public class Delivery {
 
     public void setRecipientName(String recipientName) {
         this.recipientName = recipientName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public int getQuantity() {

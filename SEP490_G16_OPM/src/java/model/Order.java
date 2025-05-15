@@ -21,6 +21,7 @@ public class Order {
     private String status;
     private Timestamp createdAt;
     private Timestamp processedDate;
+    private String note;
 
     private User dealer;
     private User seller;
@@ -54,6 +55,36 @@ public class Order {
         this.status = status;
         this.createdAt = createdAt;
         this.processedDate = processedDate;
+        this.dealer = dealer;
+        this.seller = seller;
+        this.pigsOffer = pigsOffer;
+        this.farm = farm;
+    }
+
+    public Order(int orderID, int dealerID, int sellerID, int offerID, int quantity, double totalPrice, String status, Timestamp createdAt, Timestamp processedDate, String note) {
+        this.orderID = orderID;
+        this.dealerID = dealerID;
+        this.sellerID = sellerID;
+        this.offerID = offerID;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.processedDate = processedDate;
+        this.note = note;
+    }
+
+    public Order(int orderID, int dealerID, int sellerID, int offerID, int quantity, double totalPrice, String status, Timestamp createdAt, Timestamp processedDate, String note, User dealer, User seller, PigsOffer pigsOffer, Farm farm) {
+        this.orderID = orderID;
+        this.dealerID = dealerID;
+        this.sellerID = sellerID;
+        this.offerID = offerID;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.processedDate = processedDate;
+        this.note = note;
         this.dealer = dealer;
         this.seller = seller;
         this.pigsOffer = pigsOffer;
@@ -130,6 +161,14 @@ public class Order {
 
     public void setProcessedDate(Timestamp processedDate) {
         this.processedDate = processedDate;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public User getDealer() {

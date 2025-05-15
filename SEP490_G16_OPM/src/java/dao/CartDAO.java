@@ -188,40 +188,48 @@ public class CartDAO extends DBContext {
     }
 
     public void addToCart(int userId, int offerId, int quantity) {
-        String sqlInfo = "SELECT o.Quantity, o.MinQuantity, ISNULL(c.Quantity, 0) AS CartQuantity "
-                + "FROM PigsOffer o LEFT JOIN Cart c ON o.OfferID = c.OfferID AND c.UserID = ? "
-                + "WHERE o.OfferID = ?";
-
+        String sqlOffer = "SELECT Quantity, MinQuantity FROM PigsOffer WHERE OfferID = ?";
+        String sqlCheck = "SELECT Quantity FROM Cart WHERE UserID = ? AND OfferID = ?";
         String sqlUpdate = "UPDATE Cart SET Quantity = ? WHERE UserID = ? AND OfferID = ?";
         String sqlInsert = "INSERT INTO Cart (UserID, OfferID, Quantity) VALUES (?, ?, ?)";
 
-        try (PreparedStatement psInfo = connection.prepareStatement(sqlInfo)) {
-            psInfo.setInt(1, userId);
-            psInfo.setInt(2, offerId);
+        try (PreparedStatement psOffer = connection.prepareStatement(sqlOffer)) {
+            psOffer.setInt(1, offerId);
+            try (ResultSet rsOffer = psOffer.executeQuery()) {
+                if (rsOffer.next()) {
+                    int maxQuantity = rsOffer.getInt("Quantity");
+                    int minQuantity = rsOffer.getInt("MinQuantity");
 
-            try (ResultSet rs = psInfo.executeQuery()) {
-                if (rs.next()) {
-                    int offerQuantity = rs.getInt("Quantity");
-                    int minQuantity = rs.getInt("MinQuantity");
-                    int cartQuantity = rs.getInt("CartQuantity");
-
-                    if (quantity < minQuantity || cartQuantity > offerQuantity) {
+                    // Kiểm tra số lượng nhập vào có hợp lệ không
+                    if (quantity < minQuantity || quantity > maxQuantity) {
+                        // Không hợp lệ thì không thêm, có thể ném Exception hoặc log
+                        System.out.println("Quantity không hợp lệ: " + quantity);
                         return;
                     }
 
-                    if (cartQuantity > 0) {
-                        try (PreparedStatement psUpdate = connection.prepareStatement(sqlUpdate)) {
-                            psUpdate.setInt(1, quantity);
-                            psUpdate.setInt(2, userId);
-                            psUpdate.setInt(3, offerId);
-                            psUpdate.executeUpdate();
-                        }
-                    } else {
-                        try (PreparedStatement psInsert = connection.prepareStatement(sqlInsert)) {
-                            psInsert.setInt(1, userId);
-                            psInsert.setInt(2, offerId);
-                            psInsert.setInt(3, quantity);
-                            psInsert.executeUpdate();
+                    // Tiếp tục kiểm tra xem có trong cart chưa
+                    try (PreparedStatement psCheck = connection.prepareStatement(sqlCheck)) {
+                        psCheck.setInt(1, userId);
+                        psCheck.setInt(2, offerId);
+
+                        try (ResultSet rsCheck = psCheck.executeQuery()) {
+                            if (rsCheck.next()) {
+                                // Update cart với số lượng mới
+                                try (PreparedStatement psUpdate = connection.prepareStatement(sqlUpdate)) {
+                                    psUpdate.setInt(1, quantity);
+                                    psUpdate.setInt(2, userId);
+                                    psUpdate.setInt(3, offerId);
+                                    psUpdate.executeUpdate();
+                                }
+                            } else {
+                                // Insert mới vào cart
+                                try (PreparedStatement psInsert = connection.prepareStatement(sqlInsert)) {
+                                    psInsert.setInt(1, userId);
+                                    psInsert.setInt(2, offerId);
+                                    psInsert.setInt(3, quantity);
+                                    psInsert.executeUpdate();
+                                }
+                            }
                         }
                     }
                 }

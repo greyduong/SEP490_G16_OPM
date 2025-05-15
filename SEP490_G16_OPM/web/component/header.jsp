@@ -10,29 +10,38 @@
     <c:if test="${not empty sessionScope.user}">
         <div id="toggleSidebar" class="border border-slate-300 text-slate-600 rounded-sm px-2 py-1 hover:!border-slate-400 hover:text-slate-700 hover:cursor-pointer"><span class="mdi mdi-menu"></span></div>
         </c:if>
-    <a href="${pageContext.request.contextPath}/home"><img class="w-10 h-10" src="img/logo.svg"></a>
-    <div class="flex items-center gap-6">
-        <a href="${pageContext.request.contextPath}/home" class="header_link">
-            <span class="mdi mdi-home"></span>
-            Trang chủ
-        </a>
-        <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
-            <!-- Seller -->
-            <a href="${pageContext.request.contextPath}/my-farms" class="header_link">
-                <span class="mdi mdi-barn"></span>
-                Trang trại của tôi
-            </a>
-        </c:if>
-
         <c:if test="${sessionScope.user == null || sessionScope.user.roleID != 4}">
+        <a href="${pageContext.request.contextPath}/home"><img class="w-10 h-10" src="img/logo.svg"></a>
+        <div class="flex items-center gap-6">
+
             <!-- Guest, Dealer, Admin... -->
+            <a href="${pageContext.request.contextPath}/home" class="header_link">
+                <span class="mdi mdi-home"></span>
+                Trang chủ
+            </a>
             <a href="${pageContext.request.contextPath}/farms" class="header_link">
                 <span class="mdi mdi-barn"></span>
                 Trang trại
             </a>
-        </c:if>
+        </div>
+    </c:if>
+    <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
+        <a href="${pageContext.request.contextPath}/seller"><img class="w-10 h-10" src="img/logo.svg"></a>
+        <div class="flex items-center gap-6">
 
-    </div>
+            <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
+                <!-- Seller -->
+                <a href="${pageContext.request.contextPath}/seller" class="header_link">
+                    <span class="mdi mdi-home"></span>
+                    Trang chủ
+                </a>
+                <a href="${pageContext.request.contextPath}/my-farms" class="header_link">
+                    <span class="mdi mdi-barn"></span>
+                    Trang trại của tôi
+                </a>
+            </c:if>
+        </div>
+    </c:if>
     <div class="ml-auto flex items-center gap-2">
         <c:if test="${empty sessionScope.user}">
             <a href="${pageContext.request.contextPath}/login"

@@ -102,10 +102,11 @@ public class ConfirmOrderController extends HttpServlet {
                         request.getRequestDispatcher("orders-request").forward(request, response);
                         return;
                     }
-                    
+
                     boolean isUpdated = orderDAO.confirmOrder(orderID);
 
                     if (isUpdated) {
+                        orderDAO.updateOrderNote(orderID, "Đơn hàng đã được xác nhận.");
                         String toEmail = order.getDealer().getEmail();
                         String buyerName = order.getDealer().getFullName();
 
