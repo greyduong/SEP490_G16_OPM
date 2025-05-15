@@ -31,23 +31,23 @@
                 </div>
                 <div class="row featured__filter">
                     <c:forEach var="f" items="${farmList}">
-                        <div class="col-lg-3 col-md-4 col-sm-6 mix">
-                            <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="${f.imageURL}">
-                                    <ul class="featured__item__pic__hover">
-                                        <li>
-                                            <a href="farm-detail?id=${f.farmID}">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="featured__item__text">
-                                    <h6><a href="farm-detail?id=${f.farmID}">${f.farmName}</a></h6>
-                                    <p>Địa điểm: ${f.location}</p>
+                        <c:if test="${f.status == 'Active'}">
+                            <div class="col-lg-3 col-md-4 col-sm-6 mix">
+                                <div class="featured__item">
+                                    <a href="farm-detail?farmId=${f.farmID}">
+                                        <div class="featured__item__pic set-bg" data-setbg="${f.imageURL}">
+                                            <ul class="featured__item__pic__hover">
+                                                <li><i class="fa fa-eye"></i></li>
+                                            </ul>
+                                        </div>
+                                    </a>
+                                    <div class="featured__item__text">
+                                        <h6><a href="farm-detail?farmId=${f.farmID}">${f.farmName}</a></h6>
+                                        <p>Địa điểm: ${f.location}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </c:if>
                     </c:forEach>
 
                     <c:if test="${empty farmList}">
