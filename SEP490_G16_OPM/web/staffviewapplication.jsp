@@ -78,7 +78,7 @@
                                     </c:choose>
                                 </td>
                                 <td>
-                                    <c:if test="${application.status eq 'Pending'}">
+                                    <c:if test="${application.status eq 'Đang chờ xử lý'}">
                                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#applicationModal" data-id="${application.applicationID}" data-status="${application.status}" data-content="${application.content}">Xử lý</button>
                                     </c:if>
                                 </td>
