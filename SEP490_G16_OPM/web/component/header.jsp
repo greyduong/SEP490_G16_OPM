@@ -76,6 +76,7 @@
 <c:if test="${not empty sessionScope.user}">
     <div id="sidebar" class="z-99 w-60 duration-500 transition-all fixed top-0 pt-13 left-0 border-r border-slate-300 h-full bg-white overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
         <div class="mt-2 flex flex-col gap-2 p-2 *:overflow-x-hidden *:whitespace-nowrap *:transition-all *:font-medium *:text-md *:hover:!bg-slate-100 *:p-2 *:rounded-lg *:!text-slate-600 *:hover:!text-slate-700 *:!no-underline *:flex *:gap-2">
+            <!-- SELLER -->
             <c:if test="${sessionScope.user.roleID == 4}">
                 <a href="${pageContext.request.contextPath}/my-farms">
                     <span class="mdi mdi-barn"></span>
@@ -97,7 +98,12 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
+                <a href="${pageContext.request.contextPath}/CreateApplication">
+                    <span class="mdi mdi-invoice-list-outline"></span>
+                    Tạo đơn
+                </a>
             </c:if>
+            <!-- DEALER -->
             <c:if test="${sessionScope.user.roleID == 5}">
                 <a href="${pageContext.request.contextPath}/cart">
                     <span class="mdi mdi-cart"></span>
@@ -112,12 +118,21 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
+                <a href="${pageContext.request.contextPath}/CreateApplication">
+                    <span class="mdi mdi-invoice-list-outline"></span>
+                    Tạo đơn
+                </a>
             </c:if>
+            <!-- Manager -->
             <c:if test="${sessionScope.user.roleID == 2}">
                 <a href="${pageContext.request.contextPath}/pending-farms">
                     <span class="mdi mdi-barn"></span>
                     Trang trại chờ duyệt
-                </a>              
+                </a>
+                <a href="${pageContext.request.contextPath}/manage-application">
+                    <span class="mdi mdi-barn"></span>
+                    Quản lý đơn
+                </a> 
             </c:if>
         </div>
     </div>

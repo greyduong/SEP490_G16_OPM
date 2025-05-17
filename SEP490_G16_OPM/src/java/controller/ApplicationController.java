@@ -17,7 +17,9 @@ import model.User;
 public class ApplicationController extends HttpServlet {
 
     private boolean isAuthorized(HttpSession session) {
-        if (session == null) return false;
+        if (session == null) {
+            return false;
+        }
         User user = (User) session.getAttribute("user");
         return user != null && (user.getRoleID() == 4 || user.getRoleID() == 5); // 2 = Staff, 3 = Manager
     }
@@ -33,57 +35,55 @@ public class ApplicationController extends HttpServlet {
         }
 
         User user = (User) session.getAttribute("user");
+
+        // Lấy tham số lọc
         String keyword = request.getParameter("keyword");
+        String status = request.getParameter("status");
+        String sortByDate = request.getParameter("sortByDate");
 
-        ApplicationDAO dao = new ApplicationDAO();
-        List<Application> applications;
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            applications = dao.searchByUserAndKeyword(user.getUserID(), keyword.trim());
-        } else {
-            applications = dao.getByUserId(user.getUserID());
+        // Chuyển trạng thái từ tiếng Anh sang tiếng Việt để khớp DB
+        if ("Pending".equals(status)) {
+            status = "Đang chờ xử lý";
+        } else if ("Confirmed".equals(status)) {
+            status = "Đã phê duyệt";
+        } else if ("Rejected".equals(status)) {
+            status = "Đã từ chối";
+        } else if ("Canceled".equals(status)) {
+            status = "Đã hủy";
         }
 
-        request.setAttribute("applicationList", applications);
-        request.getRequestDispatcher("viewapplication.jsp").forward(request, response);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-        if (!isAuthorized(session)) {
-            response.sendRedirect("home?error=access-denied");
-            return;
-        }
-
+        // Phân trang
+        int page = 1;
+        int pageSize = 5; // số lượng đơn mỗi trang
         try {
-            int applicationId = Integer.parseInt(request.getParameter("applicationId"));
-            String action = request.getParameter("action"); // approve or reject
-            String reply = request.getParameter("reply");
-
-            Application application = new Application();
-            application.setApplicationID(applicationId);
-            application.setStatus(action);
-            application.setReply(reply);
-            application.setProcessingDate(new Date());
-
-            ApplicationDAO dao = new ApplicationDAO();
-            boolean success = dao.updateApplication(application);
-
-            if (success) {
-                session.setAttribute("successMsg", "Cập nhật đơn đăng ký thành công.");
-            } else {
-                session.setAttribute("errorMsg", "Cập nhật đơn đăng ký thất bại.");
+            page = Integer.parseInt(request.getParameter("page"));
+            if (page < 1) {
+                page = 1;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            session.setAttribute("errorMsg", "Đã xảy ra lỗi trong quá trình xử lý đơn đăng ký.");
+            page = 1;
         }
 
-        // Always redirect to refresh the list and avoid form re-submission
-        response.sendRedirect("application");
+        ApplicationDAO dao = new ApplicationDAO();
+
+        // Lấy danh sách đơn theo trang
+        List<Application> applications = dao.getApplicationsByFilterPaged(
+                user.getUserID(), keyword, status, sortByDate, page, pageSize
+        );
+
+        // Tổng số đơn để tính tổng số trang
+        int total = dao.countApplicationsByFilter(user.getUserID(), keyword, status);
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+
+        // Trả về lại các giá trị gốc để giữ filter
+        request.setAttribute("applicationList", applications);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("keyword", request.getParameter("keyword"));  // giữ giá trị gốc
+        request.setAttribute("status", request.getParameter("status"));    // giữ giá trị gốc tiếng Anh
+        request.setAttribute("sortByDate", sortByDate);
+
+        request.getRequestDispatcher("viewapplication.jsp").forward(request, response);
     }
 
     @Override

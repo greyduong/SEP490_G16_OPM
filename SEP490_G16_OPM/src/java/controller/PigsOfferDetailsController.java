@@ -66,6 +66,7 @@ public class PigsOfferDetailsController extends HttpServlet {
         request.setAttribute("suggestedOffers", suggestedOffers);
         request.setAttribute("suggestedSource", suggestedSource);
         request.getRequestDispatcher("pigsofferdetails.jsp").forward(request, response);
+        
     }
 
     @Override

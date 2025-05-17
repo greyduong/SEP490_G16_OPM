@@ -12,7 +12,9 @@ import model.User;
 @WebFilter(urlPatterns = {
     "/manager-home",
     "/pending-farms",
-    "/process-farm"
+    "/process-farm",
+    "/StaffViewApplication"
+        
 })
 public class OnlyManagerFilter extends HttpFilter {
 

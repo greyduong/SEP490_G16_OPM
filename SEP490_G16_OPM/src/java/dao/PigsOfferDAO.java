@@ -980,9 +980,10 @@ public class PigsOfferDAO extends DBContext {
     public List<PigsOffer> getOffersByFarmWithFilter(int farmId, String keyword, String categoryName, String sort) throws Exception {
         List<PigsOffer> offers = new ArrayList<>();
 
-        StringBuilder sql = new StringBuilder("SELECT * FROM PigsOffer WHERE FarmID = ?");
+        StringBuilder sql = new StringBuilder("SELECT * FROM PigsOffer WHERE FarmID = ? AND Status = ?");
         List<Object> params = new ArrayList<>();
         params.add(farmId);
+        params.add("Available"); // ✅ chỉ lấy các offer đang mở bán
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             sql.append(" AND Name LIKE ?");

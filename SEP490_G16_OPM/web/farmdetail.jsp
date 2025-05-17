@@ -92,6 +92,7 @@
                 <h4 class="mb-3 text-center">Danh sách chào bán của ${farm.farmName}</h4>
             <div class="row featured__filter">
                 <c:forEach var="o" items="${offers}">
+                    
                     <div class="col-lg-3 col-md-4 col-sm-6 mix fresh-meat">
                         <div class="featured__item">
                             <div class="featured__item__pic set-bg position-relative" data-setbg="${o.imageURL}">
