@@ -54,13 +54,29 @@
                         </c:if>
                     </div>
 
-                    <div class="form-group">
-                        <label for="status">Trạng thái hoạt động</label>
-                        <select name="statusOption" id="status" class="form-control" required>
-                            <option value="Active" ${farm.status == 'Active' ? 'selected' : ''}>Hoạt động</option>
-                            <option value="Inactive" ${farm.status == 'Inactive' ? 'selected' : ''}>Dừng hoạt động</option>
-                        </select>
-                    </div>
+                    <c:choose>
+                        <c:when test="${farm.status == 'Active'}">
+                            <div class="form-group">
+                                <label for="status">Trạng thái hoạt động</label>
+                                <select name="statusOption" id="status" class="form-control" required>
+                                    <option value="Active" selected>Hoạt động</option>
+                                    <option value="Inactive">Dừng hoạt động</option>
+                                </select>
+                            </div>
+                        </c:when>
+                        <c:when test="${farm.status == 'Inactive'}">
+                            <div class="form-group">
+                                <label for="status">Trạng thái hoạt động</label>
+                                <select name="statusOption" id="status" class="form-control" required>
+                                    <option value="Inactive" selected>Dừng hoạt động</option>
+                                    <option value="Active">Hoạt động</option>
+                                </select>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <input type="hidden" name="statusOption" value="${farm.status}" />
+                        </c:otherwise>
+                    </c:choose>
 
                     <div class="form-group">
                         <label for="image">Ảnh trang trại</label><br>

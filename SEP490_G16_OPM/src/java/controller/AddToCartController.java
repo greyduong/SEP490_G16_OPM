@@ -94,6 +94,13 @@ public class AddToCartController extends HttpServlet {
                 return;
             }
 
+            String status = pigsOffer.getStatus();
+            if ("Unavailable".equalsIgnoreCase(status) || "Upcoming".equalsIgnoreCase(status) || "Banned".equalsIgnoreCase(status)) {
+                request.setAttribute("error", "Chào bán này hiện không thể đặt hàng do đang ngưng bán hoặc bị cấm.");
+                request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);
+                return;
+            }
+
             if (quantity < pigsOffer.getMinQuantity() || quantity > pigsOffer.getQuantity()) {
                 session.setAttribute("msg", "Số lượng không phù hợp!");
                 response.sendRedirect("home");

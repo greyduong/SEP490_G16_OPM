@@ -86,6 +86,11 @@ public class UpdatePigsOfferController extends HttpServlet {
             Date endDate = Date.valueOf(request.getParameter("endDate"));
             String status = request.getParameter("status");
 
+            if ("Banned".equalsIgnoreCase(existing.getStatus())) {
+                response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Chào bán đã bị cấm và không thể chỉnh sửa.", "UTF-8"));
+                return;
+            }
+
             // Validate
             String nameError = Validation.validateOfferName(name);
             String breedError = Validation.validatePigBreed(pigBreed);
@@ -210,6 +215,7 @@ public class UpdatePigsOfferController extends HttpServlet {
             updated.setEndDate(endDate);
             updated.setImageURL(imageURL);
             updated.setStatus(status);
+            updated.setNote("Cập nhập ngày " + today.toString());
 
             boolean success = offerDAO.updatePigsOffer(updated);
 
