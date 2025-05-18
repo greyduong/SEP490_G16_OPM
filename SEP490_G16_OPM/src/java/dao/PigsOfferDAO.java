@@ -1078,6 +1078,14 @@ public class PigsOfferDAO extends DBContext {
         statement.execute();
     }
 
+    public void updateOffersStatus(List<PigsOffer> offers, String status, String note) {
+        var statement = batch("UPDATE PigsOffer SET Status = ?, Note = ? WHERE OfferID = ?");
+        offers.forEach(offer -> {
+            statement.params(status, note, offer.getOfferID());
+        });
+        statement.execute();
+    }
+
     public List<PigsOffer> getAvailableUpcomingOffers() {
         return fetchAll(rs -> {
             PigsOffer offer = new PigsOffer();

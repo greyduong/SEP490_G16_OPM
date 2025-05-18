@@ -10,6 +10,6 @@ public class ProcessOfferTask implements Runnable {
         var upcoming = db.getAvailableUpcomingOffers();
         db.updateOffersStatus(upcoming, "Available");
         var expired = db.getExpiredOffers();
-        db.updateOffersStatus(expired, "Unavailable");
+        db.updateOffersStatus(expired, "Unavailable", "Hết hạn");
     }
 }
