@@ -111,7 +111,7 @@
                                                     <form method="post" action="process-offer" class="form-inline justify-content-center">
                                                         <input type="hidden" name="id" value="${offer.offerID}" />
                                                         <input type="hidden" name="action" value="ban" />
-                                                        <input type="text" name="note" class="form-control form-control-sm mr-2" placeholder="Lý do ban" required style="max-width: 140px;" />
+                                                        <input type="text" name="note" class="form-control form-control-sm mr-2" placeholder="Lý do cấm.." required style="max-width: 140px;" />
                                                         <input type="hidden" name="page" value="${page.pageNumber}" />
                                                         <input type="hidden" name="farmId" value="${param.farmId}" />
                                                         <input type="hidden" name="search" value="${param.search}" />

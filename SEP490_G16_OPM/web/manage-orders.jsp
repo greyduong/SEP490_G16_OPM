@@ -148,7 +148,11 @@
                             <c:forEach var="o" items="${orders}" varStatus="loop">
                                 <tr>
                                     <td>${(page - 1) * 10 + loop.index + 1}</td>
-                                    <td><a href="manage-order-details?id=${o.orderID}">${o.orderID}</a></td>
+                                    <td>
+                                        <a href="#" class="text-primary" data-toggle="modal" data-target="#orderModal${o.orderID}">
+                                            ${o.orderID}
+                                        </a>
+                                    </td>                            
                                     <td>${o.pigsOffer.name}</td>
                                     <td>${o.quantity}</td>
                                     <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /></td>
@@ -182,21 +186,137 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <c:if test="${o.status == 'Deposited' || o.status == 'In Delivery'}">
-                                            <form action="manage-order-details" method="get">
-                                                <input type="hidden" name="id" value="${o.orderID}" />
-                                                <input type="hidden" name="openCreateDelivery" value="true" />
-                                                <button type="submit" class="btn btn-sm btn-primary">Giao hàng</button>
+                                        <c:if test="${o.status == 'Pending'}">
+                                            <form action="process-order" method="post" class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+                                                <input type="hidden" name="orderId" value="${o.orderID}" />
+                                                <input type="text" name="reason" class="form-control form-control-sm"
+                                                       placeholder="Lý do huỷ..." required style="max-width: 180px;" />
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn huỷ đơn hàng này không?');">
+                                                    Huỷ đơn
+                                                </button>
                                             </form>
                                         </c:if>
                                     </td>
                                 </tr>
+
                             </c:forEach>
                         </tbody>
                     </table>
                 </div>
             </c:if>
+            <c:if test="${not empty orders}">
+                <!-- Modal Chi Tiết Đơn Hàng -->
+                <c:forEach var="o" items="${orders}">
+                    <div class="modal fade" id="orderModal${o.orderID}" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title text-primary">Chi tiết đơn hàng #${o.orderID}</h5>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
 
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <!-- Cột TRÁI -->
+                                        <div class="col-md-6 pr-md-4 border-right">
+                                            <h6 class="text-uppercase mb-3">Chào bán</h6>
+                                            <ul class="list-unstyled ml-2">
+                                                <li><strong>Tên:</strong> ${o.pigsOffer.name}</li>
+                                                <li><strong>Số lượng:</strong> ${o.pigsOffer.quantity} con</li>
+                                                <li><strong>Giá bán lẻ:</strong> 
+                                                    <fmt:formatNumber value="${o.pigsOffer.retailPrice}" type="number" groupingUsed="true" /> đ
+                                                </li>
+                                                <li><strong>Thời gian:</strong>
+                                                    <fmt:formatDate value="${o.pigsOffer.startDate}" pattern="dd/MM/yyyy" /> – 
+                                                    <fmt:formatDate value="${o.pigsOffer.endDate}" pattern="dd/MM/yyyy" />
+                                                </li>
+                                            </ul>
+
+                                            <h6 class="text-uppercase mt-4 mb-3">Trang trại</h6>
+                                            <ul class="list-unstyled ml-2">
+                                                <li><strong>Tên:</strong> ${o.pigsOffer.farm.farmName}</li>
+                                                <li><strong>Địa điểm:</strong> ${o.pigsOffer.farm.location}</li>
+                                            </ul>
+
+                                            <h6 class="text-uppercase mt-4 mb-3">Người mua</h6>
+                                            <ul class="list-unstyled ml-2">
+                                                <li><strong>Họ tên:</strong> ${o.dealer.fullName}</li>
+                                                <li><strong>SĐT:</strong> ${o.dealer.phone}</li>
+                                                <li><strong>Địa chỉ:</strong> ${o.dealer.address}</li>
+                                            </ul>
+
+                                            <h6 class="text-uppercase mt-4 mb-3">Người bán</h6>
+                                            <ul class="list-unstyled ml-2">
+                                                <li><strong>Họ tên:</strong> ${o.seller.fullName}</li>
+                                                <li><strong>SĐT:</strong> ${o.seller.phone}</li>
+                                                <li><strong>Địa chỉ:</strong> ${o.seller.address}</li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Cột PHẢI -->
+                                        <div class="col-md-6 pl-md-4">
+                                            <h6 class="text-uppercase mb-3">Thông tin đơn hàng</h6>
+                                            <ul class="list-unstyled ml-2">
+                                                <li><strong>Trạng thái:</strong> <span class="status-${o.status}">${o.status}</span></li>
+                                                <li><strong>Ngày tạo:</strong> 
+                                                    <fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy HH:mm" />
+                                                </li>
+                                                <li><strong>Ngày xử lý:</strong>
+                                                    <c:choose>
+                                                        <c:when test="${not empty o.processedDate}">
+                                                            <fmt:formatDate value="${o.processedDate}" pattern="dd/MM/yyyy HH:mm" />
+                                                        </c:when>
+                                                        <c:otherwise>-</c:otherwise>
+                                                    </c:choose>
+                                                </li>
+                                                <li><strong>Số lượng đặt:</strong> ${o.quantity} con</li>
+                                                <li><strong>Tổng giá:</strong> 
+                                                    <fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /> đ
+                                                </li>
+                                                <li><strong>Ghi chú:</strong> <c:out value="${o.note}" default="-" /></li>
+                                            </ul>
+
+                                            <h6 class="text-uppercase mt-4 mb-3">Lịch sử giao hàng</h6>
+                                            <c:choose>
+                                                <c:when test="${not empty o.deliveries}">
+                                                    <div style="max-height: 250px; overflow-y: auto;">
+                                                        <table class="table table-sm table-bordered">
+                                                            <thead class="thead-light">
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Ngày giao</th>
+                                                                    <th>Số lượng</th>
+                                                                    <th>Giá trị</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <c:forEach var="d" items="${o.deliveries}" varStatus="i">
+                                                                    <tr>
+                                                                        <td>${i.index + 1}</td>
+                                                                        <td><fmt:formatDate value="${d.createdAt}" pattern="dd/MM/yyyy" /></td>
+                                                                        <td>${d.quantity}</td>
+                                                                        <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true" /></td>
+                                                                    </tr>
+                                                                </c:forEach>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise><p class="ml-2">Chưa có giao hàng nào.</p></c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
+            </c:if>
             <div class="text-right mb-2">
                 <small>
                     Hiển thị từ <strong>${(page - 1) * 10 + 1}</strong> đến

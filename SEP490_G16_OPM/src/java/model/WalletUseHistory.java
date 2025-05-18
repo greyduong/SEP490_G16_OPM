@@ -1,11 +1,14 @@
 package model;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class WalletUseHistory {
     private long transactionID;
     private int userID;
     private long amount;
+	private String note;
     private Timestamp createdAt;
 
     public long getTransactionID() {
@@ -39,4 +42,16 @@ public class WalletUseHistory {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+
+	public String getCreatedAtAsString(String pattern) {
+        return new SimpleDateFormat(pattern).format(new Date(createdAt.getTime()));
+    }
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
 }

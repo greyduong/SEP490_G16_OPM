@@ -163,7 +163,7 @@
                                     <c:if test="${o.status == 'Pending'}">
                                         <form action="confirm-order" method="post" class="d-inline">
                                             <input type="hidden" name="orderID" value="${o.orderID}" />
-                                            <button type="submit" class="btn btn-success btn-sm">Xác nhận</button>
+											<button data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
                                         </form>
                                         <!-- Nút mở modal -->
                                         <button type="button" class="btn btn-outline-danger btn-sm ml-1"
@@ -288,7 +288,7 @@
                                                 <c:if test="${o.status == 'Pending'}">
                                                     <form action="confirm-order" method="post" class="d-inline">
                                                         <input type="hidden" name="orderID" value="${o.orderID}" />
-                                                        <button type="submit" class="btn btn-success">Xác nhận</button>
+                                                        <button data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
                                                     </form>
                                                     <!-- Nút mở modal từ chối -->
                                                     <button type="button" class="btn btn-outline-danger btn-sm ml-1" data-toggle="modal" data-target="#rejectModal${o.orderID}">
@@ -311,46 +311,42 @@
         </div>
 
         <script>
-            document.querySelectorAll("form").forEach(form => {
-                form.addEventListener("submit", function () {
-                    // Nếu đã có overlay, không tạo thêm
-                    if (document.getElementById("loading-overlay"))
-                        return;
+            $("form").on("submit", function () {
+                // Nếu đã có overlay, không tạo thêm
+                if (document.getElementById("loading-overlay"))
+                    return;
 
-                    // Tạo overlay
-                    const overlay = document.createElement("div");
-                    overlay.id = "loading-overlay"; // Gán ID để xử lý sau
-                    overlay.style.position = "fixed";
-                    overlay.style.top = 0;
-                    overlay.style.left = 0;
-                    overlay.style.width = "100%";
-                    overlay.style.height = "100%";
-                    overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
-                    overlay.style.display = "flex";
-                    overlay.style.justifyContent = "center";
-                    overlay.style.alignItems = "center";
-                    overlay.style.zIndex = 9999;
+                // Tạo overlay
+                const overlay = document.createElement("div");
+                overlay.id = "loading-overlay"; // Gán ID để xử lý sau
+                overlay.style.position = "fixed";
+                overlay.style.top = 0;
+                overlay.style.left = 0;
+                overlay.style.width = "100%";
+                overlay.style.height = "100%";
+                overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+                overlay.style.display = "flex";
+                overlay.style.justifyContent = "center";
+                overlay.style.alignItems = "center";
+                overlay.style.zIndex = 9999;
 
-                    // Tạo nội dung loading
-                    const spinner = document.createElement("div");
-                    spinner.innerHTML = `
+                // Tạo nội dung loading
+                const spinner = document.createElement("div");
+                spinner.innerHTML = `
             <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
                 <span class="sr-only">Loading...</span>
             </div>
             <div class="text-white mt-3">Đang xử lý, vui lòng chờ...</div>
         `;
-                    spinner.style.textAlign = "center";
+                spinner.style.textAlign = "center";
 
-                    overlay.appendChild(spinner);
-                    document.body.appendChild(overlay);
-                });
+                overlay.appendChild(spinner);
+                document.body.appendChild(overlay);
             });
-
             // Khi back lại, xóa overlay nếu còn tồn tại
             window.addEventListener("pageshow", function () {
                 const overlay = document.getElementById("loading-overlay");
-                if (overlay)
-                    overlay.remove();
+                if (overlay) overlay.remove();
             });
         </script>
 
@@ -382,6 +378,39 @@
             </c:if>
         </c:forEach>
 
+        <div id="depositModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-title font-bold">Xác nhận</div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Bạn cần đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> để xác nhận đơn hàng này.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button id="depositModalConfirm" type="button" class="btn btn-primary">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(".confirmButton").on("click", function (e) {
+                e.preventDefault();
+                const btn = $(this);
+                const amount = btn.attr("data-deposit");
+                $("#depositModalAmount").text(amount);
+                $("#depositModal").modal();
+                $("#depositModalConfirm").on("click", function (e) {
+                    e.preventDefault();
+                    btn.parent().submit();
+                });
+            });
+        </script>
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>

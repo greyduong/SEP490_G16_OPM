@@ -772,6 +772,35 @@ public class PigsOfferDAO extends DBContext {
         return false;
     }
 
+    public void cancelPendingOrdersByOfferId(int offerId, String reason) throws Exception {
+        // 1. Cancel deliveries thuộc các đơn hàng Pending của offer
+        String cancelDeliveriesSql = """
+        UPDATE d
+        SET d.Status = 'Canceled'
+        FROM Delivery d
+        JOIN Orders o ON d.OrderID = o.OrderID
+        WHERE o.OfferID = ? AND o.Status = 'Pending'
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(cancelDeliveriesSql)) {
+            ps.setInt(1, offerId);
+            ps.executeUpdate();
+        }
+
+        // 2. Cancel các đơn hàng Pending của offer
+        String cancelOrdersSql = """
+        UPDATE Orders
+        SET Status = 'Canceled', Note = ?
+        WHERE OfferID = ? AND Status = 'Pending'
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(cancelOrdersSql)) {
+            ps.setString(1, reason);
+            ps.setInt(2, offerId);
+            ps.executeUpdate();
+        }
+    }
+
     public void updateOfferQuantityAfterCheckout(int offerId, int purchasedQuantity) {
         String sql = "UPDATE PigsOffer SET Quantity = Quantity - ? WHERE OfferID = ?";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -1074,6 +1103,14 @@ public class PigsOfferDAO extends DBContext {
         var statement = batch("UPDATE PigsOffer SET Status = ? WHERE OfferID = ?");
         offers.forEach(offer -> {
             statement.params(status, offer.getOfferID());
+        });
+        statement.execute();
+    }
+
+    public void updateOffersStatus(List<PigsOffer> offers, String status, String note) {
+        var statement = batch("UPDATE PigsOffer SET Status = ?, Note = ? WHERE OfferID = ?");
+        offers.forEach(offer -> {
+            statement.params(status, note, offer.getOfferID());
         });
         statement.execute();
     }

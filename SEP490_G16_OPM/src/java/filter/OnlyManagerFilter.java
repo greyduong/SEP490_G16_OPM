@@ -17,6 +17,7 @@ import model.User;
     "/manage-offers",
     "/process-offer",
     "/manage-orders",
+    "/process-order",
     "/manage-application",
     "/StaffViewApplication"
 })

@@ -9,7 +9,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import model.User;
 
-@WebFilter(urlPatterns = {})
+@WebFilter(urlPatterns = {
+    "/staff",
+    "/pending-farms",
+    "/process-farm",
+    "/manage-application",
+    "/StaffViewApplication"})
 public class OnlyStaffFilter extends HttpFilter {
 
     @Override

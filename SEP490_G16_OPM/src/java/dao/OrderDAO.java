@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import model.Delivery;
 import model.Farm;
 import model.Order;
 import model.OrderStat;
@@ -30,9 +31,10 @@ public class OrderDAO extends DBContext {
         SELECT o.OrderID, o.DealerID, o.SellerID, o.OfferID, o.Quantity, o.TotalPrice,
                o.Status, o.Note, o.CreatedAt, o.ProcessedDate,
                p.Name AS OfferName, p.RetailPrice, p.Quantity AS OfferQuantity,
-               f.FarmID, f.FarmName,
-               u.FullName AS DealerName, u.Phone AS DealerPhone,
-               us.FullName AS SellerName, us.Phone AS SellerPhone
+               p.StartDate, p.EndDate, p.ImageURL,
+               f.FarmID, f.FarmName, f.Location AS FarmLocation,
+               u.FullName AS DealerName, u.Phone AS DealerPhone, u.Address AS DealerAddress,
+               us.FullName AS SellerName, us.Phone AS SellerPhone, us.Address AS SellerAddress
         FROM Orders o
         JOIN PigsOffer p ON o.OfferID = p.OfferID
         JOIN Farm f ON p.FarmID = f.FarmID
@@ -59,37 +61,33 @@ public class OrderDAO extends DBContext {
             params.add(farmId);
         }
 
-        // Sắp xếp
-        if (sort == null) {
-            sort = ""; // hoặc "createdat_desc" nếu bạn muốn mặc định
-        }
-
-        String orderBy = " ORDER BY o.CreatedAt DESC ";
-        switch (sort) {
+        // Order By
+        String orderBy = switch (sort != null ? sort : "") {
             case "orderid_asc" ->
-                orderBy = " ORDER BY o.OrderID ASC ";
+                " ORDER BY o.OrderID ASC ";
             case "orderid_desc" ->
-                orderBy = " ORDER BY o.OrderID DESC ";
+                " ORDER BY o.OrderID DESC ";
             case "quantity_asc" ->
-                orderBy = " ORDER BY o.Quantity ASC ";
+                " ORDER BY o.Quantity ASC ";
             case "quantity_desc" ->
-                orderBy = " ORDER BY o.Quantity DESC ";
+                " ORDER BY o.Quantity DESC ";
             case "totalprice_asc" ->
-                orderBy = " ORDER BY o.TotalPrice ASC ";
+                " ORDER BY o.TotalPrice ASC ";
             case "totalprice_desc" ->
-                orderBy = " ORDER BY o.TotalPrice DESC ";
+                " ORDER BY o.TotalPrice DESC ";
             case "createdat_asc" ->
-                orderBy = " ORDER BY o.CreatedAt ASC ";
+                " ORDER BY o.CreatedAt ASC ";
             case "createdat_desc" ->
-                orderBy = " ORDER BY o.CreatedAt DESC ";
+                " ORDER BY o.CreatedAt DESC ";
             case "processeddate_asc" ->
-                orderBy = " ORDER BY o.ProcessedDate ASC ";
+                " ORDER BY o.ProcessedDate ASC ";
             case "processeddate_desc" ->
-                orderBy = " ORDER BY o.ProcessedDate DESC ";
-        }
+                " ORDER BY o.ProcessedDate DESC ";
+            default ->
+                " ORDER BY o.CreatedAt DESC ";
+        };
 
         sql.append(orderBy);
-
         sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ");
         params.add(offset);
         params.add(pageSize);
@@ -100,6 +98,8 @@ public class OrderDAO extends DBContext {
             }
 
             ResultSet rs = stm.executeQuery();
+            DeliveryDAO deliveryDAO = new DeliveryDAO(); // cần truyền connection nếu dùng connection field
+
             while (rs.next()) {
                 Order o = new Order();
                 o.setOrderID(rs.getInt("OrderID"));
@@ -113,11 +113,12 @@ public class OrderDAO extends DBContext {
                 o.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 o.setProcessedDate(rs.getTimestamp("ProcessedDate"));
 
-                // Dealer
+                // Buyer
                 User dealer = new User();
                 dealer.setUserID(rs.getInt("DealerID"));
                 dealer.setFullName(rs.getString("DealerName"));
                 dealer.setPhone(rs.getString("DealerPhone"));
+                dealer.setAddress(rs.getString("DealerAddress"));
                 o.setDealer(dealer);
 
                 // Seller
@@ -125,23 +126,32 @@ public class OrderDAO extends DBContext {
                 seller.setUserID(rs.getInt("SellerID"));
                 seller.setFullName(rs.getString("SellerName"));
                 seller.setPhone(rs.getString("SellerPhone"));
+                seller.setAddress(rs.getString("SellerAddress"));
                 o.setSeller(seller);
 
-                // PigsOffer
+                // Offer
                 PigsOffer offer = new PigsOffer();
                 offer.setOfferID(rs.getInt("OfferID"));
                 offer.setName(rs.getString("OfferName"));
                 offer.setRetailPrice(rs.getDouble("RetailPrice"));
                 offer.setQuantity(rs.getInt("OfferQuantity"));
+                offer.setStartDate(rs.getDate("StartDate"));
+                offer.setEndDate(rs.getDate("EndDate"));
+                offer.setImageURL(rs.getString("ImageURL"));
 
                 // Farm
                 Farm farm = new Farm();
                 farm.setFarmID(rs.getInt("FarmID"));
                 farm.setFarmName(rs.getString("FarmName"));
+                farm.setLocation(rs.getString("FarmLocation"));
                 offer.setFarm(farm);
                 o.setFarm(farm);
 
                 o.setPigsOffer(offer);
+
+                // Delivery
+                List<Delivery> deliveries = deliveryDAO.getDeliveriesByOrderId(o.getOrderID());
+                o.setDeliveries(deliveries);
 
                 orderList.add(o);
             }
@@ -945,6 +955,48 @@ public class OrderDAO extends DBContext {
         return list;
     }
 
+    public boolean doesOrderExist(int orderId) throws Exception {
+        String sql = "SELECT 1 FROM Orders WHERE OrderID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public String getOrderStatus(int orderId) throws Exception {
+        String sql = "SELECT Status FROM Orders WHERE OrderID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Status");
+                }
+            }
+        }
+        return null;
+    }
+
+    public void cancelOrderAndDeliveries(int orderId, String reason) throws Exception {
+        // 1. Cancel deliveries của đơn hàng
+        String cancelDeliveriesSql = "UPDATE Delivery SET Status = 'Canceled' WHERE OrderID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(cancelDeliveriesSql)) {
+            ps.setInt(1, orderId);
+            ps.executeUpdate();
+        }
+
+        // 2. Cancel đơn hàng và ghi chú
+        String cancelOrderSql = "UPDATE Orders SET Status = 'Canceled', Note = ? WHERE OrderID = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(cancelOrderSql)) {
+            ps.setString(1, reason);
+            ps.setInt(2, orderId);
+            ps.executeUpdate();
+        }
+    }
+
     public int getOrderQuantity(int orderId) {
         String sql = "SELECT Quantity FROM Orders WHERE OrderID = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -1028,6 +1080,16 @@ public class OrderDAO extends DBContext {
         var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?");
         orders.forEach(order -> {
             statement.params(order.getOrderID());
+            statement2.params(order.getQuantity(), order.getOfferID());
+        });
+        return statement.execute() != null && statement2.execute() != null;
+    }
+
+    public boolean cancelOrders(List<Order> orders, String note) {
+        var statement = batch("UPDATE Orders SET Status = 'Canceled', Note = ? WHERE OrderID = ?");
+        var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?");
+        orders.forEach(order -> {
+            statement.params(note, order.getOrderID());
             statement2.params(order.getQuantity(), order.getOfferID());
         });
         return statement.execute() != null && statement2.execute() != null;

@@ -105,7 +105,7 @@
                                             <td>
                                                 <c:choose>
                                                     <c:when test="${farm.offerCount > 0}">
-                                                        <a href="my-offers?farmId=${farm.farmID}" class="text-primary">${farm.offerCount}</a>
+                                                        <a href="manage-offers?farmId=${farm.farmID}" class="text-primary">${farm.offerCount}</a>
                                                     </c:when>
                                                     <c:otherwise>${farm.offerCount}</c:otherwise>
                                                 </c:choose>

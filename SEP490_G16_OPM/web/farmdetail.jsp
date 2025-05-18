@@ -22,9 +22,7 @@
                         <div class="ps-3">
                             <h4 class="mb-2"><strong>${farm.farmName}</strong></h4>
                             <p><strong>Địa điểm:</strong> ${farm.location}</p>
-                            <p><strong>Mô tả:</strong> ${farm.description}</p>
-                            <p><strong>Ghi chú:</strong> ${farm.note}</p>
-                            <p><strong>Trạng thái:</strong> ${farm.status}</p>
+                            <p><strong>Mô tả:</strong> ${farm.description}</p>                         
                             <p><strong>Ngày tạo:</strong> ${farm.createdAt}</p>
 
                         </div>
