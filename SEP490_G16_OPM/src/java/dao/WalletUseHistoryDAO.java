@@ -33,7 +33,7 @@ public class WalletUseHistoryDAO extends DBContext {
 			User u = new User();
 			u.setWallet(rs.getDouble("Wallet"));
 			return u;
-		}, "SELECT * FROM UserAccount WHERE UserID = ?");
+		}, "SELECT * FROM UserAccount WHERE UserID = ?", userID);
 		// không tồn tại user
 		if (user == null) return false;
 		double wallet = user.getWallet();
@@ -42,7 +42,7 @@ public class WalletUseHistoryDAO extends DBContext {
 			return false;
 		}
 		// cập nhật tiền
-		executeUpdate("UPDATE UserAccount SET Wallet = Wallet - ? WHERE UserID = ?", userID);
+		executeUpdate("UPDATE UserAccount SET Wallet = Wallet - ? WHERE UserID = ?", amount, userID);
 		// tạo lịch sử giao dịch
 		WalletUseHistory h = new WalletUseHistory();
 		h.setUserID(userID);

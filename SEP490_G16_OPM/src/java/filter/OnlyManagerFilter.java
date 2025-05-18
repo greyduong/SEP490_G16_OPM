@@ -14,10 +14,10 @@ import model.User;
     "/manage-farms",
     "/pending-farms",
     "/process-farm",
-    "/manage-application",
     "/manage-offers",
     "/process-offer",
     "/manage-orders",
+    "/manage-application",
     "/StaffViewApplication"
 })
 
