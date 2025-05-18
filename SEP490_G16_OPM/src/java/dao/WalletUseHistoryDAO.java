@@ -8,7 +8,7 @@ import model.WalletUseHistory;
 public class WalletUseHistoryDAO extends DBContext {
 
 	public void create(WalletUseHistory history) {
-		executeUpdate("INSERT INTO WalletUseHistory(UserID, Amount) VALUES (?, ?)", history.getUserID(), history.getAmount());
+		executeUpdate("INSERT INTO WalletUseHistory(UserID, Amount, Note) VALUES (?, ?, ?)", history.getUserID(), history.getAmount(), history.getNote());
 	}
 
 	public Page<WalletUseHistory> getAll(int userID, int pageNumber) {
@@ -23,14 +23,18 @@ public class WalletUseHistoryDAO extends DBContext {
 			h.setAmount(rs.getLong("Amount"));
 			h.setNote(rs.getString("Note"));
 			return h;
-		}, "SELECT * FROM WalletTopupHistory WHERE UserID = ? ORDER BY CreatedAt DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY", userID, offset, itemsPerPage);
-		int totalItems = count("SELECT COUNT(*) FROM WalletTopupHistory WHERE UserID = ?", userID);
+		}, "SELECT * FROM WalletUseHistory WHERE UserID = ? ORDER BY CreatedAt DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY", userID, offset, itemsPerPage);
+		int totalItems = count("SELECT COUNT(*) FROM WalletUseHistory WHERE UserID = ?", userID);
 		int totalPages = totalItems / itemsPerPage + 1;
 		page.setData(data);
 		page.setPageSize(itemsPerPage);
 		page.setTotalData(totalItems);
 		page.setTotalPage(totalPages);
 		return page;
+	}
+
+	public boolean hasEnoughMoney(int userID, long amount) {
+		return fetchOne(rs -> new User(), "SELECT * FROM UserAccount WHERE UserID = ? AND Wallet >= ?", userID, amount) != null;
 	}
 
 	public boolean use(int userID, long amount) {

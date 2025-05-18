@@ -5,6 +5,7 @@
 package controller;
 
 import dao.OrderDAO;
+import dao.WalletUseHistoryDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -103,9 +104,17 @@ public class ConfirmOrderController extends HttpServlet {
                         return;
                     }
 
+					long amount = (long) (order.getTotalPrice() * 0.01);
+					var wallet = new WalletUseHistoryDAO();
+					if (!wallet.hasEnoughMoney(user.getUserID(), amount)) {
+                        request.setAttribute("msg", "Không đủ tiền trong ví!");
+                        request.getRequestDispatcher("orders-request").forward(request, response);
+						return;
+					}
                     boolean isUpdated = orderDAO.confirmOrder(orderID);
 
                     if (isUpdated) {
+						wallet.use(user.getUserID(), amount, "Xác nhận đơn hàng #%s".formatted(order.getOrderID()));
                         orderDAO.updateOrderNote(orderID, "Đơn hàng đã được xác nhận.");
                         String toEmail = order.getDealer().getEmail();
                         String buyerName = order.getDealer().getFullName();
