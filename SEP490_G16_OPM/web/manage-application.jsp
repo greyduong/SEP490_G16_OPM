@@ -1,13 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%
-    model.User user = (model.User) session.getAttribute("user");
-    if (user == null || (user.getRoleID() != 2 && user.getRoleID() != 3)) {
-        response.sendRedirect("login-register.jsp?error=access-denied");
-        return;
-    }
-%>
+
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -20,6 +14,44 @@
     <body>
         <jsp:include page="component/library.jsp" />
         <jsp:include page="component/header.jsp" />
+        <!-- Modal xử lý đơn -->
+        <div class="modal fade" id="processModal" tabindex="-1" role="dialog" aria-labelledby="processModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form action="manage-application" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="processModalLabel">Xử lý đơn đăng ký</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="applicationID" id="modalApplicationID">
+
+                        <div class="form-group">
+                            <label>Nội dung đơn</label>
+                            <textarea class="form-control" id="modalContent" rows="2" readonly></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reply">Phản hồi</label>
+                            <textarea class="form-control" name="reply" id="reply" rows="3" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="status">Trạng thái</label>
+                            <select class="form-control" name="status" id="status" required>
+                                <option value="Đã phê duyệt">Phê duyệt</option>
+                                <option value="Đã từ chối">Từ chối</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Gửi xử lý</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <c:if test="${not empty sessionScope.successMsg}">
             <div class="alert alert-success">${sessionScope.successMsg}</div>
@@ -65,15 +97,26 @@
                     <tbody>
                         <c:forEach var="application" items="${applicationList}">
                             <tr>
+                                <!-- Mục đích -->
                                 <td>${application.content}</td>
+
+                                <!-- Ngày gửi -->
                                 <td><fmt:formatDate value="${application.sentAt}" pattern="dd/MM/yyyy" /></td>
+
+                                <!-- Tệp đính kèm -->
                                 <td>
                                     <c:if test="${not empty application.file}">
-                                        <a href="download?file=${application.file}&id=${application.applicationID}">Tải về</a>
+                                        <a href="${pageContext.request.contextPath}/${application.file}" target="_blank">Xem ảnh</a>
                                     </c:if>
-                                    <c:if test="${empty application.file}">Không có tệp</c:if>
-                                    </td>
-                                    <td>${application.status}</td>
+                                    <c:if test="${empty application.file}">
+                                        Không có ảnh đính kèm
+                                    </c:if>
+                                </td>
+
+                                <!-- Trạng thái -->
+                                <td>${application.status}</td>
+
+                                <!-- Ngày xử lý -->
                                 <td>
                                     <c:choose>
                                         <c:when test="${not empty application.processingDate}">
@@ -82,10 +125,25 @@
                                         <c:otherwise>-</c:otherwise>
                                     </c:choose>
                                 </td>
+
+                                <!-- Phản hồi -->
                                 <td>
                                     <c:choose>
-                                        <c:when test="${not empty application.reply}">${application.reply}</c:when>
-                                        <c:otherwise><span class="text-muted">Chưa có phản hồi</span></c:otherwise>
+                                        <c:when test="${application.status == 'Đang chờ xử lý'}">
+                                            <button type="button" class="btn btn-sm btn-primary"
+                                                    data-toggle="modal"
+                                                    data-target="#processModal"
+                                                    data-id="${application.applicationID}"
+                                                    data-content="${application.content}">
+                                                Xử lý
+                                            </button>
+                                        </c:when>
+                                        <c:when test="${not empty application.reply}">
+                                            ${application.reply}
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="text-muted">Chưa có phản hồi</span>
+                                        </c:otherwise>
                                     </c:choose>
                                 </td>
                             </tr>
@@ -114,5 +172,18 @@
         <jsp:include page="component/footer.jsp" />
         <script src="js/bootstrap.min.js"></script>
         <script src="js/main.js"></script>
+        <script>
+                        $('#processModal').on('show.bs.modal', function (event) {
+                            var button = $(event.relatedTarget);
+                            var appId = button.data('id');
+                            var content = button.data('content');
+
+                            var modal = $(this);
+                            modal.find('#modalApplicationID').val(appId);
+                            modal.find('#modalContent').val(content);
+                            modal.find('#reply').val('');
+                            modal.find('#status').val('Đã phê duyệt');
+                        });
+        </script>
     </body>
 </html>

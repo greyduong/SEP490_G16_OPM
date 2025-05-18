@@ -6,7 +6,6 @@ import model.User;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.Date;
 
@@ -20,21 +19,15 @@ import jakarta.servlet.http.Part;
 
 @WebServlet(name = "CreateApplication", urlPatterns = {"/CreateApplication"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-        maxFileSize = 1024 * 1024 * 10,       // 10MB
-        maxRequestSize = 1024 * 1024 * 50     // 50MB
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50 // 50MB
 )
 public class CreateApplication extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         request.getRequestDispatcher("createapplication.jsp").forward(request, response);
     }
 
@@ -44,13 +37,13 @@ public class CreateApplication extends HttpServlet {
 
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
-            response.sendRedirect("login-register.jsp");
+            response.sendRedirect("home?error=access-denied");
             return;
         }
 
         int userID = user.getUserID();
         String content = request.getParameter("content");
-        String status = "Pending";
+        String status = "Đang chờ xử lý";
         Date sentAt = new Date();
         Date processingDate = null;
         String filePath = null;
@@ -62,36 +55,39 @@ public class CreateApplication extends HttpServlet {
             return;
         }
 
-        // ✅ Handle file upload
-        Part filePart = request.getPart("file");
-        if (filePart != null && filePart.getSize() > 0) {
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            String contentType = filePart.getContentType();
+        // ✅ Handle image upload
+        Part imagePart = request.getPart("image");
+        if (imagePart != null && imagePart.getSize() > 0) {
+            String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
+            String contentType = imagePart.getContentType();
 
-            // ✅ MIME type validation
-            if (!contentType.matches("application/pdf|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document|image/png|image/jpeg")) {
-                request.setAttribute("msg", "Chỉ cho phép file PDF, Word, PNG hoặc JPG.");
+            // ✅ Check file type
+            if (!contentType.startsWith("image/")) {
+                request.setAttribute("imageURLError", "Chỉ cho phép tệp hình ảnh (JPG, PNG).");
                 request.getRequestDispatcher("createapplication.jsp").forward(request, response);
                 return;
             }
 
-            if (filePart.getSize() > 10 * 1024 * 1024) {
-                request.setAttribute("msg", "File không được vượt quá 10MB.");
+            if (imagePart.getSize() > 10 * 1024 * 1024) {
+                request.setAttribute("imageURLError", "Ảnh không được vượt quá 10MB.");
                 request.getRequestDispatcher("createapplication.jsp").forward(request, response);
                 return;
             }
 
-            // ✅ Save to img/applications/
+            // ✅ Save file to img/applications/
             String uploadDir = getServletContext().getRealPath("/") + "img" + File.separator + "applications";
             File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
 
             String fullPath = uploadDir + File.separator + fileName;
-            filePart.write(fullPath);
-            filePath = "img/applications/" + fileName;
+            imagePart.write(fullPath);
+
+            filePath = "img/applications/" + fileName; // Path to store in DB
         }
 
-        // ✅ Create application object
+        // ✅ Create and save application
         Application newApp = new Application(userID, content.trim(), null, status, sentAt, processingDate, filePath);
         ApplicationDAO dao = new ApplicationDAO();
         boolean isCreated = dao.createApplication(newApp);
@@ -107,6 +103,6 @@ public class CreateApplication extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Xử lý tạo đơn đề nghị";
+        return "Xử lý tạo đơn đề nghị với ảnh";
     }
 }

@@ -13,7 +13,7 @@ import model.User;
     "/manager-home",
     "/pending-farms",
     "/process-farm",
-    "/StaffViewApplication"
+    "/manage-application"
         
 })
 public class OnlyManagerFilter extends HttpFilter {

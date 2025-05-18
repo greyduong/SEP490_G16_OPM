@@ -69,6 +69,39 @@ public class ManageApplicationController extends HttpServlet {
     }
 
     @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+
+        
+
+        String idRaw = request.getParameter("applicationID");
+        String reply = request.getParameter("reply");
+        String status = request.getParameter("status");
+
+        if (idRaw == null || reply == null || status == null
+                || reply.trim().isEmpty() || status.trim().isEmpty()) {
+            session.setAttribute("errorMsg", "Vui lòng nhập đầy đủ thông tin.");
+            response.sendRedirect("manage-application");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idRaw);
+            ApplicationDAO dao = new ApplicationDAO();
+            dao.updateApplicationStatus(id, reply.trim(), status.trim(), new java.sql.Timestamp(System.currentTimeMillis()));
+            session.setAttribute("successMsg", "Xử lý đơn thành công.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.setAttribute("errorMsg", "Lỗi khi xử lý đơn.");
+        }
+
+        response.sendRedirect("manage-application");
+    }
+
+    @Override
     public String getServletInfo() {
         return "Hiển thị danh sách đơn đăng ký cho Staff/Manager với phân trang và lọc";
     }

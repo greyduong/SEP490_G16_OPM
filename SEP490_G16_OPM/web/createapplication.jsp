@@ -2,13 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%
-    model.User user = (model.User) session.getAttribute("user");
-    if (user == null || (user.getRoleID() != 4 && user.getRoleID() != 5)) {
-        response.sendRedirect("home?error=access-denied");
-        return;
-    }
-%>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -17,6 +11,15 @@
         <title>Tạo đơn đề nghị - Chợ Heo Trực Tuyến</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <jsp:include page="component/library.jsp" />
+        <style>
+            #imagePreview {
+                display: none;
+                max-width: 300px;
+                margin-top: 10px;
+                border: 1px solid #ccc;
+                padding: 5px;
+            }
+        </style>
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
@@ -33,8 +36,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="file">Tệp đính kèm (không bắt buộc)</label>
-                        <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+                        <label for="image">Ảnh đơn</label>
+                        <input type="file" id="image" name="image" accept="image/*" class="form-control" onchange="previewImage(event)">
+                        <img id="imagePreview" src="#" alt="Ảnh xem trước" />
+                        <c:if test="${not empty imageURLError}">
+                            <small class="text-danger">${imageURLError}</small>
+                        </c:if>
                     </div>
 
                     <button type="submit" class="site-btn">Gửi đơn đề nghị</button>
@@ -47,5 +54,17 @@
         </section>
 
         <jsp:include page="component/footer.jsp" />
+
+        <script>
+            function previewImage(event) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var output = document.getElementById('imagePreview');
+                    output.src = reader.result;
+                    output.style.display = 'block';
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        </script>
     </body>
 </html>
