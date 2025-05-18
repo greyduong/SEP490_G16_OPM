@@ -25,7 +25,7 @@ public class OnlyManagerOrStaffFilter extends HttpFilter {
         }
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.getRoleID());
-        if (user.getRoleID() != 2 || user.getRoleID() != 3) {
+        if (user.getRoleID() != 2 && user.getRoleID() != 3) {
             response.sendRedirect(request.getContextPath() + "/home?error=403");
             return;
         }
