@@ -208,7 +208,7 @@
         window.location.href = "${pageContext.request.contextPath}/logout";
     });
 </script>
-<c:if test="${error == '403'}">
+<c:if test="${param.error == '403'}">
 <script>
 	alert("Bạn không có quyền làm điều này!");
 </script>
