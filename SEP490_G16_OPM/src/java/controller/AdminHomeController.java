@@ -10,8 +10,9 @@ import java.io.IOException;
 
 @WebServlet("/admin")
 public class AdminHomeController extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("admin.jsp").forward(req, resp);
-    }
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.sendRedirect(req.getContextPath() + "/manage-user");
+	}
 }
