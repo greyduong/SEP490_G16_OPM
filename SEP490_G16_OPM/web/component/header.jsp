@@ -179,8 +179,12 @@
         });
         $(window).on("load", function () {
 			const state = getSidebarState();
-			if (state) $("#sidebar").removeClass("hidden");
-			setSidebarState(state);
+			if (state) {
+				$("#sidebar").removeClass("hidden");
+                $("body > *:not(#header):not(#sidebar)").css({
+                    marginLeft: $("#sidebar").width() + "px"
+                });
+			}
         });
     </script>
 </c:if>
