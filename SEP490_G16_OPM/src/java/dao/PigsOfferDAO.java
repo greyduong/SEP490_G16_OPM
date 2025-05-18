@@ -37,6 +37,7 @@ public class PigsOfferDAO extends DBContext {
             pigsOffer.setStartDate(rs.getDate("StartDate"));
             pigsOffer.setEndDate(rs.getDate("EndDate"));
             pigsOffer.setStatus(rs.getString("Status"));
+            pigsOffer.setNote(rs.getString("Note"));
             pigsOffer.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
             return pigsOffer;
@@ -71,6 +72,7 @@ public class PigsOfferDAO extends DBContext {
                 offer.setStartDate(rs.getDate("StartDate"));
                 offer.setEndDate(rs.getDate("EndDate"));
                 offer.setStatus(rs.getString("Status"));
+                offer.setNote(rs.getString("Note"));
                 offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 list.add(offer);
             }
@@ -94,6 +96,142 @@ public class PigsOfferDAO extends DBContext {
 
         return list;
 
+    }
+
+    public Page<PigsOffer> getAllOffersWithFilter(String farmId, String search, String status,
+            String sort, int pageNumber, int pageSize) throws Exception {
+        Page<PigsOffer> page = new Page<>();
+        List<PigsOffer> list = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        int offset = (pageNumber - 1) * pageSize;
+
+        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 ");
+        if (farmId != null && !farmId.isEmpty()) {
+            whereClause.append(" AND p.FarmID = ?");
+            params.add(Integer.parseInt(farmId));
+        }
+        if (search != null && !search.isEmpty()) {
+            whereClause.append(" AND p.Name LIKE ?");
+            params.add("%" + search + "%");
+        }
+        if (status != null && !status.isEmpty()) {
+            whereClause.append(" AND p.Status = ?");
+            params.add(status);
+        }
+
+        String orderClause;
+        switch (sort != null ? sort : "") {
+            case "quantity_asc" ->
+                orderClause = " p.Quantity ASC ";
+            case "quantity_desc" ->
+                orderClause = " p.Quantity DESC ";
+            case "totalprice_asc" ->
+                orderClause = " p.TotalOfferPrice ASC ";
+            case "totalprice_desc" ->
+                orderClause = " p.TotalOfferPrice DESC ";
+            case "order_asc" ->
+                orderClause = " ISNULL(o.OrderCount, 0) ASC ";
+            case "order_desc" ->
+                orderClause = " ISNULL(o.OrderCount, 0) DESC ";
+            case "enddate_asc" ->
+                orderClause = " p.EndDate ASC ";
+            case "enddate_desc" ->
+                orderClause = " p.EndDate DESC ";
+            default ->
+                orderClause = " p.CreatedAt DESC ";
+        }
+
+        String sql = """
+        SELECT p.*, 
+               u.UserID AS SellerUserID, u.FullName AS SellerName,
+               f.FarmID AS FarmID, f.FarmName, f.Location, f.Status AS FarmStatus,
+               c.CategoryID AS CatID, c.Name AS CategoryName,
+               ISNULL(o.OrderCount, 0) AS OrderCount
+        FROM PigsOffer p
+        JOIN UserAccount u ON p.SellerID = u.UserID
+        JOIN Farm f ON p.FarmID = f.FarmID
+        JOIN Category c ON p.CategoryID = c.CategoryID
+        LEFT JOIN (
+            SELECT OfferID, COUNT(*) AS OrderCount
+            FROM Orders
+            GROUP BY OfferID
+        ) o ON p.OfferID = o.OfferID
+        """ + whereClause + " ORDER BY " + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        String countSql = "SELECT COUNT(*) FROM PigsOffer p " + whereClause;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            int i = 1;
+            for (Object param : params) {
+                ps.setObject(i++, param);
+            }
+            ps.setInt(i++, offset);
+            ps.setInt(i, pageSize);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    PigsOffer offer = new PigsOffer();
+
+                    offer.setOfferID(rs.getInt("OfferID"));
+                    offer.setSellerID(rs.getInt("SellerID"));
+                    offer.setFarmID(rs.getInt("FarmID"));
+                    offer.setCategoryID(rs.getInt("CategoryID"));
+                    offer.setName(rs.getString("Name"));
+                    offer.setPigBreed(rs.getString("PigBreed"));
+                    offer.setQuantity(rs.getInt("Quantity"));
+                    offer.setMinQuantity(rs.getInt("MinQuantity"));
+                    offer.setMinDeposit(rs.getDouble("MinDeposit"));
+                    offer.setRetailPrice(rs.getDouble("RetailPrice"));
+                    offer.setTotalOfferPrice(rs.getDouble("TotalOfferPrice"));
+                    offer.setDescription(rs.getString("Description"));
+                    offer.setImageURL(rs.getString("ImageURL"));
+                    offer.setStartDate(rs.getDate("StartDate"));
+                    offer.setEndDate(rs.getDate("EndDate"));
+                    offer.setStatus(rs.getString("Status"));
+                    offer.setNote(rs.getString("Note"));
+                    offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
+
+                    offer.setOrderCount(rs.getInt("OrderCount"));
+
+                    User seller = new User();
+                    seller.setUserID(rs.getInt("SellerUserID"));
+                    seller.setFullName(rs.getString("SellerName"));
+                    offer.setSeller(seller);
+
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setStatus(rs.getString("FarmStatus"));
+                    offer.setFarm(farm);
+
+                    Category category = new Category();
+                    category.setCategoryID(rs.getInt("CatID"));
+                    category.setName(rs.getString("CategoryName"));
+                    offer.setCategory(category);
+
+                    list.add(offer);
+                }
+            }
+
+            try (PreparedStatement countPs = connection.prepareStatement(countSql)) {
+                for (i = 0; i < params.size(); i++) {
+                    countPs.setObject(i + 1, params.get(i));
+                }
+                try (ResultSet rs = countPs.executeQuery()) {
+                    if (rs.next()) {
+                        int total = rs.getInt(1);
+                        page.setTotalData(total);
+                        page.setTotalPage((int) Math.ceil((double) total / pageSize));
+                    }
+                }
+            }
+        }
+
+        page.setPageNumber(pageNumber);
+        page.setPageSize(pageSize);
+        page.setData(list);
+        return page;
     }
 
     public ArrayList<PigsOffer> getPagedPigsOffers(int page, int pageSize) {
@@ -127,6 +265,7 @@ public class PigsOfferDAO extends DBContext {
                 offer.setStartDate(rs.getDate("StartDate"));
                 offer.setEndDate(rs.getDate("EndDate"));
                 offer.setStatus(rs.getString("Status"));
+                offer.setNote(rs.getString("Note"));
                 offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 list.add(offer);
             }
@@ -248,6 +387,7 @@ public class PigsOfferDAO extends DBContext {
                     offer.setStartDate(rs.getDate("StartDate"));
                     offer.setEndDate(rs.getDate("EndDate"));
                     offer.setStatus(rs.getString("Status"));
+                    offer.setNote(rs.getString("Note"));
                     offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
                     offer.setOrderCount(rs.getInt("OrderCount"));
@@ -396,6 +536,7 @@ public class PigsOfferDAO extends DBContext {
                 offer.setStartDate(rs.getDate("StartDate"));
                 offer.setEndDate(rs.getDate("EndDate"));
                 offer.setStatus(rs.getString("Status"));
+                offer.setNote(rs.getString("Note"));
                 offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
                 // Set Farm
@@ -527,6 +668,7 @@ public class PigsOfferDAO extends DBContext {
         offer.setStartDate(rs.getDate("StartDate"));
         offer.setEndDate(rs.getDate("EndDate"));
         offer.setStatus(rs.getString("Status"));
+        offer.setNote(rs.getString("Note"));
         offer.setCreatedAt(rs.getTimestamp("CreatedAt"));
 
         // Farm
@@ -557,11 +699,10 @@ public class PigsOfferDAO extends DBContext {
         return offer;
     }
 
-    //create offer
     public boolean createPigsOffer(PigsOffer offer) {
         String sql = "INSERT INTO PigsOffer (SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, "
-                + "MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "MinDeposit, RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Status, Note) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, offer.getSellerID());
             stm.setInt(2, offer.getFarmID());
@@ -578,6 +719,7 @@ public class PigsOfferDAO extends DBContext {
             stm.setDate(13, offer.getStartDate());
             stm.setDate(14, offer.getEndDate());
             stm.setString(15, offer.getStatus());
+            stm.setString(16, offer.getNote());
             return stm.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -588,7 +730,8 @@ public class PigsOfferDAO extends DBContext {
     public boolean updatePigsOffer(PigsOffer offer) {
         String sql = "UPDATE PigsOffer SET SellerID = ?, FarmID = ?, CategoryID = ?, Name = ?, PigBreed = ?, "
                 + "Quantity = ?, MinQuantity = ?, MinDeposit = ?, RetailPrice = ?, TotalOfferPrice = ?, "
-                + "Description = ?, ImageURL = ?, StartDate = ?, EndDate = ?, Status = ? WHERE OfferID = ?";
+                + "Description = ?, ImageURL = ?, StartDate = ?, EndDate = ?, Status = ?, Note = ? "
+                + "WHERE OfferID = ?";
 
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, offer.getSellerID());
@@ -606,13 +749,27 @@ public class PigsOfferDAO extends DBContext {
             stm.setDate(13, offer.getStartDate());
             stm.setDate(14, offer.getEndDate());
             stm.setString(15, offer.getStatus());
-            stm.setInt(16, offer.getOfferID()); // WHERE condition
+            stm.setString(16, offer.getNote());
+            stm.setInt(17, offer.getOfferID()); // WHERE condition
 
             return stm.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean updateStatusAndNote(PigsOffer offer) {
+        String sql = "UPDATE PigsOffer SET Status = ?, Note = ? WHERE OfferID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, offer.getStatus());
+            ps.setString(2, offer.getNote());
+            ps.setInt(3, offer.getOfferID());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void updateOfferQuantityAfterCheckout(int offerId, int purchasedQuantity) {

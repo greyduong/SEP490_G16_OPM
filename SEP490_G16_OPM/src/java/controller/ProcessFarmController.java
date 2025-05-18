@@ -5,6 +5,7 @@
 package controller;
 
 import dao.FarmDAO;
+import dao.PigsOfferDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -99,6 +100,69 @@ public class ProcessFarmController extends HttpServlet {
                     msg = "Từ chối thất bại";
                 }
 
+            } else if ("ban".equalsIgnoreCase(action)) {
+
+                String note = request.getParameter("note");
+                if (note == null || note.trim().isEmpty()) {
+                    response.sendRedirect("manage-farms?msg=" + URLEncoder.encode("Vui lòng nhập lý do cấm hoạt động", StandardCharsets.UTF_8) + "&" + queryParams);
+                    return;
+                }
+
+                farm.setStatus("Banned");
+                farm.setNote(note.trim());
+
+                boolean success = dao.updateStatusAndNote(farm);
+
+                if (success) {
+
+                    try {
+                        dao.banOffersByFarmId(farmId);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        msg = "Đã cấm trang trại nhưng lỗi khi cập nhật chào bán";
+                    }
+
+                    msg = "Đã cấm hoạt động trang trại";
+                    Email.sendEmail(
+                            farm.getSeller().getEmail(),
+                            "Thông báo: Trang trại và các chào bán bị cấm hoạt động",
+                            "Xin chào " + farm.getSeller().getFullName()
+                            + ",\n\nChúng tôi xin thông báo rằng trang trại \"" + farm.getFarmName() + "\" của bạn đã bị **cấm hoạt động** với lý do sau:\n"
+                            + "👉 " + note.trim()
+                            + "\n\nToàn bộ các **chào bán** thuộc trang trại này cũng đã bị **tạm ngưng** với trạng thái 'Bị cấm'."
+                            + "\n\nNếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với quản trị viên hệ thống để được hỗ trợ."
+                            + "\n\nTrân trọng,\nBan quản trị Online Pig Market"
+                    );
+                } else {
+                    msg = "Cấm hoạt động thất bại";
+                }
+            } else if ("reactivate".equalsIgnoreCase(action)) {
+                farm.setStatus("Active");
+                farm.setNote("Được kích hoạt lại");
+                boolean success = dao.updateStatusAndNote(farm);
+
+                if (success) {
+
+                    try {
+                        dao.unbanOffersByFarmId(farmId);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        msg = "Trang trại được mở lại nhưng lỗi khi cập nhật chào bán.";
+                    }
+
+                    msg = "Đã cho phép hoạt động lại trang trại";
+                    Email.sendEmail(
+                            farm.getSeller().getEmail(),
+                            "Thông báo: Trang trại đã được khôi phục hoạt động",
+                            "Xin chào " + farm.getSeller().getFullName()
+                            + ",\n\nTrang trại \"" + farm.getFarmName() + "\" của bạn đã được **khôi phục trạng thái hoạt động** bởi quản lý hệ thống."
+                            + "\n\nCác **chào bán trước đó bị cấm** cũng đã được chuyển sang trạng thái 'Ngưng bán'."
+                            + "\nBạn có thể đăng nhập hệ thống và cập nhật lại các chào bán nếu cần."
+                            + "\n\nTrân trọng,\nBan quản trị Online Pig Market"
+                    );
+                } else {
+                    msg = "Kích hoạt lại thất bại";
+                }
             } else {
                 msg = "Hành động không hợp lệ";
             }
@@ -108,7 +172,9 @@ public class ProcessFarmController extends HttpServlet {
             msg = "Có lỗi khi gửi email hoặc xử lý dữ liệu";
         }
 
-        response.sendRedirect("pending-farms?msg=" + URLEncoder.encode(msg, StandardCharsets.UTF_8) + "&" + queryParams);
+        String redirectPage = "approve".equalsIgnoreCase(action) || "reject".equalsIgnoreCase(action) ? "pending-farms" : "manage-farms";
+        response.sendRedirect(redirectPage + "?msg=" + URLEncoder.encode(msg, StandardCharsets.UTF_8) + "&" + queryParams);
+
     }
 
     @Override

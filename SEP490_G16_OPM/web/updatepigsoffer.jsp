@@ -133,13 +133,21 @@
                             </div>
                             <div class="form-group">
                                 <label for="status">Trạng thái</label>
-                                <select name="status" class="form-control" required>
-                                    <option value="Available" ${offer.status == 'Available' ? 'selected' : ''}>Hoạt động</option>
-                                    <option value="Unavailable" ${offer.status == 'Unavailable' ? 'selected' : ''}>Ngưng bán</option>
-                                    <option value="Upcoming" ${offer.status == 'Upcoming' ? 'selected' : ''}>Sắp mở bán</option>
-                                </select>
+                                <c:choose>
+                                    <c:when test="${offer.status == 'Banned'}">
+                                        <input type="text" class="form-control" value="Bị cấm" disabled />
+                                        <input type="hidden" name="status" value="Banned" />
+                                        <small class="text-danger">Không thể thay đổi trạng thái vì chào bán này đã bị cấm.</small>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <select name="status" class="form-control" required>
+                                            <option value="Available" ${offer.status == 'Available' ? 'selected' : ''}>Hoạt động</option>
+                                            <option value="Unavailable" ${offer.status == 'Unavailable' ? 'selected' : ''}>Ngưng bán</option>
+                                            <option value="Upcoming" ${offer.status == 'Upcoming' ? 'selected' : ''}>Sắp mở bán</option>
+                                        </select>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
-
                         </div>
                     </div>
 
