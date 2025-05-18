@@ -113,7 +113,7 @@ public class DepositOrderController extends HttpServlet {
                         return;
                     }
                     long amount = (long) (order.getTotalPrice() * 0.01);
-                    if (!new WalletUseHistoryDAO().use(user.getUserID(), amount)) {
+                    if (!new WalletUseHistoryDAO().use(user.getUserID(), amount, "Đặt cọc cho đơn hàng #%s".formatted(order.getOrderID()))) {
                         String msg = URLEncoder.encode("Không đủ tiền trong ví!", StandardCharsets.UTF_8);
                         response.sendRedirect(baseQuery + "&msg=" + msg);
                         return;

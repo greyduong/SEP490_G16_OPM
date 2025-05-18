@@ -1084,4 +1084,14 @@ public class OrderDAO extends DBContext {
         });
         return statement.execute() != null && statement2.execute() != null;
     }
+
+    public boolean cancelOrders(List<Order> orders, String note) {
+        var statement = batch("UPDATE Orders SET Status = 'Canceled', Note = ? WHERE OrderID = ?");
+        var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?");
+        orders.forEach(order -> {
+            statement.params(note, order.getOrderID());
+            statement2.params(order.getQuantity(), order.getOfferID());
+        });
+        return statement.execute() != null && statement2.execute() != null;
+    }
 }
