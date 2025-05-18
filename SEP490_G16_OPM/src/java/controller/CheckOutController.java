@@ -108,6 +108,13 @@ public class CheckOutController extends HttpServlet {
                 return;
             }
 
+            String status = offer.getStatus();
+            if ("Unavailable".equalsIgnoreCase(status) || "Upcoming".equalsIgnoreCase(status) || "Banned".equalsIgnoreCase(status)) {
+                request.setAttribute("error", "Chào bán này hiện không thể đặt hàng do đang ngưng bán hoặc bị cấm.");
+                request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);
+                return;
+            }
+
             if (quantity < offer.getMinQuantity() || quantity > offer.getQuantity()) {
                 request.setAttribute("error", "Số lượng không hợp lệ.");
                 request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);

@@ -102,6 +102,12 @@ public class UpdateFarmController extends HttpServlet {
                 status == null ? "" : status
         );
 
+        if (!"Active".equalsIgnoreCase(statusOption) && !"Inactive".equalsIgnoreCase(statusOption)) {
+            String msg = URLEncoder.encode("Không được phép cập nhật trạng thái này", "UTF-8");
+            response.sendRedirect("my-farms?msg=" + msg + "&" + queryParams);
+            return;
+        }
+
         if (nameError != null || locationError != null || descriptionError != null) {
             Farm farm = new Farm();
             farm.setFarmID(farmId);

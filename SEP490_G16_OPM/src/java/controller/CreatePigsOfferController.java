@@ -231,6 +231,7 @@ public class CreatePigsOfferController extends HttpServlet {
             offer.setEndDate(endDate);
             offer.setDescription(description);
             offer.setImageURL(imageURL);
+
             // Tự động set trạng thái theo ngày bắt đầu
             java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis());
             if (!startDate.after(currentDate)) {
@@ -238,7 +239,7 @@ public class CreatePigsOfferController extends HttpServlet {
             } else {
                 offer.setStatus("Upcoming");
             }
-
+            offer.setNote(" Tạo ngày " + currentDate.toString());
             PigsOfferDAO offerDAO = new PigsOfferDAO();
             boolean success = offerDAO.createPigsOffer(offer);
 

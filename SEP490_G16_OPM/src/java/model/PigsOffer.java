@@ -29,6 +29,7 @@ public class PigsOffer {
     private java.sql.Date startDate;
     private java.sql.Date endDate;
     private String status;
+    private String note;
     private java.sql.Timestamp createdAt;
 
     private Farm farm;
@@ -214,6 +215,14 @@ public class PigsOffer {
         this.status = status;
     }
 
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+    
     public java.sql.Timestamp getCreatedAt() {
         return createdAt;
     }

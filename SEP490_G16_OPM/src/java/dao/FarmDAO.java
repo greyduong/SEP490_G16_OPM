@@ -12,6 +12,176 @@ import model.User;
 
 public class FarmDAO extends DBContext {
 
+    public List<Farm> getAllFarms() throws Exception {
+        List<Farm> farms = new ArrayList<>();
+
+        String sql = """
+        SELECT f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL,
+               u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID,
+               COUNT(DISTINCT po.OfferID) AS OfferCount,
+               COUNT(DISTINCT o.OrderID) AS OrderCount
+        FROM Farm f
+        JOIN UserAccount u ON f.SellerID = u.UserID
+        LEFT JOIN PigsOffer po ON f.FarmID = po.FarmID
+        LEFT JOIN Orders o ON f.FarmID = o.FarmID
+        GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL,
+                 u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID
+        ORDER BY f.FarmID ASC
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Farm farm = new Farm();
+                farm.setFarmID(rs.getInt("FarmID"));
+                farm.setSellerID(rs.getInt("SellerID"));
+                farm.setFarmName(rs.getString("FarmName"));
+                farm.setLocation(rs.getString("Location"));
+                farm.setDescription(rs.getString("Description"));
+                farm.setNote(rs.getString("Note"));
+                farm.setStatus(rs.getString("Status"));
+                farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                farm.setImageURL(rs.getString("ImageURL"));
+                farm.setOfferCount(rs.getInt("OfferCount"));
+                farm.setOrderCount(rs.getInt("OrderCount"));
+
+                User seller = new User();
+                seller.setUserID(rs.getInt("UserID"));
+                seller.setFullName(rs.getString("FullName"));
+                seller.setUsername(rs.getString("Username"));
+                seller.setEmail(rs.getString("Email"));
+                seller.setPhone(rs.getString("Phone"));
+                seller.setAddress(rs.getString("Address"));
+                seller.setRoleID(rs.getInt("RoleID"));
+
+                farm.setSeller(seller);
+                farms.add(farm);
+            }
+        }
+
+        return farms;
+    }
+
+    public Page<Farm> getAllFarmsWithFilter(String search, String status, int pageNumber, int pageSize, String sort) {
+        Page<Farm> page = new Page<>();
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        if (pageSize < 1) {
+            pageSize = 10;
+        }
+        int offset = (pageNumber - 1) * pageSize;
+
+        StringBuilder whereClause = new StringBuilder(" WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            whereClause.append(" AND f.FarmName LIKE ? ");
+            params.add("%" + search.trim() + "%");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            whereClause.append(" AND f.Status = ? ");
+            params.add(status);
+        }
+
+        String orderClause;
+        switch (sort != null ? sort : "") {
+            case "offer_asc" ->
+                orderClause = " COUNT(DISTINCT po.OfferID) ASC ";
+            case "offer_desc" ->
+                orderClause = " COUNT(DISTINCT po.OfferID) DESC ";
+            case "order_asc" ->
+                orderClause = " COUNT(DISTINCT o.OrderID) ASC ";
+            case "order_desc" ->
+                orderClause = " COUNT(DISTINCT o.OrderID) DESC ";
+            case "date_asc" ->
+                orderClause = " f.CreatedAt ASC ";
+            case "date_desc" ->
+                orderClause = " f.CreatedAt DESC ";
+            default ->
+                orderClause = " f.FarmID ASC ";
+        }
+
+        String selectQuery = """
+    SELECT f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL,
+           u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID,
+           COUNT(DISTINCT po.OfferID) AS OfferCount,
+           COUNT(DISTINCT o.OrderID) AS OrderCount
+    FROM Farm f
+    JOIN UserAccount u ON f.SellerID = u.UserID
+    LEFT JOIN PigsOffer po ON f.FarmID = po.FarmID
+    LEFT JOIN Orders o ON f.FarmID = o.FarmID
+    """ + whereClause + """
+    GROUP BY f.FarmID, f.SellerID, f.FarmName, f.Location, f.Description, f.Note, f.Status, f.CreatedAt, f.ImageURL,
+             u.UserID, u.FullName, u.Username, u.Email, u.Phone, u.Address, u.RoleID
+    ORDER BY """ + orderClause + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        String countQuery = "SELECT COUNT(*) FROM Farm f " + whereClause;
+
+        List<Farm> farms = new ArrayList<>();
+
+        try (
+                PreparedStatement stm = connection.prepareStatement(selectQuery); PreparedStatement countStm = connection.prepareStatement(countQuery)) {
+            for (int i = 0; i < params.size(); i++) {
+                stm.setObject(i + 1, params.get(i));
+            }
+            stm.setInt(params.size() + 1, offset);
+            stm.setInt(params.size() + 2, pageSize);
+
+            try (ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    Farm farm = new Farm();
+                    farm.setFarmID(rs.getInt("FarmID"));
+                    farm.setSellerID(rs.getInt("SellerID"));
+                    farm.setFarmName(rs.getString("FarmName"));
+                    farm.setLocation(rs.getString("Location"));
+                    farm.setDescription(rs.getString("Description"));
+                    farm.setNote(rs.getString("Note"));
+                    farm.setStatus(rs.getString("Status"));
+                    farm.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                    farm.setImageURL(rs.getString("ImageURL"));
+                    farm.setOfferCount(rs.getInt("OfferCount"));
+                    farm.setOrderCount(rs.getInt("OrderCount"));
+
+                    User seller = new User();
+                    seller.setUserID(rs.getInt("UserID"));
+                    seller.setFullName(rs.getString("FullName"));
+                    seller.setUsername(rs.getString("Username"));
+                    seller.setEmail(rs.getString("Email"));
+                    seller.setPhone(rs.getString("Phone"));
+                    seller.setAddress(rs.getString("Address"));
+                    seller.setRoleID(rs.getInt("RoleID"));
+                    farm.setSeller(seller);
+
+                    farms.add(farm);
+                }
+            }
+
+            for (int i = 0; i < params.size(); i++) {
+                countStm.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = countStm.executeQuery()) {
+                if (rs.next()) {
+                    int totalRows = rs.getInt(1);
+                    int totalPages = totalRows / pageSize + (totalRows % pageSize > 0 ? 1 : 0);
+                    page.setTotalPage(totalPages);
+                    page.setTotalData(totalRows);
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("getAllFarmsWithFilter: " + e.getMessage());
+            return null;
+        }
+
+        page.setPageNumber(pageNumber);
+        page.setPageSize(pageSize);
+        page.setData(farms);
+        return page;
+    }
+
     public Page<Farm> getFarmsByFilterbySellerId(int userId, String search, String status, int pageNumber, int pageSize, String sort) {
         Page<Farm> page = new Page<>();
         if (pageNumber < 1) {
@@ -607,6 +777,22 @@ public class FarmDAO extends DBContext {
         } catch (Exception e) {
             System.out.println("updateStatusAndNote: " + e.getMessage());
             return false;
+        }
+    }
+
+    public void banOffersByFarmId(int farmId) throws Exception {
+        String sql = "UPDATE PigsOffer SET Status = 'Banned', Note = N'Bị cấm do trang trại bị cấm' WHERE FarmID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, farmId);
+            stm.executeUpdate();
+        }
+    }
+
+    public void unbanOffersByFarmId(int farmId) throws Exception {
+        String sql = "UPDATE PigsOffer SET Status = 'Unavailable', Note = N'Được mở lại do trang trại được phục hồi' WHERE FarmID = ? AND Status = 'Banned'";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setInt(1, farmId);
+            stm.executeUpdate();
         }
     }
 

@@ -64,11 +64,6 @@ public class DeactivateFarmController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null || user.getRoleID() != 4) {
-            response.sendRedirect("login-register.jsp");
-            return;
-        }
-
         String page = request.getParameter("page");
         String sort = request.getParameter("sort");
         String search = request.getParameter("search");
@@ -100,6 +95,24 @@ public class DeactivateFarmController extends HttpServlet {
 
             if (!dao.canDeactivateFarm(farmId)) {
                 String msg = java.net.URLEncoder.encode("Không thể dừng hoạt động vì còn offer khả dụng hoặc đơn hàng chưa hoàn tất", "UTF-8");
+                response.sendRedirect(baseRedirectURL + "&msg=" + msg);
+                return;
+            }
+
+            if (farm.getStatus().equals("Pending")) {
+                String msg = java.net.URLEncoder.encode("Không thể dừng hoạt động vì trang trại đang chờ duyệt", "UTF-8");
+                response.sendRedirect(baseRedirectURL + "&msg=" + msg);
+                return;
+            } else if (farm.getStatus().equals("Cancel")) {
+                String msg = java.net.URLEncoder.encode("Không thể dừng hoạt động vì trang trại đã bị từ chối", "UTF-8");
+                response.sendRedirect(baseRedirectURL + "&msg=" + msg);
+                return;
+            } else if (farm.getStatus().equals("Inactive")) {
+                String msg = java.net.URLEncoder.encode("Không thể dừng hoạt động vì trang trại đã ngưng hoạt động", "UTF-8");
+                response.sendRedirect(baseRedirectURL + "&msg=" + msg);
+                return;
+            } else if (farm.getStatus().equals("Banned")) {
+                String msg = java.net.URLEncoder.encode("Không thể dừng hoạt động vì trang trại đã bị cấm", "UTF-8");
                 response.sendRedirect(baseRedirectURL + "&msg=" + msg);
                 return;
             }

@@ -49,6 +49,7 @@
                         <option value="Available" ${param.status == 'Available' ? 'selected' : ''}>Còn hàng</option>
                         <option value="Unavailable" ${param.status == 'Unavailable' ? 'selected' : ''}>Ngưng bán</option>
                         <option value="Upcoming" ${param.status == 'Upcoming' ? 'selected' : ''}>Sắp mở bán</option>
+                        <option value="Banned" ${param.status == 'Banned' ? 'selected' : ''}>Bị cấm</option>
                     </select>
 
                     <!-- Giữ sort hiện tại -->
@@ -146,6 +147,9 @@
                                                     <c:when test="${offer.status == 'Upcoming'}">
                                                         <span class="text-warning small" style="font-size: 0.9rem;">🕓 Sắp mở bán</span>
                                                     </c:when>
+                                                    <c:when test="${offer.status == 'Banned'}">
+                                                        <span class="text-secondary small" style="font-size: 0.9rem;">🚫 Bị cấm</span>
+                                                    </c:when>
                                                     <c:otherwise>
                                                         <span class="text-danger small" style="font-size: 0.9rem;">🔴 Ngưng bán</span>
                                                     </c:otherwise>
@@ -154,11 +158,13 @@
                                             <td>
                                                 <a href="updateOffer?id=${offer.offerID}&page=${page.pageNumber}&farmId=${param.farmId}&search=${param.search}&status=${param.status}&sort=${param.sort}"
                                                    class="btn btn-sm btn-primary mb-1">Sửa</a>
-                                                <a href="updateOfferStatus?id=${offer.offerID}&status=Unavailable&page=${page.pageNumber}&farmId=${param.farmId}&search=${param.search}&status=${param.status}&sort=${param.sort}" 
-                                                   class="btn btn-sm btn-outline-danger" title="Ngưng bán"
-                                                   onclick="return confirm('Bạn có chắc chắn muốn ngưng bán chào bán này không?');">
-                                                    🛑
-                                                </a>
+                                                <c:if test="${offer.status == 'Available'}">
+                                                    <a href="updateOfferStatus?id=${offer.offerID}&status=Unavailable&page=${page.pageNumber}&farmId=${param.farmId}&search=${param.search}&status=${param.status}&sort=${param.sort}" 
+                                                       class="btn btn-sm btn-outline-danger" title="Ngưng bán"
+                                                       onclick="return confirm('Bạn có chắc chắn muốn ngưng bán chào bán này không?');">
+                                                        🛑
+                                                    </a>
+                                                </c:if>
                                             </td>
                                         </tr>                              
                                     </c:forEach>
@@ -261,12 +267,18 @@
                                                         <c:when test="${offer.status == 'Available'}">
                                                             <span class="text-success small" style="font-size: 0.9rem;">🟢 Hoạt động</span>
                                                         </c:when>
+                                                        <c:when test="${offer.status == 'Upcoming'}">
+                                                            <span class="text-warning small" style="font-size: 0.9rem;">🕓 Sắp mở bán</span>
+                                                        </c:when>
+                                                        <c:when test="${offer.status == 'Banned'}">
+                                                            <span class="text-secondary small" style="font-size: 0.9rem;">🚫 Bị cấm</span>
+                                                        </c:when>
                                                         <c:otherwise>
-                                                            <span class="text-danger small" style="font-size: 0.9rem;">🔴 Không hoạt động</span>
+                                                            <span class="text-danger small" style="font-size: 0.9rem;">🔴 Ngưng bán</span>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </p>
-
+                                                <p><strong>Ghi chú:</strong> ${offer.note}</p>
                                                 <p><strong>Đơn hàng:</strong> ${offer.orderCount}</p>
                                                 <p><strong>Ngày bắt đầu:</strong> <fmt:formatDate value="${offer.startDate}" pattern="dd/MM/yyyy"/></p>
                                                 <p><strong>Ngày kết thúc:</strong> <fmt:formatDate value="${offer.endDate}" pattern="dd/MM/yyyy"/></p>

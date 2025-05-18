@@ -125,9 +125,21 @@
             </c:if>
             <!-- Manager -->
             <c:if test="${sessionScope.user.roleID == 2}">
+                <a href="${pageContext.request.contextPath}/manage-farms">
+                    <span class="mdi mdi-barn"></span>
+                    Tất cả trang trại
+                </a>
                 <a href="${pageContext.request.contextPath}/pending-farms">
                     <span class="mdi mdi-barn"></span>
                     Trang trại chờ duyệt
+                </a>
+                <a href="${pageContext.request.contextPath}/manage-offers">
+                    <span class="mdi mdi-barn"></span>
+                    Tất cả chào bán
+                </a>
+                <a href="${pageContext.request.contextPath}/manage-orders">
+                    <span class="mdi mdi-barn"></span>
+                    Tất cả đơn hàng
                 </a>
                 <a href="${pageContext.request.contextPath}/manage-application">
                     <span class="mdi mdi-barn"></span>
