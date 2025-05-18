@@ -74,7 +74,7 @@
     </div>
 </div>
 <c:if test="${not empty sessionScope.user}">
-    <div id="sidebar" class="z-99 w-60 duration-500 transition-all fixed top-0 pt-13 left-0 border-r border-slate-300 h-full bg-white overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+    <div id="sidebar" class="hidden z-99 w-60 duration-500 transition-all fixed top-0 pt-13 left-0 border-r border-slate-300 h-full bg-white overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
         <div class="mt-2 flex flex-col gap-2 p-2 *:overflow-x-hidden *:whitespace-nowrap *:transition-all *:font-medium *:text-md *:hover:!bg-slate-100 *:p-2 *:rounded-lg *:!text-slate-600 *:hover:!text-slate-700 *:!no-underline *:flex *:gap-2">
             <!-- SELLER -->
             <c:if test="${sessionScope.user.roleID == 4}">
@@ -149,20 +149,38 @@
         </div>
     </div>
     <script>
-        $("#toggleSidebar").on("click", function () {
-            $("#sidebar").toggleClass("-translate-x-full");
-            if ($("#sidebar").hasClass("-translate-x-full")) {
+		function getSidebarState() {
+			if (localStorage.getItem("sidebar") === null) return true;
+			return JSON.parse(localStorage.getItem("sidebar"));
+		}
+		function setSidebarState(state) {
+			if (state) $("#sidebar").removeClass("hidden");
+			localStorage.setItem("sidebar", JSON.stringify(state));
+			console.log(state);
+			if(state) {
+				$("#sidebar").removeClass("-translate-x-full");
+                $("body > *:not(#header):not(#sidebar)").animate({
+                    marginLeft: $("#sidebar").width() + "px"
+                }, 300);
+			} else {
+				$("#sidebar").removeClass("-translate-x-full");
+				$("#sidebar").addClass("-translate-x-full");
                 $("body > *:not(#header):not(#sidebar)").animate({
                     marginLeft: "0px"
                 }, 300);
-            } else {
-                $("body > *:not(#header):not(#sidebar):not(.modal)").animate({
-                    marginLeft: $("#sidebar").width() + "px"
-                }, 300);
-            }
+			}
+		}
+		function toggleSidebar() {
+			const state = getSidebarState();
+			setSidebarState(!state);
+		}
+        $("#toggleSidebar").on("click", function () {
+			toggleSidebar();
         });
         $(window).on("load", function () {
-            $("body > *:not(#header):not(#sidebar):not(.modal)").css("margin-left", $("#sidebar").width() + "px")
+			const state = getSidebarState();
+			if (state) $("#sidebar").removeClass("hidden");
+			setSidebarState(state);
         });
     </script>
 </c:if>
