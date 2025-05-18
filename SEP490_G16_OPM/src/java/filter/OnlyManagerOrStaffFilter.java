@@ -10,9 +10,12 @@ import java.io.IOException;
 import model.User;
 
 @WebFilter(urlPatterns = {
-    "/staff"
+    "/pending-farms",
+    "/process-farm",
+    "/manage-application",
+    "/StaffViewApplication"
 })
-public class OnlyStaffFilter extends HttpFilter {
+public class OnlyManagerOrStaffFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -22,7 +25,7 @@ public class OnlyStaffFilter extends HttpFilter {
         }
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.getRoleID());
-        if (user.getRoleID() != 3) {
+        if (user.getRoleID() != 2 || user.getRoleID() != 3) {
             response.sendRedirect(request.getContextPath() + "/home?error=403");
             return;
         }
