@@ -146,6 +146,17 @@
                     Quản lý đơn
                 </a> 
             </c:if>
+            <!-- Staff -->
+            <c:if test="${sessionScope.user.roleID == 3}">                
+                <a href="${pageContext.request.contextPath}/pending-farms">
+                    <span class="mdi mdi-barn"></span>
+                    Trang trại chờ duyệt
+                </a>              
+                <a href="${pageContext.request.contextPath}/manage-application">
+                    <span class="mdi mdi-invoice-list-outline"></span>
+                    Quản lý đơn
+                </a> 
+            </c:if>
         </div>
     </div>
     <script>
