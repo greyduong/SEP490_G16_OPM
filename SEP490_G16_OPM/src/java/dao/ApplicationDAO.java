@@ -412,4 +412,18 @@ public class ApplicationDAO extends DBContext {
 
         return list;
     }
+
+    public boolean updateApplicationStatus(int applicationID, String reply, String status, java.sql.Timestamp processingDate) {
+        String sql = "UPDATE Application SET Reply = ?, Status = ?, ProcessingDate = ? WHERE ApplicationID = ?";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, reply);
+            stm.setString(2, status);
+            stm.setTimestamp(3, processingDate);
+            stm.setInt(4, applicationID);
+            return stm.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

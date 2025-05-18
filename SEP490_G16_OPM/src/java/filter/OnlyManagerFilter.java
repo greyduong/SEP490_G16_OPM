@@ -17,8 +17,10 @@ import model.User;
     "/manage-offers",
     "/process-offer",
     "/manage-orders",
+    "/manage-application",
     "/StaffViewApplication"
 })
+
 public class OnlyManagerFilter extends HttpFilter {
 
     @Override

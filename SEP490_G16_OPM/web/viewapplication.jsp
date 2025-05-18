@@ -1,17 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%
-    model.User user = (model.User) session.getAttribute("user");
-    if (user == null) {
-        response.sendRedirect("login");
-        return;
-    }
-    if (user.getRoleID() != 4 && user.getRoleID() != 5) {
-        response.sendRedirect("login?error=access-denied");
-        return;
-    }
-%>
+
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -74,10 +64,10 @@
                                 <td><fmt:formatDate value="${application.sentAt}" pattern="dd/MM/yyyy"/></td>
                                 <td>
                                     <c:if test="${not empty application.file}">
-                                        <a href="<c:url value='/application/${application.file}'/>" target="_blank">${application.file}</a>
+                                        <a href="${pageContext.request.contextPath}/${application.file}" target="_blank">Xem ảnh</a>
                                     </c:if>
                                     <c:if test="${empty application.file}">
-                                        Không có tệp đính kèm
+                                        Không có ảnh đính kèm
                                     </c:if>
                                 </td>
                                 <td>
