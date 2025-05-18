@@ -796,4 +796,36 @@ public class FarmDAO extends DBContext {
         }
     }
 
+    public void cancelPendingOrdersByFarmId(int farmId, String reason) throws Exception {
+        // 1. Cancel delivery liên quan đến đơn pending của farm
+        String cancelDeliveriesSql = """
+        UPDATE d
+        SET d.Status = 'Canceled'
+        FROM Delivery d
+        JOIN Orders o ON d.OrderID = o.OrderID
+        JOIN PigsOffer p ON o.OfferID = p.OfferID
+        WHERE p.FarmID = ? AND o.Status = 'Pending'
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(cancelDeliveriesSql)) {
+            ps.setInt(1, farmId);
+            ps.executeUpdate();
+        }
+
+        // 2. Cancel orders pending
+        String cancelOrdersSql = """
+        UPDATE o
+        SET o.Status = 'Canceled', o.Note = ?
+        FROM Orders o
+        JOIN PigsOffer p ON o.OfferID = p.OfferID
+        WHERE p.FarmID = ? AND o.Status = 'Pending'
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(cancelOrdersSql)) {
+            ps.setString(1, reason);
+            ps.setInt(2, farmId);
+            ps.executeUpdate();
+        }
+    }
+
 }

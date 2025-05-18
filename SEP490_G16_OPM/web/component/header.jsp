@@ -112,7 +112,7 @@
                 <a href="${pageContext.request.contextPath}/myorders"
                    >
                     <span class="mdi mdi-invoice-list"></span>
-                    Hóa của tôi
+                    Hóa đơn của tôi
                 </a>
                 <a href="${pageContext.request.contextPath}/application">
                     <span class="mdi mdi-invoice-list-outline"></span>
@@ -134,15 +134,15 @@
                     Trang trại chờ duyệt
                 </a>
                 <a href="${pageContext.request.contextPath}/manage-offers">
-                    <span class="mdi mdi-barn"></span>
+                    <span class="mdi mdi-offer"></span>
                     Tất cả chào bán
                 </a>
                 <a href="${pageContext.request.contextPath}/manage-orders">
-                    <span class="mdi mdi-barn"></span>
+                    <span class="mdi mdi-invoice-list"></span>
                     Tất cả đơn hàng
                 </a>
                 <a href="${pageContext.request.contextPath}/manage-application">
-                    <span class="mdi mdi-barn"></span>
+                    <span class="mdi mdi-invoice-list-outline"></span>
                     Quản lý đơn
                 </a> 
             </c:if>

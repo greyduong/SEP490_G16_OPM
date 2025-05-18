@@ -28,6 +28,11 @@ public class ProcessFarmController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+
         String action = request.getParameter("action");
         String idParam = request.getParameter("id");
         String page = request.getParameter("page");
@@ -122,6 +127,13 @@ public class ProcessFarmController extends HttpServlet {
                         msg = "Đã cấm trang trại nhưng lỗi khi cập nhật chào bán";
                     }
 
+                    try {
+                        dao.cancelPendingOrdersByFarmId(farmId, note.trim());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        msg = "Đã cấm trang trại nhưng lỗi khi huỷ đơn hàng đang chờ";
+                    }
+
                     msg = "Đã cấm hoạt động trang trại";
                     Email.sendEmail(
                             farm.getSeller().getEmail(),
@@ -129,10 +141,11 @@ public class ProcessFarmController extends HttpServlet {
                             "Xin chào " + farm.getSeller().getFullName()
                             + ",\n\nChúng tôi xin thông báo rằng trang trại \"" + farm.getFarmName() + "\" của bạn đã bị **cấm hoạt động** với lý do sau:\n"
                             + "👉 " + note.trim()
-                            + "\n\nToàn bộ các **chào bán** thuộc trang trại này cũng đã bị **tạm ngưng** với trạng thái 'Bị cấm'."
+                            + "\n\nToàn bộ các **chào bán** và các **đơn hàng đang chờ xác nhận** thuộc trang trại này cũng đã bị **huỷ**."
                             + "\n\nNếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với quản trị viên hệ thống để được hỗ trợ."
                             + "\n\nTrân trọng,\nBan quản trị Online Pig Market"
                     );
+
                 } else {
                     msg = "Cấm hoạt động thất bại";
                 }
