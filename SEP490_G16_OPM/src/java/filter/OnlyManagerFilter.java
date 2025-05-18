@@ -16,7 +16,8 @@ import model.User;
     "/process-farm",
     "/manage-offers",
     "/process-offer",
-    "/manage-orders"
+    "/manage-orders",
+    "/StaffViewApplication"
 })
 public class OnlyManagerFilter extends HttpFilter {
 

@@ -182,10 +182,234 @@ public class ApplicationDAO extends DBContext {
     // Helper: close resources
     private void close() {
         try {
-            if (rs != null) rs.close();
-            if (stm != null) stm.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (stm != null) {
+                stm.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Application> getApplicationsByFilter(int userId, String keyword, String status, String sortByDate) {
+        List<Application> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM Application WHERE UserID = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND Content LIKE ?");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND Status = ?");
+            params.add(status);
+        }
+
+        if ("newest".equals(sortByDate)) {
+            sql.append(" ORDER BY SentAt DESC");
+        } else if ("oldest".equals(sortByDate)) {
+            sql.append(" ORDER BY SentAt ASC");
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Application app = new Application();
+                    app.setApplicationID(rs.getInt("ApplicationID"));
+                    app.setUserID(rs.getInt("UserID"));
+                    app.setContent(rs.getString("Content"));
+                    app.setReply(rs.getString("Reply"));
+                    app.setStatus(rs.getString("Status"));
+                    app.setSentAt(rs.getTimestamp("SentAt"));
+                    app.setProcessingDate(rs.getTimestamp("ProcessingDate"));
+                    app.setFile(rs.getString("FilePath"));
+
+                    list.add(app);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public List<Application> getApplicationsByFilterPaged(
+            int userId, String keyword, String status, String sortByDate,
+            int pageIndex, int pageSize
+    ) {
+        List<Application> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM Application WHERE UserID = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND Content LIKE ?");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND Status = ?");
+            params.add(status);
+        }
+
+        if ("newest".equals(sortByDate)) {
+            sql.append(" ORDER BY SentAt DESC");
+        } else if ("oldest".equals(sortByDate)) {
+            sql.append(" ORDER BY SentAt ASC");
+        } else {
+            sql.append(" ORDER BY SentAt DESC"); // default
+        }
+
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add((pageIndex - 1) * pageSize);
+        params.add(pageSize);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Application app = new Application();
+                app.setApplicationID(rs.getInt("ApplicationID"));
+                app.setUserID(rs.getInt("UserID"));
+                app.setContent(rs.getString("Content"));
+                app.setReply(rs.getString("Reply"));
+                app.setStatus(rs.getString("Status"));
+                app.setSentAt(rs.getTimestamp("SentAt"));
+                app.setProcessingDate(rs.getTimestamp("ProcessingDate"));
+                app.setFile(rs.getString("FilePath"));
+
+                list.add(app);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public int countApplicationsByFilter(int userId, String keyword, String status) {
+        int total = 0;
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Application WHERE UserID = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND Content LIKE ?");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (status != null && !status.isEmpty()) {
+            sql.append(" AND Status = ?");
+            params.add(status);
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    public int countApplicationsForManager(String keyword, String status) {
+        int total = 0;
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Application WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND Content LIKE ?");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND Status = ?");
+            params.add(status.trim());
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    public List<Application> getApplicationsForManager(String keyword, String status, String sort, int page, int pageSize) {
+        List<Application> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM Application WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND Content LIKE ?");
+            params.add("%" + keyword.trim() + "%");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND Status = ?");
+            params.add(status.trim());
+        }
+
+        if ("asc".equalsIgnoreCase(sort)) {
+            sql.append(" ORDER BY SentAt ASC");
+        } else {
+            sql.append(" ORDER BY SentAt DESC");
+        }
+
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add((page - 1) * pageSize);
+        params.add(pageSize);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Application app = new Application();
+                app.setApplicationID(rs.getInt("ApplicationID"));
+                app.setUserID(rs.getInt("UserID"));
+                app.setContent(rs.getString("Content"));
+                app.setReply(rs.getString("Reply"));
+                app.setStatus(rs.getString("Status"));
+                app.setSentAt(rs.getTimestamp("SentAt"));
+                app.setProcessingDate(rs.getTimestamp("ProcessingDate"));
+                app.setFile(rs.getString("FilePath"));
+                list.add(app);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

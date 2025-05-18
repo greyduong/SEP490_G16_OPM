@@ -311,7 +311,17 @@ VALUES
 (3, N'Yêu cầu kiểm tra lại đơn hàng', NULL, N'Đã phê duyệt', GETDATE(), GETDATE(), 'KiemTra_DonHang_YeuCau.pdf'),
 (4, N'Yêu cầu bổ sung nguồn thức ăn chăn nuôi', NULL, N'Đã từ chối', GETDATE(), GETDATE(), NULL),
 (5, N'Yêu cầu hỗ trợ tiếp thị', NULL, N'Đang chờ xử lý', GETDATE(), NULL, 'marketing_support.pdf'),
-(5, N'Yêu cầu thông tin về chương trình hợp tác', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL);
+(5, N'Yêu cầu thông tin về chương trình hợp tác', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Yêu cầu tham gia hội chợ nông nghiệp', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Đề nghị hỗ trợ truyền thông sản phẩm', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Yêu cầu được tham quan trại mẫu', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Đề nghị gửi catalogue sản phẩm mới', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Yêu cầu mở rộng khu vực phân phối', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Đăng ký hợp tác dài hạn', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Yêu cầu thông tin chương trình đào tạo', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Đề nghị hỗ trợ vận chuyển đơn hàng lớn', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Yêu cầu tư vấn kỹ thuật nuôi heo', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL),
+(5, N'Đăng ký chương trình thử nghiệm giống mới', NULL, N'Đang chờ xử lý', GETDATE(), NULL, NULL);
 
  
 
