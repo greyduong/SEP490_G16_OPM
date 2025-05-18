@@ -29,40 +29,82 @@
                         </a>
                     </div>
                 </div>
-                <div class="text-xl font-bold mb-3">Lịch sử nạp</div>
-                <c:if test="${topup.data.isEmpty()}">
-                    <div class="text-slate-500">Không có lịch sử nạp</div>
-                </c:if>
-                <div>
+                <div class="text-xl font-bold mb-2">Lịch sử nạp</div>
+                <div class="mb-3">
+					<c:if test="${topup.data.isEmpty()}">
+						<div class="text-slate-500">Không có lịch sử nạp</div>
+					</c:if>
                     <c:forEach var="item" items="${topup.data}">
-                        <div class="border-b border-slate-300 p-3">
-                            <div class="text-slate-500 text-sm">${item.getCreatedAtAsString('HH:mm dd/MM/yyyy')}</div>
-                            <div>
-                                <c:choose>
-                                    <c:when test="${item.status == 'Cancelled'}">
-                                        <div class="text-red-500 font-bold text-xl"><fmt:formatNumber currencyCode="VND" value="${item.amount}" />đ</div>
-                                    </c:when>
-                                    <c:when test="${item.status == 'Success'}">
-                                        <div class="text-lime-600 font-bold text-xl">+<fmt:formatNumber currencyCode="VND" value="${item.amount}" />đ</div>
-                                    </c:when>
-                                        <c:when test="${item.status == 'Pending'}">
-                                        <div class="text-gray-500 font-bold text-xl"><fmt:formatNumber currencyCode="VND" value="${item.amount}" />đ</div>
-                                    </c:when>
-                                </c:choose>
-                                <div class="text-slate-600">Mã giao dịch: ${item.txnRef}</div>
-                                <div class="text-slate-600">Trạng thái:
-                                    <c:choose>
-                                        <c:when test="${item.status == 'Cancelled'}"><span class="text-red-600">Hủy</span></c:when>
-                                        <c:when test="${item.status == 'Success'}"><span class="text-lime-600">Thành công</span></c:when>
-                                        <c:when test="${item.status == 'Pending'}"><span class="text-gray-500">Chờ thanh toán</span></c:when>
-                                    </c:choose>
-                                </div>
-                            </div>
-                        </div>
-                    </c:forEach>
-                </div>
-            </div>
-        </main>
-        <jsp:include page="component/footer.jsp" />     
-    </body>
+						<table class="table table-bordered">
+							<thead class="thead-dark">
+								<tr>
+									<th>Thời gian</th>
+									<th>Mã giao dịch</th>
+									<th>Lượng tiền</th>
+									<th>Trạng thái</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										${item.getCreatedAtAsString('HH:mm dd/MM/yyyy')}
+									</td>
+									<td>
+										${item.txnRef}
+									</td>
+									<td>
+										<fmt:formatNumber currencyCode="VND" value="${item.amount}" />đ
+									</td>
+									<td>
+
+										<c:choose>
+											<c:when test="${item.status == 'Cancelled'}"><span class="text-red-600">Hủy</span></c:when>
+											<c:when test="${item.status == 'Success'}"><span class="text-lime-600">Thành công</span></c:when>
+											<c:when test="${item.status == 'Pending'}"><span class="text-gray-500">Chờ thanh toán</span></c:when>
+										</c:choose>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</c:forEach>
+				</div>
+				<hr>
+				<div class="text-xl font-bold mb-2">Lịch sử sử dụng</div>
+                <div class="mb-3">
+					<c:if test="${topup.data.isEmpty()}">
+						<div class="text-slate-500">Không có lịch sử sử dụng</div>
+					</c:if>
+                    <c:forEach var="item" items="${use.data}">
+						<table class="table table-bordered">
+							<thead class="thead-dark">
+								<tr>
+									<th>Thời gian</th>
+									<th>Mã giao dịch</th>
+									<th>Lượng tiền</th>
+									<th>Ghi chú</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										${item.getCreatedAtAsString('HH:mm dd/MM/yyyy')}
+									</td>
+									<td>
+										${item.transactionID}
+									</td>
+									<td>
+										<fmt:formatNumber currencyCode="VND" value="${item.amount}" />đ
+									</td>
+									<td>
+										${item.note}
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</c:forEach>
+				</div>
+			</div>
+		</main>
+		<jsp:include page="component/footer.jsp" />     
+	</body>
 </html>
