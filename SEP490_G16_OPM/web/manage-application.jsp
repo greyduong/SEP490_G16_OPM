@@ -106,7 +106,7 @@
                                 <!-- Tệp đính kèm -->
                                 <td>
                                     <c:if test="${not empty application.file}">
-                                        <a href="${pageContext.request.contextPath}/${application.file}" target="_blank">Xem ảnh</a>
+                                        <a href="${application.file}" target="_blank">Xem ảnh</a>
                                     </c:if>
                                     <c:if test="${empty application.file}">
                                         Không có ảnh đính kèm

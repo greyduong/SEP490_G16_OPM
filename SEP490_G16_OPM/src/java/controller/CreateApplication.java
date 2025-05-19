@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
+import service.ImageService;
 
 @WebServlet(name = "CreateApplication", urlPatterns = {"/CreateApplication"})
 @MultipartConfig(
@@ -55,13 +56,11 @@ public class CreateApplication extends HttpServlet {
             return;
         }
 
-        // ✅ Handle image upload
+        // ✅ Handle image upload via ImgBB
         Part imagePart = request.getPart("image");
         if (imagePart != null && imagePart.getSize() > 0) {
-            String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
             String contentType = imagePart.getContentType();
 
-            // ✅ Check file type
             if (!contentType.startsWith("image/")) {
                 request.setAttribute("imageURLError", "Chỉ cho phép tệp hình ảnh (JPG, PNG).");
                 request.getRequestDispatcher("createapplication.jsp").forward(request, response);
@@ -74,17 +73,9 @@ public class CreateApplication extends HttpServlet {
                 return;
             }
 
-            // ✅ Save file to img/applications/
-            String uploadDir = getServletContext().getRealPath("/") + "img" + File.separator + "applications";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            String fullPath = uploadDir + File.separator + fileName;
-            imagePart.write(fullPath);
-
-            filePath = "img/applications/" + fileName; // Path to store in DB
+            // 🟢 Upload lên ImgBB và lấy URL
+            ImageService imageService = new ImageService();
+            filePath = imageService.upload(imagePart); // URL ảnh online
         }
 
         // ✅ Create and save application
