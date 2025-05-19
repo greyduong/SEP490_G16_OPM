@@ -38,7 +38,7 @@
             <div class="container">
                 <div class="checkout__form">
                     <h4>Chỉnh sửa thông tin cá nhân</h4>
-                    <form action="UpdateProfile" method="post">
+                    <form action="profile" method="post">
                         <div class="row">
                             <div class="col-lg-8 col-md-6">
                                 <div class="checkout__input">
