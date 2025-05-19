@@ -98,10 +98,7 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
-                <a href="${pageContext.request.contextPath}/CreateApplication">
-                    <span class="mdi mdi-invoice-list-outline"></span>
-                    Tạo đơn
-                </a>
+                
             </c:if>
             <!-- DEALER -->
             <c:if test="${sessionScope.user.roleID == 5}">
@@ -118,12 +115,9 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
-                <a href="${pageContext.request.contextPath}/CreateApplication">
-                    <span class="mdi mdi-invoice-list-outline"></span>
-                    Tạo đơn
-                </a>
+                
             </c:if>
-            <!-- Manager -->
+            <!-- MANAGER -->
             <c:if test="${sessionScope.user.roleID == 2}">
                 <a href="${pageContext.request.contextPath}/manage-farms">
                     <span class="mdi mdi-barn"></span>
@@ -144,6 +138,10 @@
                 <a href="${pageContext.request.contextPath}/manage-application">
                     <span class="mdi mdi-barn"></span>
                     Quản lý đơn
+                </a> 
+                    <a href="${pageContext.request.contextPath}/category">
+                    <span class="mdi mdi-barn"></span>
+                    Quản lý loại lợn
                 </a> 
             </c:if>
         </div>

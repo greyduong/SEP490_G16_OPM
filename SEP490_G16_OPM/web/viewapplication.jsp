@@ -16,7 +16,10 @@
         <!-- Bảng hiển thị đơn đăng ký -->
         <section class="product-details spad">
             <div class="container">
-                <h4 class="mb-3">Đơn đăng ký của tôi</h4>
+                <h4 class="mb-2">Đơn đăng ký của tôi</h4>
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="CreateApplication" class="site-btn">+ Tạo đơn mới</a>
+                </div>
 
                 <!-- Thanh tìm kiếm và lọc -->
                 <form class="form-row mb-3" method="GET" action="application">

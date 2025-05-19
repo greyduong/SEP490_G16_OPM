@@ -18,7 +18,7 @@ public class UpdateProfileController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login-register.jsp");
+            response.sendRedirect("login");
             return;
         }
 
@@ -31,7 +31,7 @@ public class UpdateProfileController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login-register.jsp");
+            response.sendRedirect("login");
             return;
         }
 

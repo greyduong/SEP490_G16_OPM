@@ -27,7 +27,7 @@ public class CategoryController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (!isAuthorized(session)) {
-            response.sendRedirect("login-register.jsp?error=access-denied");
+            response.sendRedirect("login?error=access-denied");
             return;
         }
 
@@ -52,7 +52,7 @@ public class CategoryController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (!isAuthorized(session)) {
-            response.sendRedirect("login-register.jsp?error=access-denied");
+            response.sendRedirect("login?error=access-denied");
             return;
         }
 
