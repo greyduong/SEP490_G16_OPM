@@ -11,6 +11,8 @@ import model.PigsOffer;
 import model.User;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -23,17 +25,19 @@ public class HomePageController extends HttpServlet {
             getDealerHomePage(request, response);
             return;
         }
+		String error = "";
+		if (request.getParameter("error") != null && !request.getParameter("error").isBlank()) error = "?error=" + URLEncoder.encode(request.getParameter("error"), StandardCharsets.UTF_8);
         switch (logged.get().getRoleID()) {
             case 5 ->
                 getDealerHomePage(request, response); // Dealer
             case 4 ->
-                response.sendRedirect(request.getContextPath() + "/seller");
+                response.sendRedirect(request.getContextPath() + "/seller" + error);
             case 3 ->
-                response.sendRedirect(request.getContextPath() + "/staff");
+                response.sendRedirect(request.getContextPath() + "/staff" + error);
             case 2 ->
-                response.sendRedirect(request.getContextPath() + "/manager-home");
+                response.sendRedirect(request.getContextPath() + "/manager-home" + error);
             case 1 ->
-                response.sendRedirect(request.getContextPath() + "/admin");
+                response.sendRedirect(request.getContextPath() + "/admin" + error);
         }
     }
 

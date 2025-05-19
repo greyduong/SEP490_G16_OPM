@@ -5,6 +5,7 @@
 package model;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  *
@@ -27,6 +28,7 @@ public class Order {
     private User seller;
     private PigsOffer pigsOffer;
     private Farm farm;
+    private List<Delivery> deliveries;
 
     public Order() {
     }
@@ -201,6 +203,14 @@ public class Order {
 
     public void setPigsOffer(PigsOffer pigsOffer) {
         this.pigsOffer = pigsOffer;
+    }
+
+    public List<Delivery> getDeliveries() {
+        return deliveries;
+    }
+
+    public void setDeliveries(List<Delivery> deliveries) {
+        this.deliveries = deliveries;
     }
 
 }

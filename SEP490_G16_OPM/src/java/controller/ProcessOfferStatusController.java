@@ -63,14 +63,23 @@ public class ProcessOfferStatusController extends HttpServlet {
                 boolean success = dao.updateStatusAndNote(offer);
 
                 if (success) {
-                    msg = "Đã ban chào bán";
+                    try {
+                        dao.cancelPendingOrdersByOfferId(offer.getOfferID(), note.trim());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        msg = "Đã ban chào bán nhưng lỗi khi huỷ các đơn đang chờ xác nhận.";
+                    }
+
+                    msg = "Đã cấm chào bán";
                     Email.sendEmail(
                             offer.getSeller().getEmail(),
                             "Chào bán bị cấm",
                             "Xin chào " + offer.getSeller().getFullName()
-                            + ",\n\nChào bán \"" + offer.getName() + "\" đã bị cấm bởi quản trị viên vì lý do:\n\n"
-                            + note.trim()
-                            + "\n\nNếu bạn cần hỗ trợ, vui lòng liên hệ quản trị viên.\n\nTrân trọng,\nOnline Pig Market"
+                            + ",\n\nChào bán \"" + offer.getName() + "\" đã bị cấm bởi quản trị viên vì lý do:\n"
+                            + "👉 " + note.trim()
+                            + "\n\nToàn bộ đơn hàng ở trạng thái **chờ xác nhận** của chào bán này cũng đã bị **huỷ**."
+                            + "\n\nNếu bạn cần hỗ trợ, vui lòng liên hệ quản trị viên."
+                            + "\n\nTrân trọng,\nOnline Pig Market"
                     );
                 } else {
                     msg = "Ban chào bán thất bại";
