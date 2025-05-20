@@ -28,11 +28,7 @@
                 </form>
             </div>
             <div class="text-sm font-semibold mb-2">Tổng quan</div>
-            <div class="grid grid-cols-5 gap-3">
-                <div class="p-3 rounded-sm border border-slate-300">
-                    <div class="text-slate-600 text-sm font-semibold">Trang trại</div>
-                    <div class="text-xl text-slate-600 font-semibold">${activeFarms}/${totalFarms} <span class="font-normal text-sm">hoạt động</span></div>
-                </div>
+            <div class="grid grid-cols-4 gap-3">
                 <div class="p-3 rounded-sm border border-slate-300">
                     <div class="text-slate-600 text-sm font-semibold">Chào bán</div>
                     <div class="text-xl text-slate-600 font-semibold">${totalOffers} <span class="font-normal text-sm">chào bán</span></div>
@@ -55,19 +51,23 @@
         <!-- Biểu đồ đơn hàng -->
         <div class="px-5 mb-5">
             <div class="text-sm font-semibold mb-2 text-slate-600">Biểu đồ</div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="border border-slate-300 rounded-sm p-3 text-slate-600">
                     <div class="text-sm font-semibold">Biểu đồ đơn hàng</div>
-                    <div class="card-body">
+                    <div>
                         <canvas id="orderChart" height="100"></canvas>
                     </div>
                 </div>
                 <div class="border border-slate-300 rounded-sm p-3 text-slate-600">
                     <div class="text-sm font-semibold">Biểu đồ chào bán</div>
-                    <div class="card-body">
+                    <div>
                         <canvas id="offersChart" height="100"></canvas>
                     </div>
                 </div>
+            </div>
+            <div class="w-55 border border-slate-300 rounded-sm text-slate-600 p-3">
+                <div class="text-sm font-semibold">Trang trại</div>
+                <canvas id="farmChart" height="100"></canvas>
             </div>
         </div>
         <script>
@@ -76,13 +76,14 @@
             });
         </script>
         <script>
-            function showLineChart(chart) {
+            function showChart(chart) {
+                const type = chart.type === undefined ? "line" : chart.type;
                 const name = chart.name;
                 const labels = chart.labels;
                 const datasets = chart.datasets;
                 const ctx = document.getElementById(name).getContext("2d");
                 new Chart(ctx, {
-                    type: 'line',
+                    type: type,
                     data: {
                         labels: labels,
                         datasets: datasets
@@ -95,7 +96,7 @@
             }).then(res => res.json()).then(charts => {
                 console.log(charts);
                 for (let chart of charts) {
-                    showLineChart(chart);
+                    showChart(chart);
                 }
             });
         </script>

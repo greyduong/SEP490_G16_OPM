@@ -40,8 +40,6 @@ public class SellerHomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         User user = (User) req.getSession().getAttribute("user");
-
-        FarmDAO farmDAO = new FarmDAO();
         PigsOfferDAO offerDAO = new PigsOfferDAO();
         OrderDAO orderDAO = new OrderDAO();
         var db = new DBContext();
@@ -59,8 +57,6 @@ public class SellerHomeController extends HttpServlet {
 
         int sellerId = user.getUserID();
 
-        int totalFarms = farmDAO.countFarmsBySeller(sellerId);
-        int activeFarms = farmDAO.countActiveFarmsBySeller(sellerId);
         int availableOffers = offerDAO.countAvailableOffersBySeller(sellerId);
 
         int totalOrders = db.fetchOne(
@@ -100,9 +96,6 @@ public class SellerHomeController extends HttpServlet {
         Integer year = null, month = null, day = null;
 
         List<OrderStat> stats = orderDAO.getOrderStatsFlexible(type, year, month, day, sellerId);
-
-        req.setAttribute("totalFarms", totalFarms);
-        req.setAttribute("activeFarms", activeFarms);
         req.setAttribute("totalOffers", totalOffers);
         req.setAttribute("availableOffers", availableOffers);
         req.setAttribute("totalOrders", totalOrders);
@@ -130,17 +123,39 @@ public class SellerHomeController extends HttpServlet {
 
         var orderChart = getOrderChart(db, user, from, to);
         var offerChart = getOfferChart(db, user, from, to);
+        var farmChart = getFarmChart(db, user);
 
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         var out = resp.getWriter();
-        var charts = List.of(orderChart, offerChart);
+        var charts = List.of(orderChart, offerChart, farmChart);
         out.print(new Gson().toJson(charts));
         out.flush();
     }
 
     public record Stats(String label, int total) {
 
+    }
+
+    public Map<String, Object> getFarmChart(DBContext db, User user) {
+        int totalFarms = db.fetchOne(rs -> rs.getInt(1), "SELECT COUNT(*) FROM Farm WHERE SellerID = ?", user.getUserID());
+        int totalActiveFarms = db.fetchOne(rs -> rs.getInt(1), "SELECT COUNT(*) FROM Farm WHERE SellerID = ? AND Status = 'Active'", user.getUserID());
+        int totalInactiveFarms = totalFarms - totalActiveFarms;
+        return Map.of(
+                "name", "farmChart",
+                "labels", List.of(
+                        "Hoạt động",
+                        "Không hoạt động"
+                ),
+                "datasets", List.of(Map.of(
+                        "label", "Trang trại",
+                        "data", List.of(
+                                totalActiveFarms,
+                                totalInactiveFarms
+                        )
+                )),
+                "type", "pie"
+        );
     }
 
     public List<Stats> getOrderStatByStatus(DBContext db, User user, LocalDate from, LocalDate to, String status) {
