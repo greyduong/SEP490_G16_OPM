@@ -127,6 +127,16 @@
                     Thống kê
                 </a>
             </c:if>
+            <c:if test="${sessionScope.user.roleID == 1}">
+                <a href="${pageContext.request.contextPath}/manage-user">
+                    <span class="mdi mdi-account"></span>
+                    Quản lý người dùng
+                </a>
+                <a href="${pageContext.request.contextPath}/server-log">
+                    <span class="mdi mdi-math-log"></span>
+                    Nhật ký hệ thống
+                </a>
+            </c:if>
             <!-- Manager -->
             <c:if test="${sessionScope.user.roleID == 2}">
                 <a href="${pageContext.request.contextPath}/manage-farms">
