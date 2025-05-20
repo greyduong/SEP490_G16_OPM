@@ -8,7 +8,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Trang chủ người bán | Online Pig Market</title>
+        <title>Thống kê | Online Pig Market</title>
         <jsp:include page="component/library.jsp"/>
     </head>
     <body>
@@ -28,26 +28,18 @@
                 </form>
             </div>
             <div class="text-sm font-semibold mb-2">Tổng quan</div>
-            <div class="grid grid-cols-5 gap-3">
+            <div class="grid grid-cols-4 gap-3">
                 <div class="p-3 rounded-sm border border-slate-300">
-                    <div class="text-slate-600 text-sm font-semibold">Trang trại</div>
-                    <div class="text-xl text-slate-600 font-semibold">${activeFarms}/${totalFarms} <span class="font-normal text-sm">hoạt động</span></div>
+                    <div class="text-slate-600 text-sm font-semibold">Tổng chi</div>
+                    <div class="text-xl text-slate-600 font-semibold"><fmt:formatNumber value="${totalSpend}" /> <span class="font-normal text-sm">VND</span></div>
                 </div>
                 <div class="p-3 rounded-sm border border-slate-300">
-                    <div class="text-slate-600 text-sm font-semibold">Chào bán</div>
-                    <div class="text-xl text-slate-600 font-semibold">${totalOffers} <span class="font-normal text-sm">chào bán</span></div>
-                </div>
-                <div class="p-3 rounded-sm border border-slate-300">
-                    <div class="text-slate-600 text-sm font-semibold">Đơn hàng</div>
+                    <div class="text-slate-600 text-sm font-semibold">Đơn đã đặt</div>
                     <div class="text-xl text-slate-600 font-semibold">${totalOrders} <span class="font-normal text-sm">đơn</span></div>
                 </div>
                 <div class="p-3 rounded-sm border border-slate-300">
-                    <div class="text-slate-600 text-sm font-semibold">Doanh thu</div>
-                    <div class="text-xl text-slate-600 font-semibold"><fmt:formatNumber value="${totalRevenue}" groupingUsed="true"/> <span class="font-normal text-sm">VND</span></div>
-                </div>
-                <div class="p-3 rounded-sm border border-slate-300">
-                    <div class="text-slate-600 text-sm font-semibold">Công nợ</div>
-                    <div class="text-xl text-slate-600 font-semibold"><fmt:formatNumber value="${totalDebt}" groupingUsed="true"/> <span class="font-normal text-sm">VND</span></div>
+                    <div class="text-slate-600 text-sm font-semibold">Tổng nạp</div>
+                    <div class="text-xl text-slate-600 font-semibold">${totalTopup} <span class="font-normal text-sm">VND</span></div>
                 </div>
             </div>
         </div>
@@ -60,12 +52,6 @@
                     <div class="text-sm font-semibold">Biểu đồ đơn hàng</div>
                     <div class="card-body">
                         <canvas id="orderChart" height="100"></canvas>
-                    </div>
-                </div>
-                <div class="border border-slate-300 rounded-sm p-3 text-slate-600">
-                    <div class="text-sm font-semibold">Biểu đồ chào bán</div>
-                    <div class="card-body">
-                        <canvas id="offersChart" height="100"></canvas>
                     </div>
                 </div>
             </div>
@@ -93,12 +79,12 @@
             fetch("", {
                 method: "POST"
             }).then(res => res.json()).then(charts => {
-                console.log(charts);
-                for (let chart of charts) {
+                charts.forEach(chart => {
                     showLineChart(chart);
-                }
+                });
             });
         </script>
         <jsp:include page="component/footer.jsp"/>
     </body>
 </html>
+

@@ -122,6 +122,10 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Tạo đơn
                 </a>
+                <a href="${pageContext.request.contextPath}/dealer-dashboard">
+                    <span class="mdi mdi-chart-bar"></span>
+                    Thống kê
+                </a>
             </c:if>
             <!-- Manager -->
             <c:if test="${sessionScope.user.roleID == 2}">
