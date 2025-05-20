@@ -12,7 +12,7 @@ public class SellerHomeControllerTest {
         user.setUserID(4);
         var from = LocalDate.parse("2025-05-13");
         var to = LocalDate.parse("2025-05-20");
-        var res = new SellerHomeController().getOfferStat(user, from, to);
+        var res = new SellerHomeController().getOfferChart(user, from, to);
         new GsonBuilder().setPrettyPrinting().create().toJson(res, System.out);
     }
     

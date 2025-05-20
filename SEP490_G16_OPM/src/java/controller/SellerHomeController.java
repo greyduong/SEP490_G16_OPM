@@ -126,13 +126,15 @@ public class SellerHomeController extends HttpServlet {
             from = to.minusDays(7);
         }
 
-        var orderStat = getOrderStat(user, from, to);
-        var offerStat = getOfferStat(user, from, to);
+        var db = new DBContext();
+
+        var orderChart = getOrderChart(db, user, from, to);
+        var offerChart = getOfferChart(db, user, from, to);
 
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         var out = resp.getWriter();
-        var charts = List.of(orderStat, offerStat);
+        var charts = List.of(orderChart, offerChart);
         out.print(new Gson().toJson(charts));
         out.flush();
     }
@@ -178,8 +180,8 @@ public class SellerHomeController extends HttpServlet {
         );
     }
 
-    public Map<String, Object> getOfferStat(User user, LocalDate from, LocalDate to) {
-        var stats = new DBContext().fetchAll(
+    public List<Stats> getOfferStatByStatus(DBContext db, User user, LocalDate from, LocalDate to, String status) {
+        return db.fetchAll(
                 rs -> {
                     String label = rs.getDate("Label").toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                     int total = rs.getInt("Total");
@@ -202,7 +204,7 @@ public class SellerHomeController extends HttpServlet {
                 FROM 
                     DateRange d
                 LEFT JOIN 
-                    PigsOffer o ON CAST(o.CreatedAt AS DATE) = d.Label AND o.SellerID = ?
+                    PigsOffer o ON CAST(o.CreatedAt AS DATE) = d.Label AND o.SellerID = ? AND Status = ?
                 GROUP BY 
                     d.Label
                 ORDER BY 
@@ -210,33 +212,34 @@ public class SellerHomeController extends HttpServlet {
                 """,
                 from,
                 to,
-                user.getUserID()
+                user.getUserID(),
+                status
         );
+    }
 
-        var labels = stats.stream().map(e -> e.label()).toList();
-        var data = stats.stream().map(e -> e.total()).toList();
+    public Map<String, Object> getOfferChart(DBContext db, User user, LocalDate from, LocalDate to) {
+        var available = getOfferStatByStatus(db, user, from, to, "Available");
+        var unavailable = getOfferStatByStatus(db, user, from, to, "Unavailable");
+        var labels = available.stream().map(e -> e.label()).toList();
+        var availableData = available.stream().map(e -> e.total()).toList();
+        var unavailableData = unavailable.stream().map(e -> e.total()).toList();
         var datasets = List.of(
-                Map.of("data", data, "label", "Chào bán")
+                Map.of("data", availableData, "label", "Đã kiểm định"),
+                Map.of("data", unavailableData, "label", "Hết hạn")
         );
         return Map.of("name", "offersChart", "labels", labels, "datasets", datasets);
     }
 
-    public Map<String, Object> getOrderStat(User user, LocalDate from, LocalDate to) {
-        var db = new DBContext();
-
+    public Map<String, Object> getOrderChart(DBContext db, User user, LocalDate from, LocalDate to) {
         var pending = getOrderStatByStatus(db, user, from, to, "Pending");
         var canceled = getOrderStatByStatus(db, user, from, to, "Canceled");
         var confirmed = getOrderStatByStatus(db, user, from, to, "Confirmed");
         var processing = getOrderStatByStatus(db, user, from, to, "Processing");
-
         List<String> labels = pending.stream().map(e -> e.label()).toList();
-
-
         List<Integer> pendingData = pending.stream().map(e -> e.total()).toList();
         List<Integer> canceledData = canceled.stream().map(e -> e.total()).toList();
         List<Integer> confirmedData = confirmed.stream().map(e -> e.total()).toList();
         List<Integer> processingData = processing.stream().map(e -> e.total()).toList();
-
         List<Map<String, Object>> datasets = List.of(
                 Map.of("label", "Chờ xử lý", "data", pendingData),
                 Map.of("label", "Đã hủy", "data", canceledData),
