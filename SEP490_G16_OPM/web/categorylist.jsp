@@ -33,7 +33,11 @@
                 </form>
             </div>
         </div>
-
+        <c:if test="${not empty deleteError}">
+            <div class="alert alert-danger text-center" role="alert">
+                ${deleteError}
+            </div>
+        </c:if>
         <!-- Khu vực quản lý danh mục -->
         <section class="product-details spad">
             <div class="container">

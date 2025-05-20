@@ -1,6 +1,7 @@
 package controller;
 
 import dao.CategoryDAO;
+import dao.PigsOfferDAO;
 import model.Category;
 import model.User;
 
@@ -15,7 +16,9 @@ public class CategoryController extends HttpServlet {
 
     // Check if the user is logged in and has Manager (3) or Staff (2) role
     private boolean isAuthorized(HttpSession session) {
-        if (session == null) return false;
+        if (session == null) {
+            return false;
+        }
         User user = (User) session.getAttribute("user");
         return user != null && (user.getRoleID() == 2 || user.getRoleID() == 3);
     }
@@ -57,7 +60,8 @@ public class CategoryController extends HttpServlet {
         }
 
         String action = request.getParameter("action");
-        CategoryDAO dao = new CategoryDAO();
+        CategoryDAO categoryDAO = new CategoryDAO();
+        PigsOfferDAO offerDAO = new PigsOfferDAO();  // <-- Đã thêm
 
         try {
             if ("add".equals(action)) {
@@ -66,19 +70,36 @@ public class CategoryController extends HttpServlet {
                 Category newCategory = new Category();
                 newCategory.setName(name);
                 newCategory.setDescription(description);
-                dao.addCategory(newCategory);
+                categoryDAO.addCategory(newCategory);
+                response.sendRedirect("category");
+                return;
+
             } else if ("update".equals(action)) {
                 int categoryID = Integer.parseInt(request.getParameter("categoryID"));
                 String name = request.getParameter("name");
                 String description = request.getParameter("description");
                 Category updatedCategory = new Category(categoryID, name, description);
-                dao.updateCategory(updatedCategory);
+                categoryDAO.updateCategory(updatedCategory);
+                response.sendRedirect("category");
+                return;
+
             } else if ("delete".equals(action)) {
                 int categoryID = Integer.parseInt(request.getParameter("categoryID"));
-                dao.deleteCategory(categoryID);
-            }
 
-            response.sendRedirect("category");
+                // Kiểm tra nếu danh mục đang được sử dụng
+                boolean isUsed = offerDAO.isCategoryUsed(categoryID);
+                if (isUsed) {
+                    List<Category> categoryList = categoryDAO.getAllCategories();
+                    request.setAttribute("categoryList", categoryList);
+                    request.setAttribute("deleteError", "Không thể xóa danh mục vì đang được sử dụng trong các bài đăng.");
+                    request.getRequestDispatcher("categorylist.jsp").forward(request, response);
+                    return;
+                } else {
+                    categoryDAO.deleteCategory(categoryID);
+                    response.sendRedirect("category");
+                    return;
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
