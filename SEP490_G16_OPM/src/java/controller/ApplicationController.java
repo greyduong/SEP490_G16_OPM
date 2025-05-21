@@ -8,13 +8,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.Date;
 import java.util.List;
 import model.Application;
 import model.User;
 
 @WebServlet(name = "ApplicationController", urlPatterns = {"/application"})
 public class ApplicationController extends HttpServlet {
+
+    private ApplicationDAO dao = new ApplicationDAO();
 
     private boolean isAuthorized(HttpSession session) {
         if (session == null) {
@@ -30,7 +31,7 @@ public class ApplicationController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (!isAuthorized(session)) {
-            response.sendRedirect("home?error=access-denied");
+            response.sendRedirect("home?error=403");
             return;
         }
 
@@ -64,8 +65,6 @@ public class ApplicationController extends HttpServlet {
             page = 1;
         }
 
-        ApplicationDAO dao = new ApplicationDAO();
-
         // Lấy danh sách đơn theo trang
         List<Application> applications = dao.getApplicationsByFilterPaged(
                 user.getUserID(), keyword, status, sortByDate, page, pageSize
@@ -84,10 +83,5 @@ public class ApplicationController extends HttpServlet {
         request.setAttribute("sortByDate", sortByDate);
 
         request.getRequestDispatcher("viewapplication.jsp").forward(request, response);
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Application processing controller for Staff and Manager";
     }
 }
