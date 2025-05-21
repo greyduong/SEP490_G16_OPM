@@ -1,5 +1,6 @@
 package dao;
 
+import service.MathUtils;
 import dal.DBContext;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +29,7 @@ public class ServerLogDAO extends DBContext {
         var result = new Page<ServerLog>();
         if (page < 1) page = 1;
         int total = fetchOne(rs -> rs.getInt(1), "SELECT COUNT(*) FROM ServerLog WHERE CAST(CreatedAt AS DATE) >= ? AND CAST(CreatedAt AS DATE) <= ?", Date.valueOf(from), Date.valueOf(to));
-        int totalPages = Math.ceilDiv(total, size);
+        int totalPages = MathUtils.ceilDiv(total, size);
         System.out.println("totalPages = " + totalPages);
         if (totalPages == 0) totalPages = 1;
         if (page > totalPages) page = 1;
