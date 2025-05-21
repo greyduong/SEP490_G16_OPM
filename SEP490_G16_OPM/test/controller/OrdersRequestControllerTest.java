@@ -17,6 +17,7 @@ import org.mockito.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import model.Email;
 import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.*;
@@ -47,10 +48,6 @@ public class OrdersRequestControllerTest {
     private RequestDispatcher dispatcher;
 
     private User user;
-
-    @Before
-    public void setup() throws Exception {
-    }
 
     /**
      * With Valid Parameters
