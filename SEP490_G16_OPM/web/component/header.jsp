@@ -98,10 +98,7 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
-                <a href="${pageContext.request.contextPath}/CreateApplication">
-                    <span class="mdi mdi-invoice-list-outline"></span>
-                    Tạo đơn
-                </a>
+
             </c:if>
             <!-- DEALER -->
             <c:if test="${sessionScope.user.roleID == 5}">
@@ -137,7 +134,7 @@
                     Nhật ký hệ thống
                 </a>
             </c:if>
-            <!-- Manager -->
+            <!-- MANAGER -->
             <c:if test="${sessionScope.user.roleID == 2}">
                 <a href="${pageContext.request.contextPath}/manage-farms">
                     <span class="mdi mdi-barn"></span>
@@ -158,6 +155,10 @@
                 <a href="${pageContext.request.contextPath}/manage-application">
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Quản lý đơn
+                </a>
+                <a href="${pageContext.request.contextPath}/category">
+                    <span class="mdi mdi-invoice-list-outline"></span>
+                    Quản lý loại lợn
                 </a> 
             </c:if>
             <!-- Staff -->
@@ -170,46 +171,52 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Quản lý đơn
                 </a> 
+                <a href="${pageContext.request.contextPath}/category">
+                    <span class="mdi mdi-barn"></span>
+                    Quản lý loại lợn
+                </a> 
             </c:if>
         </div>
     </div>
     <script>
-		function getSidebarState() {
-			if (localStorage.getItem("sidebar") === null) return true;
-			return JSON.parse(localStorage.getItem("sidebar"));
-		}
-		function setSidebarState(state) {
-			if (state) $("#sidebar").removeClass("hidden");
-			localStorage.setItem("sidebar", JSON.stringify(state));
-			console.log(state);
-			if(state) {
-				$("#sidebar").removeClass("-translate-x-full");
+        function getSidebarState() {
+            if (localStorage.getItem("sidebar") === null)
+                return true;
+            return JSON.parse(localStorage.getItem("sidebar"));
+        }
+        function setSidebarState(state) {
+            if (state)
+                $("#sidebar").removeClass("hidden");
+            localStorage.setItem("sidebar", JSON.stringify(state));
+            console.log(state);
+            if (state) {
+                $("#sidebar").removeClass("-translate-x-full");
                 $("body > *:not(#header):not(#sidebar)").animate({
                     marginLeft: $("#sidebar").width() + "px"
                 }, 300);
-			} else {
-				$("#sidebar").removeClass("-translate-x-full");
-				$("#sidebar").addClass("-translate-x-full");
+            } else {
+                $("#sidebar").removeClass("-translate-x-full");
+                $("#sidebar").addClass("-translate-x-full");
                 $("body > *:not(#header):not(#sidebar)").animate({
                     marginLeft: "0px"
                 }, 300);
-			}
-		}
-		function toggleSidebar() {
-			const state = getSidebarState();
-			setSidebarState(!state);
-		}
+            }
+        }
+        function toggleSidebar() {
+            const state = getSidebarState();
+            setSidebarState(!state);
+        }
         $("#toggleSidebar").on("click", function () {
-			toggleSidebar();
+            toggleSidebar();
         });
         $(window).on("load", function () {
-			const state = getSidebarState();
-			if (state) {
-				$("#sidebar").removeClass("hidden");
+            const state = getSidebarState();
+            if (state) {
+                $("#sidebar").removeClass("hidden");
                 $("body > *:not(#header):not(#sidebar)").css({
                     marginLeft: $("#sidebar").width() + "px"
                 });
-			}
+            }
         });
     </script>
 </c:if>

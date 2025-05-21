@@ -9,8 +9,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet(name = "UpdateProfileController", urlPatterns = {"/UpdateProfile"})
-public class UpdateProfileController extends HttpServlet {
+@WebServlet(name = "ProfileController", urlPatterns = {"/profile"})
+public class ProfileController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -18,11 +18,11 @@ public class UpdateProfileController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login-register.jsp");
+            response.sendRedirect("login");
             return;
         }
 
-        request.getRequestDispatcher("editprofile.jsp").forward(request, response);
+        request.getRequestDispatcher("profile.jsp").forward(request, response);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class UpdateProfileController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login-register.jsp");
+            response.sendRedirect("login");
             return;
         }
 
@@ -47,21 +47,21 @@ public class UpdateProfileController extends HttpServlet {
         if (Validation.isEmpty(fullname) || Validation.isEmpty(email)
                 || Validation.isEmpty(phone) || Validation.isEmpty(address)) {
             session.setAttribute("error", "Vui lòng nhập đầy đủ thông tin.");
-            response.sendRedirect("UpdateProfile");
+            response.sendRedirect("profile");
             return;
         }
 
         // ✅ Kiểm tra định dạng email
         if (!Validation.isValidEmail(email)) {
             session.setAttribute("error", "Email không hợp lệ.");
-            response.sendRedirect("UpdateProfile");
+            response.sendRedirect("profile");
             return;
         }
 
         // ✅ Kiểm tra định dạng fullname
         if (!Validation.isValidFullName(fullname)) {
             session.setAttribute("error", "Họ tên chỉ được chứa chữ cái và ít nhất 2 ký tự.");
-            response.sendRedirect("UpdateProfile");
+            response.sendRedirect("profile");
             return;
         }
 
@@ -82,6 +82,6 @@ public class UpdateProfileController extends HttpServlet {
             session.setAttribute("error", "Cập nhật thất bại. Vui lòng thử lại.");
         }
 
-        response.sendRedirect("UpdateProfile");
+        response.sendRedirect("profile");
     }
 }

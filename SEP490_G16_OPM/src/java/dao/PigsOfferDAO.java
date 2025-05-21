@@ -1242,4 +1242,18 @@ public class PigsOfferDAO extends DBContext {
 
         return offers;
     }
+
+    public boolean isCategoryUsed(int categoryID) {
+        String sql = "SELECT COUNT(*) FROM PigsOffer WHERE CategoryID = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, categoryID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

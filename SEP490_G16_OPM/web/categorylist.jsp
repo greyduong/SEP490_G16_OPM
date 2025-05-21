@@ -2,72 +2,55 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%
-    // Access control: Only allow Staff (2) and Manager (3)
-    model.User user = (model.User) session.getAttribute("user");
-    if (user == null || (user.getRoleID() != 2 && user.getRoleID() != 3)) {
-        response.sendRedirect("login-register.jsp?error=access-denied");
-        return;
-    }
-%>
+
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Category List | Online Pig Market</title>
+        <title>Danh mục | Chợ Heo Trực Tuyến</title>
         <jsp:include page="component/library.jsp" />
     </head>
     <body>
         <jsp:include page="component/header.jsp" />
-        <!-- Breadcrumb Section Begin -->
-        <section class="breadcrumb-section set-bg" data-setbg="${pageContext.request.contextPath}/img/breadcrumb.jpg">
-            <div class="container text-center">
-                <div class="breadcrumb__text">
-                    <h2>Category List</h2>
-                    <div class="breadcrumb__option">
-                        <a href="home">Home</a>
-                        <span>Category List</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Breadcrumb Section End -->
 
-        <!-- Add New Category Form -->
+        <!-- Form Thêm Danh Mục Mới -->
         <div class="row mb-4">
             <div class="col-lg-8 offset-lg-2">
-                <h4 class="mb-3">Add New Category</h4>
+                <h4 class="mb-3">Thêm danh mục mới</h4>
                 <form action="category" method="post">
                     <input type="hidden" name="action" value="add" />
                     <div class="form-group">
-                        <label for="name">Name</label>
+                        <label for="name">Tên danh mục</label>
                         <input type="text" name="name" class="form-control" id="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="desc">Description</label>
+                        <label for="desc">Mô tả</label>
                         <textarea name="description" class="form-control" id="desc" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="site-btn">Add Category</button>
+                    <button type="submit" class="site-btn">Thêm danh mục</button>
                 </form>
             </div>
         </div>
-
-        <!-- Category Management Section Begin -->
+        <c:if test="${not empty deleteError}">
+            <div class="alert alert-danger text-center" role="alert">
+                ${deleteError}
+            </div>
+        </c:if>
+        <!-- Khu vực quản lý danh mục -->
         <section class="product-details spad">
             <div class="container">
-                <!-- Display Categories as Table -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h4 class="mb-3">Existing Categories</h4>
+                        <h4 class="mb-3">Danh sách danh mục hiện có</h4>
                         <table class="table table-bordered table-hover">
                             <thead class="thead-light">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th style="width: 150px;">Actions</th>
+                                    <th>Tên</th>
+                                    <th>Mô tả</th>
+                                    <th style="width: 150px;">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,25 +60,25 @@
                                         <td>${category.name}</td>
                                         <td>${category.description}</td>
                                         <td>
-                                            <!-- Edit Button triggers Modal -->
+                                            <!-- Nút sửa mở Modal -->
                                             <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editCategoryModal"
                                                     data-id="${category.categoryID}" 
                                                     data-name="${category.name}" 
                                                     data-description="${category.description}">
-                                                Edit
+                                                Sửa
                                             </button>
-                                            <!-- Delete Button -->
-                                            <form action="category" method="post" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                            <!-- Nút xóa -->
+                                            <form action="category" method="post" style="display:inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?');">
                                                 <input type="hidden" name="action" value="delete" />
                                                 <input type="hidden" name="categoryID" value="${category.categoryID}" />
-                                                <button class="btn btn-danger btn-sm">Delete</button>
+                                                <button class="btn btn-danger btn-sm">Xóa</button>
                                             </form>
                                         </td>
                                     </tr>
                                 </c:forEach>
                                 <c:if test="${empty categoryList}">
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted">No categories available.</td>
+                                        <td colspan="4" class="text-center text-muted">Chưa có danh mục nào.</td>
                                     </tr>
                                 </c:if>
                             </tbody>
@@ -104,15 +87,15 @@
                 </div>
             </div>
         </section>
-        <!-- Category Management Section End -->
+        <!-- Kết thúc quản lý danh mục -->
 
-        <!-- Edit Category Modal -->
+        <!-- Modal chỉnh sửa danh mục -->
         <div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h5 class="modal-title" id="editCategoryModalLabel">Chỉnh sửa danh mục</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -122,32 +105,34 @@
                             <input type="hidden" name="categoryID" id="editCategoryID" />
 
                             <div class="form-group">
-                                <label for="editName">Name</label>
+                                <label for="editName">Tên danh mục</label>
                                 <input type="text" name="name" id="editName" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="editDescription">Description</label>
+                                <label for="editDescription">Mô tả</label>
                                 <textarea name="description" id="editDescription" class="form-control" rows="3" required></textarea>
                             </div>
-                            <button type="submit" class="site-btn">Update Category</button>
+                            <button type="submit" class="site-btn">Cập nhật</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <jsp:include page="component/footer.jsp" />
-        <script>
-                $('#editCategoryModal').on('show.bs.modal', function (event) {
-                    var button = $(event.relatedTarget);
-                    var categoryID = button.data('id');
-                    var name = button.data('name');
-                    var description = button.data('description');
 
-                    var modal = $(this);
-                    modal.find('#editCategoryID').val(categoryID);
-                    modal.find('#editName').val(name);
-                    modal.find('#editDescription').val(description);
-                });
+        <jsp:include page="component/footer.jsp" />
+
+        <script>
+            $('#editCategoryModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var categoryID = button.data('id');
+                var name = button.data('name');
+                var description = button.data('description');
+
+                var modal = $(this);
+                modal.find('#editCategoryID').val(categoryID);
+                modal.find('#editName').val(name);
+                modal.find('#editDescription').val(description);
+            });
         </script>
 
     </body>
