@@ -88,6 +88,11 @@ public class UpdateOfferStatus extends HttpServlet {
                 return;
             }
 
+            if ("Banned".equalsIgnoreCase(offer.getStatus())) {
+                response.sendRedirect("my-offers?msg=" + java.net.URLEncoder.encode("Chào bán đã bị cấm và không thể chỉnh sửa.", "UTF-8"));
+                return;
+            }
+
             // Không cho phép đặt "Available" nếu điều kiện không hợp lệ
             java.sql.Date today = new java.sql.Date(System.currentTimeMillis());
             if ("Available".equalsIgnoreCase(newStatus)) {
