@@ -115,7 +115,24 @@
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Đơn đề nghị
                 </a>
-
+                <a href="${pageContext.request.contextPath}/CreateApplication">
+                    <span class="mdi mdi-invoice-list-outline"></span>
+                    Tạo đơn
+                </a>
+                <a href="${pageContext.request.contextPath}/dealer-dashboard">
+                    <span class="mdi mdi-chart-bar"></span>
+                    Thống kê
+                </a>
+            </c:if>
+            <c:if test="${sessionScope.user.roleID == 1}">
+                <a href="${pageContext.request.contextPath}/manage-user">
+                    <span class="mdi mdi-account"></span>
+                    Quản lý người dùng
+                </a>
+                <a href="${pageContext.request.contextPath}/server-log">
+                    <span class="mdi mdi-math-log"></span>
+                    Nhật ký hệ thống
+                </a>
             </c:if>
             <!-- MANAGER -->
             <c:if test="${sessionScope.user.roleID == 2}">
@@ -213,7 +230,7 @@
     });
 </script>
 <c:if test="${param.error == '403'}">
-    <script>
-        alert("Bạn không có quyền làm điều này!");
-    </script>
+<script>
+	alert("Bạn không có quyền làm điều này!");
+</script>
 </c:if>
