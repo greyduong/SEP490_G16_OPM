@@ -5,7 +5,6 @@ import dao.OrderDAO;
 import dao.UserDAO;
 import dao.Validation;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import jakarta.servlet.ServletException;
@@ -20,6 +19,9 @@ import model.User;
 
 @WebServlet(name = "CancelDeliveryController", urlPatterns = {"/cancel-delivery"})
 public class CancelDeliveryController extends HttpServlet {
+    private DeliveryDAO deliveryDAO = new DeliveryDAO();
+    private OrderDAO orderDAO = new OrderDAO();
+    private UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -29,7 +31,6 @@ public class CancelDeliveryController extends HttpServlet {
 
         try {
             int deliveryID = Integer.parseInt(request.getParameter("deliveryID"));
-            DeliveryDAO deliveryDAO = new DeliveryDAO();
 
             int orderID = deliveryDAO.getOrderIdByDeliveryId(deliveryID);
             int dealerID = deliveryDAO.getDealerIdByDeliveryId(deliveryID);
@@ -66,9 +67,6 @@ public class CancelDeliveryController extends HttpServlet {
 
             String msg;
             if (canceled) {
-                OrderDAO orderDAO = new OrderDAO();
-                UserDAO userDAO = new UserDAO();
-
                 Order order = orderDAO.getOrderById(orderID);
                 User seller = userDAO.getUserById(order.getSellerID());
                 User dealer = userDAO.getUserById(order.getDealerID());
@@ -110,29 +108,7 @@ public class CancelDeliveryController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("myorders?msg="
-                    + URLEncoder.encode("Lỗi khi hủy giao hàng.", "UTF-8"));
-        }
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Handles delivery cancellation with validation and notification.";
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            out.println("<!DOCTYPE html>");
-            out.println("<html><head><title>CancelDeliveryController</title></head>");
-            out.println("<body><h1>Accessed via GET, use POST instead</h1></body></html>");
+            response.sendRedirect("myorders?msg=" + URLEncoder.encode("Lỗi khi hủy giao hàng.", "UTF-8"));
         }
     }
 }

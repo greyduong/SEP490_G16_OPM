@@ -42,7 +42,6 @@ public class AddToCartControllerTest {
 
     @Before
     public void setup() {
-        Mockito.lenient();
         user = new User();
         user.setUserID(1);
 
@@ -77,9 +76,7 @@ public class AddToCartControllerTest {
         doNothing().when(cartDAO).addToCart(anyInt(), anyInt(), anyInt());
         doNothing().when(response).sendRedirect(anyString());
 
-        var doPost = AddToCartController.class.getDeclaredMethod("doPost", HttpServletRequest.class, HttpServletResponse.class);
-        doPost.setAccessible(true);
-        doPost.invoke(controller, request, response);
+        controller.doPost(request, response);
 
         verify(cartDAO).addToCart(1, 10, 10);
         verify(response).sendRedirect(contains("cart?search=Offer+Name"));
@@ -105,9 +102,7 @@ public class AddToCartControllerTest {
 
         doNothing().when(response).sendRedirect(anyString());
 
-        var doPost = AddToCartController.class.getDeclaredMethod("doPost", HttpServletRequest.class, HttpServletResponse.class);
-        doPost.setAccessible(true);
-        doPost.invoke(controller, request, response);
+        controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), contains("Số lượng không phù hợp"));
         verify(response).sendRedirect("home");
@@ -131,9 +126,7 @@ public class AddToCartControllerTest {
         offer.setStatus("Banned");
         when(request.getRequestDispatcher("shoppingcart.jsp")).thenReturn(dispatcher);
 
-        var doPost = AddToCartController.class.getDeclaredMethod("doPost", HttpServletRequest.class, HttpServletResponse.class);
-        doPost.setAccessible(true);
-        doPost.invoke(controller, request, response);
+        controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), contains("Chào bán này hiện không thể đặt hàng"));
         verify(response).sendRedirect("home");
@@ -157,9 +150,7 @@ public class AddToCartControllerTest {
         when(pigsOfferDAO.getOfferById(10)).thenReturn(null);
         doNothing().when(response).sendRedirect("home");
 
-        var doPost = AddToCartController.class.getDeclaredMethod("doPost", HttpServletRequest.class, HttpServletResponse.class);
-        doPost.setAccessible(true);
-        doPost.invoke(controller, request, response);
+        controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), contains("ngưng bán hoặc không tồn tại"));
         verify(response).sendRedirect("home");
@@ -184,9 +175,7 @@ public class AddToCartControllerTest {
 
         doNothing().when(response).sendRedirect("home");
 
-        var doPost = AddToCartController.class.getDeclaredMethod("doPost", HttpServletRequest.class, HttpServletResponse.class);
-        doPost.setAccessible(true);
-        doPost.invoke(controller, request, response);
+        controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
         verify(response).sendRedirect("home");
