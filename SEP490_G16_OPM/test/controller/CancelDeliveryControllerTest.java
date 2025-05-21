@@ -144,7 +144,7 @@ public class CancelDeliveryControllerTest {
     }
 
     /**
-     * Unauthorized (Wrong role)
+     * Unauthorized Role
      * 
      * deliveryId = 5
      * cancelReason = "Reason valid"
@@ -157,7 +157,7 @@ public class CancelDeliveryControllerTest {
      * @throws Exception 
      */
     @Test
-    public void testUnauthorized_RedirectsWithError() throws Exception {
+    public void testUnauthorizedRole_RedirectsWithError() throws Exception {
         user.setRoleID(4);
 
         controller.doPost(request, response);
@@ -166,12 +166,12 @@ public class CancelDeliveryControllerTest {
     }
 
     /**
-     * Unauthorized (Current user and dealer not match)
+     * Unauthorized UserID
      * 
      * deliveryId = 5
      * cancelReason = "Reason valid"
      * orderId = 101
-     * userId = 4 // invalid role
+     * userId = 99
      * userRole = 5
      * dealerId = 2
      * deliveryStatus = "Pending"
@@ -179,7 +179,7 @@ public class CancelDeliveryControllerTest {
      * @throws Exception 
      */
     @Test
-    public void testUnauthorized2_RedirectsWithError() throws Exception {
+    public void testUnauthorizedUserID_RedirectsWithError() throws Exception {
         user.setUserID(99);
 
         controller.doPost(request, response);
