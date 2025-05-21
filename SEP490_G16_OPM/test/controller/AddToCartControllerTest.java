@@ -140,7 +140,7 @@ public class AddToCartControllerTest {
     }
 
     /**
-     * Offer Unavailable
+     * Offer Not Found
      * 
      * UserID = 1
      * OfferID = 10
@@ -166,7 +166,7 @@ public class AddToCartControllerTest {
     }
 
     /**
-     * Success
+     * Invalid Input
      * 
      * UserID = 1
      * OfferID = 10
