@@ -151,6 +151,8 @@ public class UpdatePigsOfferController extends HttpServlet {
                     request.setAttribute("error", "Không thể đặt trạng thái 'Hoạt động' vì chào bán đã kết thúc.");
                 } else if (quantity <= 0) {
                     request.setAttribute("error", "Không thể đặt trạng thái 'Hoạt động' vì số lượng bằng 0.");
+                } else if (minQuantity > quantity) {
+                     request.setAttribute("error", "Số lượng tối thiểu không được lớn hơn tổng số lượng.");
                 }
                 if (request.getAttribute("error") != null) {
                     // Giữ lại dữ liệu đã nhập
