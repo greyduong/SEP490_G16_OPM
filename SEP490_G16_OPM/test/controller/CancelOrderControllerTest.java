@@ -106,22 +106,30 @@ public class CancelOrderControllerTest {
     }
 
     /**
-     * Test Case 1: Cancel Order Success
+     * Test Case: Cancel Order Success
      *
+     * <br><b>Parameters:</b>
      * <br>OrderId = 101
      * <br>CancelReason = "Example Cancel Reason"
-     * <br>OrderStatus = "Pending"
-     * <br>OrderCreatedAt = now().minusHours(12)
-     * <br>OrderQuantity = 10
-     * <br>SessionUserId = 4
-     * <br>OrderDealerId = 4
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Database has Order with id 101
+     * <br>Order id 101 status "Pending"
+     * <br>Order id 101 created time not over 24h
+     * <br>Order id 101 quantity 10
+     * <br>Order id 101 has dealer id same as logged user
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Hủy đơn thành công"
      *
      * @throws Exception
      */
     @Test
     public void testDoPost_Success() throws Exception {
         setup();
-        
+
         controller.doPost(request, response);
 
         // cộng quantity lại vào offer
@@ -132,15 +140,18 @@ public class CancelOrderControllerTest {
     }
 
     /**
-     * Test Case 2: Missing Order Id - Redirect With Message
+     * Test Case: Missing Order Id - Redirect With Message
      *
+     * <br><b>Parameters:</b>
      * <br>OrderId = "" // empty order id
      * <br>CancelReason = "Example Cancel Reason"
-     * <br>OrderStatus = null
-     * <br>OrderCreatedAt = null
-     * <br>OrderQuantity = null
-     * <br>SessionUserId = null
-     * <br>OrderDealerId = null
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Thiếu mã đơn hàng"
      *
      * @throws Exception
      */
@@ -157,15 +168,108 @@ public class CancelOrderControllerTest {
     }
 
     /**
-     * Test Case 3: Invalid Cancel Reason - Redirect With Message
+     * Test Case: String Order Id - Redirect With Message
      *
+     * <br><b>Parameters:</b>
+     * <br>OrderId = "abc" // string
+     * <br>CancelReason = "Example Cancel Reason"
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Mã đơn hàng không hợp lệ."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_StringOrderId() throws Exception {
+        setup();
+
+        when(request.getParameter("orderId")).thenReturn("abc");
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), eq("Mã đơn hàng không hợp lệ."));
+        verify(response).sendRedirect("myorders");
+    }
+
+    /**
+     * Test Case: Order Not Found - Redirect With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>OrderId = 101
+     * <br>CancelReason = "Valid Cancel Reason"
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Order id 101 not exist
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Đơn hàng không tồn tại."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_OrderNotFound() throws Exception {
+        setup();
+
+        when(orderDAO.getOrderById(orderId)).thenReturn(null);
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), eq("Đơn hàng không tồn tại."));
+        verify(response).sendRedirect("myorders");
+    }
+
+    /**
+     * Test Case: Negative OrderId - Redirect With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>OrderId = "-1" // invalid order id
+     * <br>CancelReason = "Valid Cancel Reason"
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Đơn hàng không tồn tại."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_NegativeOrderId() throws Exception {
+        setup();
+
+        when(orderDAO.getOrderById(orderId)).thenReturn(null);
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), eq("Đơn hàng không tồn tại."));
+        verify(response).sendRedirect("myorders");
+    }
+
+    /**
+     * Test Case: Invalid Cancel Reason - Redirect With Message
+     *
+     * <br><b>Parameters:</b>
      * <br>OrderId = 101
      * <br>CancelReason = "" // empty cancel reason
-     * <br>OrderStatus = "Pending"
-     * <br>OrderCreatedAt = now().minusHours(12)
-     * <br>OrderQuantity = 10
-     * <br>SessionUserId = 4
-     * <br>OrderDealerId = 4
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Database has Order with id 101
+     * <br>Order id 101 status "Pending"
+     * <br>Order id 101 created time not over 24h
+     * <br>Order id 101 has quantity 10
+     * <br>Order id 101 has dealer id same as logged user
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Lý do hủy không được để trống."
      *
      * @throws Exception
      */
@@ -182,42 +286,23 @@ public class CancelOrderControllerTest {
     }
 
     /**
-     * Test Case 4: Order Not Found - Redirect With Message
+     * Test Case: Order Not Pending
      *
-     * <br>OrderId = 102 // invalid order id
-     * <br>CancelReason = "Valid Cancel Reason"
-     * <br>OrderStatus = null
-     * <br>OrderCreatedAt = null
-     * <br>OrderQuantity = null
-     * <br>SessionUserId = null
-     * <br>OrderDealerId = null
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testDoPost_OrderNotFound() throws Exception {
-        orderId = 102;
-
-        setup();
-
-        when(orderDAO.getOrderById(102)).thenReturn(null);
-
-        controller.doPost(request, response);
-
-        verify(session).setAttribute(eq("msg"), eq("Đơn hàng không tồn tại."));
-        verify(response).sendRedirect("myorders");
-    }
-
-    /**
-     * Test Case 5: Order Not Pending
-     *
+     * <br><b>Parameters:</b>
      * <br>OrderId = 101
      * <br>CancelReason = "Example Cancel Reason"
-     * <br>OrderStatus = "Processing" // not pending
-     * <br>OrderCreatedAt = now().minusHours(12)
-     * <br>OrderQuantity = 10
-     * <br>SessionUserId = 4
-     * <br>OrderDealerId = 4
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Order id 101 exist
+     * <br>Order id 101 status "Processing" // not pending
+     * <br>Order id 101 created time not over 24h
+     * <br>Order id 101 quantity 10
+     * <br>Order id 101 dealer id same as logged user
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Chỉ có đơn trạng thái chờ xác nhận mới được hủy."
      *
      * @throws Exception
      */
@@ -234,15 +319,22 @@ public class CancelOrderControllerTest {
     }
 
     /**
-     * Test Case 6: Unauthorized
+     * Test Case: Unauthorized
      *
+     * <br><b>Parameters:</b>
      * <br>OrderId = 101
      * <br>CancelReason = "Example Cancel Reason"
-     * <br>OrderStatus = "Pending"
-     * <br>OrderCreatedAt = now().minusHours(12)
-     * <br>OrderQuantity = 10
-     * <br>SessionUserId = 99 // not order owner (need equal dealerId)
-     * <br>OrderDealerId = 4
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Order id 101 status "Pending"
+     * <br>Order id 101 created time not over 24h
+     * <br>Order id 101 quantity 10
+     * <br>Order id 101 has dealer id differ from current logged user
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Bạn không có quyền hủy đơn này."
      *
      * @throws Exception
      */
@@ -259,15 +351,22 @@ public class CancelOrderControllerTest {
     }
 
     /**
-     * Test Case 7: Order Older Than 24 Hours
+     * Test Case: Order Older Than 24 Hours
      *
+     * <br><b>Parameters:</b>
      * <br>OrderId = 101
      * <br>CancelReason = "Example Cancel Reason"
-     * <br>OrderStatus = "Pending"
-     * <br>OrderCreatedAt = now().minusHours(25) // over 24h
-     * <br>OrderQuantity = 10
-     * <br>SessionUserId = 4
-     * <br>OrderDealerId = 4
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Order id 101 status "Pending"
+     * <br>Order id 101 created time over 24h // invalid
+     * <br>Order id 101 quantity 10
+     * <br>Order id 101 has dealer id differ from current logged user
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Đơn hàng đã quá 24 giờ, không thể hủy."
      *
      * @throws Exception
      */
@@ -283,17 +382,19 @@ public class CancelOrderControllerTest {
         verify(response).sendRedirect("myorders");
     }
 
-
     /**
-     * Test Case 8: Invalid OrderId Format
+     * Test Case: Invalid OrderId Format
      *
-     * <br>OrderId = "abc"
+     * <br><b>Parameters:</b>
+     * <br>OrderId = "abc" // invalid
      * <br>CancelReason = "Example Cancel Reason"
-     * <br>OrderStatus = "Pending"
-     * <br>OrderCreatedAt = now().minusHours(12)
-     * <br>OrderQuantity = 10
-     * <br>SessionUserId = 4
-     * <br>OrderDealerId = 4
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Mã đơn hàng không hợp lệ."
      *
      * @throws Exception
      */
@@ -306,6 +407,33 @@ public class CancelOrderControllerTest {
         controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), eq("Mã đơn hàng không hợp lệ."));
+        verify(response).sendRedirect("myorders");
+    }
+
+    /**
+     * Test Case: Database Not Connected
+     *
+     * <br><b>Parameters:</b>
+     * <br>OrderId = 101
+     * <br>CancelReason = "Example Cancel Reason"
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database not connected
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Đã xảy ra lỗi khi hủy đơn."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_DatabaseNotConnected() throws Exception {
+        setup();
+
+        when(orderDAO.getOrderById(orderId)).thenThrow(new NullPointerException("Connection is null"));
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), eq("Đã xảy ra lỗi khi hủy đơn."));
         verify(response).sendRedirect("myorders");
     }
 }

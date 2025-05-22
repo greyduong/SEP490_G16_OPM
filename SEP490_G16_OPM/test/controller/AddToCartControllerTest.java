@@ -408,6 +408,34 @@ public class AddToCartControllerTest {
     }
 
     /**
+     * Test Case: Negative OfferID - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = "-1"
+     * 
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Chào bán đã ngưng bán hoặc không tồn tại!"
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_NegativeOfferID_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(request.getParameter("offerId")).thenReturn("-101");
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("ngưng bán hoặc không tồn tại"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
      * Test Case: Overflow OfferID - Redirect Home With Message
      *
      * <br><b>Parameters:</b>

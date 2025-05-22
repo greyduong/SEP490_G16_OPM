@@ -137,19 +137,21 @@ public class CheckOutControllerTest {
     }
 
     /**
-     * Test Case 1: Success - Quantity Equals Offer Quantity
+     * Test Case: Success - Quantity Equals Offer Quantity
      *
+     * <br><b>Parameters:</b>
      * <br>ParameterCartId = "101"
      * <br>ParameterOfferId = "202"
      * <br>ParameterQuantity = "10"
-     * <br>SessionUserId = 5
-     * <br>CartUserId = 5
-     * <br>OfferSellerId = 2
-     * <br>OfferQuantity = 10
-     * <br>OfferMinQuantity = 1
-     * <br>OfferRetailPrice = 1000
-     * <br>OfferTotalOfferPrice = 10000
-     * <br>OfferStatus = "Available"
+     * 
+     * <br><b>Preconditions:</b>
+     * <br>User logged
+     * <br>Cart user same as logged user
+     * <br>Offer quantity is 10
+     * <br>Offer min quantity is 1
+     * <br>Offer retail price is 1000
+     * <br>Offer total offer price is 10000
+     * <br>Offer status is "Available"
      *
      * @throws Exception
      */

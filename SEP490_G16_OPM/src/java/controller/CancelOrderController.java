@@ -137,7 +137,7 @@ public class CancelOrderController extends HttpServlet {
         } catch (NumberFormatException e) {
             session.setAttribute("msg", "Mã đơn hàng không hợp lệ.");
             response.sendRedirect("myorders");
-        } catch (IOException e) {
+        } catch (Exception e) {
             Logger.getLogger(CancelOrderController.class.getName()).log(Level.SEVERE, null, e);
             session.setAttribute("msg", "Đã xảy ra lỗi khi hủy đơn.");
             response.sendRedirect("myorders");
