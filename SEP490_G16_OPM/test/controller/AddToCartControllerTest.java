@@ -412,7 +412,7 @@ public class AddToCartControllerTest {
      *
      * <br><b>Parameters:</b>
      * <br>ParameterQuantity = 5
-     * <br>ParameterOfferID = "abc"
+     * <br>ParameterOfferID = "9999999999"
      * 
      * <br><b>Precondition:</b>
      * <br>Database connected
@@ -427,7 +427,7 @@ public class AddToCartControllerTest {
     public void testDoPost_OverflowOfferID_RedirectHomeWithMessage() throws Exception {
         setup();
 
-        when(request.getParameter("offerId")).thenReturn("abc");
+        when(request.getParameter("offerId")).thenReturn("9999999999");
 
         controller.doPost(request, response);
 
