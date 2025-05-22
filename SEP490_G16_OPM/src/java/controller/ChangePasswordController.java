@@ -12,9 +12,7 @@ import java.io.IOException;
 public class ChangePasswordController extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             response.sendRedirect("login");
@@ -52,7 +50,7 @@ public class ChangePasswordController extends HttpServlet {
         }
 
         user.setPassword(newPassword);
-        UserDAO userDAO = new UserDAO();
+        UserDAO userDAO = getUserDAO();
         boolean success = userDAO.updatePassword(user.getUsername(), newPassword);
 
         if (success) {
@@ -62,5 +60,9 @@ public class ChangePasswordController extends HttpServlet {
         }
 
         response.sendRedirect("profile");
+    }
+
+    public UserDAO getUserDAO() {
+        return new UserDAO();
     }
 }
