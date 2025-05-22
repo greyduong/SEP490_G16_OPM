@@ -2,6 +2,7 @@ package controller;
 
 import dao.OrderDAO;
 import dao.WalletUseHistoryDAO;
+import jakarta.mail.MessagingException;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,8 +10,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Email;
 import model.Order;
 import model.User;
@@ -22,17 +26,14 @@ import model.User;
 @WebServlet(name = "DepositOrderController", urlPatterns = {"/deposit-order"})
 public class DepositOrderController extends HttpServlet {
 
-    private OrderDAO orderDAO = new OrderDAO();
-    private WalletUseHistoryDAO walletUseHistoryDAO  = new WalletUseHistoryDAO();
+    public OrderDAO getOrderDAO() {
+        return new OrderDAO();
+    }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    public WalletUseHistoryDAO getWalletUseHistoryDAO() {
+        return new WalletUseHistoryDAO();
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -54,6 +55,7 @@ public class DepositOrderController extends HttpServlet {
 
         if (orderIDStr != null) {
             try {
+                OrderDAO orderDAO = getOrderDAO();
                 int orderID = Integer.parseInt(orderIDStr);
                 Order order = orderDAO.getOrderById(orderID);
 
@@ -68,7 +70,7 @@ public class DepositOrderController extends HttpServlet {
                         return;
                     }
                     long amount = (long) (order.getTotalPrice() * 0.01);
-                    if (!walletUseHistoryDAO.use(user.getUserID(), amount, "Đặt cọc cho đơn hàng #%s".formatted(order.getOrderID()))) {
+                    if (!getWalletUseHistoryDAO().use(user.getUserID(), amount, "Đặt cọc cho đơn hàng #%s".formatted(order.getOrderID()))) {
                         String msg = URLEncoder.encode("Không đủ tiền trong ví!", StandardCharsets.UTF_8);
                         response.sendRedirect(baseQuery + "&msg=" + msg);
                         return;
@@ -89,8 +91,8 @@ public class DepositOrderController extends HttpServlet {
                         try {
                             Email.sendEmail(buyerEmail, subject, content);
                             Email.sendEmail(sellerEmail, subject, content);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (MessagingException | UnsupportedEncodingException e) {
+                            Logger.getLogger(DepositOrderController.class.getName()).log(Level.SEVERE, null, e);
                         }
 
                         String msg = URLEncoder.encode("Đặt cọc thành công cho đơn hàng #" + orderID, StandardCharsets.UTF_8);

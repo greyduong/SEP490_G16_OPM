@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class DepositOrderControllerTest {
 
-    @InjectMocks
+    @Spy
     private DepositOrderController controller;
 
     @Mock
@@ -49,6 +49,10 @@ public class DepositOrderControllerTest {
         mockEmail.when(() -> Email.sendEmail(anyString(), anyString(), anyString())).thenAnswer(inv -> null);
         dealerUser = new User();
         dealerUser.setUserID(2);
+
+        // mock dao
+        when(controller.getOrderDAO()).thenReturn(orderDAO);
+        when(controller.getWalletUseHistoryDAO()).thenReturn(walletUseHistoryDAO);
 
         order = new Order();
         order.setOrderID(100);
