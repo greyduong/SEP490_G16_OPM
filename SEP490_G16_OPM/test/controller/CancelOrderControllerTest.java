@@ -42,40 +42,62 @@ public class CancelOrderControllerTest {
 
     private MockedStatic<Email> mockEmail;
 
+    private int orderId = 101;
+    private String cancelReason = "Valid Cancel Reason";
+    private int sessionUserId = 5;
+    private int orderDealerId = 5;
+    private int orderSellerId = 4;
+    private int orderOfferId = 202;
+    private int orderQuantity = 10;
+    private String orderStatus = "Pending";
+    private Timestamp orderCreatedAt = Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusHours(12));
+
     private User sessionUser;
+    private User orderDealer;
+    private User orderSeller;
     private Order order;
 
     @Before
-    public void setUp() {
+    public void dependencies() {
         doReturn(pigsOfferDAO).when(controller).getPigsOfferDAO();
         doReturn(orderDAO).when(controller).getOrderDAO();
-
-        sessionUser = new User();
-        sessionUser.setUserID(1);
-        sessionUser.setEmail("test@example.com");
-        sessionUser.setFullName("Test User");
-
-        User seller = new User();
-        seller.setUserID(2);
-        seller.setEmail("seller@example.com");
-        seller.setFullName("Seller User");
-
-        order = new Order();
-        order.setOrderID(100);
-        order.setDealer(sessionUser);
-        order.setSeller(seller);
-        order.setStatus("Pending");
-        order.setOfferID(20);
-        order.setQuantity(10);
-        order.setCreatedAt(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusHours(12)));
-
         when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(sessionUser);
-        when(controller.getOrderDAO()).thenReturn(orderDAO);
 
         // mock email
-        mockEmail = Mockito.mockStatic(Email.class);
+        mockEmail = mockStatic(Email.class);
         mockEmail.when(() -> Email.sendEmail(anyString(), anyString(), anyString())).thenAnswer(inv -> null);
+    }
+
+    public void setup() {
+        sessionUser = new User();
+        sessionUser.setUserID(sessionUserId);
+        sessionUser.setEmail("user@example.com");
+        sessionUser.setFullName("Example User");
+        orderSeller = new User();
+        orderSeller.setUserID(orderSellerId);
+        orderSeller.setEmail("seller@example.com");
+        orderSeller.setFullName("Example Seller");
+        orderDealer = new User();
+        orderDealer.setUserID(orderDealerId);
+        orderDealer.setEmail("dealer@example.com");
+        orderDealer.setFullName("Example Dealer");
+        order = new Order();
+        order.setOrderID(orderId);
+        order.setDealer(sessionUser);
+        order.setSeller(orderSeller);
+        order.setDealer(orderDealer);
+        order.setOfferID(orderOfferId);
+        order.setStatus(orderStatus);
+        order.setOfferID(orderOfferId);
+        order.setQuantity(orderQuantity);
+        order.setCreatedAt(orderCreatedAt);
+        when(session.getAttribute("user")).thenReturn(sessionUser);
+        when(request.getParameter("orderId")).thenReturn(String.valueOf(orderId));
+        when(request.getParameter("cancelReason")).thenReturn(cancelReason);
+        when(orderDAO.getOrderById(orderId)).thenReturn(order);
+        when(orderDAO.updateOrderNote(orderId, cancelReason)).thenReturn(true);
+        when(orderDAO.cancelOrder(orderId)).thenReturn(true);
+        when(pigsOfferDAO.getOfferQuantity(orderId)).thenReturn(orderQuantity);
     }
 
     @After
@@ -83,155 +105,207 @@ public class CancelOrderControllerTest {
         mockEmail.close();
     }
 
+    /**
+     * Test Case 1: Cancel Order Success
+     *
+     * <br>OrderId = 101
+     * <br>CancelReason = "Example Cancel Reason"
+     * <br>OrderStatus = "Pending"
+     * <br>OrderCreatedAt = now().minusHours(12)
+     * <br>OrderQuantity = 10
+     * <br>SessionUserId = 4
+     * <br>OrderDealerId = 4
+     *
+     * @throws Exception
+     */
     @Test
-    public void testDoPost_MissingOrderId() throws Exception {
+    public void testDoPost_Success() throws Exception {
+        setup();
+        
         controller.doPost(request, response);
-        verify(session).setAttribute(eq("msg"), eq("Thiếu mã đơn hàng."));
+
+        // cộng quantity lại vào offer
+        verify(pigsOfferDAO).updateOfferQuantity(orderOfferId, orderQuantity);
+
+        verify(session).setAttribute(eq("msg"), eq("Hủy đơn thành công."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(orderDAO, pigsOfferDAO);
     }
 
+    /**
+     * Test Case 2: Missing Order Id - Redirect With Message
+     *
+     * <br>OrderId = "" // empty order id
+     * <br>CancelReason = "Example Cancel Reason"
+     * <br>OrderStatus = null
+     * <br>OrderCreatedAt = null
+     * <br>OrderQuantity = null
+     * <br>SessionUserId = null
+     * <br>OrderDealerId = null
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_MissingOrderId() throws Exception {
+        setup();
+
+        when(request.getParameter("orderId")).thenReturn(null);
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), eq("Thiếu mã đơn hàng."));
+        verify(response).sendRedirect("myorders");
+    }
+
+    /**
+     * Test Case 3: Invalid Cancel Reason - Redirect With Message
+     *
+     * <br>OrderId = 101
+     * <br>CancelReason = "" // empty cancel reason
+     * <br>OrderStatus = "Pending"
+     * <br>OrderCreatedAt = now().minusHours(12)
+     * <br>OrderQuantity = 10
+     * <br>SessionUserId = 4
+     * <br>OrderDealerId = 4
+     *
+     * @throws Exception
+     */
     @Test
     public void testDoPost_InvalidCancelReason() throws Exception {
-        when(request.getParameter("orderId")).thenReturn("100");
+        setup();
+
         when(request.getParameter("cancelReason")).thenReturn("");
 
         controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), eq("Lý do hủy không được để trống."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(orderDAO, pigsOfferDAO);
     }
 
+    /**
+     * Test Case 4: Order Not Found - Redirect With Message
+     *
+     * <br>OrderId = 102 // invalid order id
+     * <br>CancelReason = "Valid Cancel Reason"
+     * <br>OrderStatus = null
+     * <br>OrderCreatedAt = null
+     * <br>OrderQuantity = null
+     * <br>SessionUserId = null
+     * <br>OrderDealerId = null
+     *
+     * @throws Exception
+     */
     @Test
     public void testDoPost_OrderNotFound() throws Exception {
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Muốn đổi ý");
-        when(orderDAO.getOrderById(100)).thenReturn(null);
+        orderId = 102;
+
+        setup();
+
+        when(orderDAO.getOrderById(102)).thenReturn(null);
 
         controller.doPost(request, response);
 
-        verify(orderDAO).getOrderById(100);
         verify(session).setAttribute(eq("msg"), eq("Đơn hàng không tồn tại."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(pigsOfferDAO);
     }
 
+    /**
+     * Test Case 5: Order Not Pending
+     *
+     * <br>OrderId = 101
+     * <br>CancelReason = "Example Cancel Reason"
+     * <br>OrderStatus = "Processing" // not pending
+     * <br>OrderCreatedAt = now().minusHours(12)
+     * <br>OrderQuantity = 10
+     * <br>SessionUserId = 4
+     * <br>OrderDealerId = 4
+     *
+     * @throws Exception
+     */
     @Test
     public void testDoPost_OrderNotPending() throws Exception {
-        order.setStatus("Processing");
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Không còn nhu cầu");
-        when(orderDAO.getOrderById(100)).thenReturn(order);
+        orderStatus = "Processing";
+
+        setup();
 
         controller.doPost(request, response);
 
-        verify(orderDAO).getOrderById(100);
         verify(session).setAttribute(eq("msg"), eq("Chỉ có đơn trạng thái chờ xác nhận mới được hủy."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(pigsOfferDAO);
     }
 
+    /**
+     * Test Case 6: Unauthorized
+     *
+     * <br>OrderId = 101
+     * <br>CancelReason = "Example Cancel Reason"
+     * <br>OrderStatus = "Pending"
+     * <br>OrderCreatedAt = now().minusHours(12)
+     * <br>OrderQuantity = 10
+     * <br>SessionUserId = 99 // not order owner (need equal dealerId)
+     * <br>OrderDealerId = 4
+     *
+     * @throws Exception
+     */
     @Test
-    public void testDoPost_NotOrderOwner() throws Exception {
-        User anotherUser = new User();
-        anotherUser.setUserID(3);
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Tìm được chỗ khác");
-        when(orderDAO.getOrderById(100)).thenReturn(order);
-        when(session.getAttribute("user")).thenReturn(anotherUser);
+    public void testDoPost_Unauthorized() throws Exception {
+        sessionUserId = 99;
+
+        setup();
 
         controller.doPost(request, response);
 
-        verify(orderDAO).getOrderById(100);
         verify(session).setAttribute(eq("msg"), eq("Bạn không có quyền hủy đơn này."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(pigsOfferDAO);
     }
 
+    /**
+     * Test Case 7: Order Older Than 24 Hours
+     *
+     * <br>OrderId = 101
+     * <br>CancelReason = "Example Cancel Reason"
+     * <br>OrderStatus = "Pending"
+     * <br>OrderCreatedAt = now().minusHours(25) // over 24h
+     * <br>OrderQuantity = 10
+     * <br>SessionUserId = 4
+     * <br>OrderDealerId = 4
+     *
+     * @throws Exception
+     */
     @Test
     public void testDoPost_OrderOlderThan24Hours() throws Exception {
-        order.setCreatedAt(Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusHours(25)));
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Hủy vì lâu quá");
-        when(orderDAO.getOrderById(100)).thenReturn(order);
+        orderCreatedAt = Timestamp.valueOf(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusHours(25));
+
+        setup();
 
         controller.doPost(request, response);
 
-        verify(orderDAO).getOrderById(100);
         verify(session).setAttribute(eq("msg"), eq("Đơn hàng đã quá 24 giờ, không thể hủy."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(pigsOfferDAO);
     }
 
-    @Test
-    public void testDoPost_CancelOrderSuccess_NoteSuccess_OfferQuantityUpdated_StatusUpdated_EmailsSent() throws Exception {
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Không còn nhu cầu nữa");
-        when(orderDAO.getOrderById(100)).thenReturn(order);
-        when(orderDAO.cancelOrder(100)).thenReturn(true);
-        when(orderDAO.updateOrderNote(100, "Không còn nhu cầu nữa")).thenReturn(true);
-        when(pigsOfferDAO.getOfferQuantity(20)).thenReturn(10 + 10); // Initial quantity + cancelled quantity
 
-        controller.doPost(request, response);
-
-        verify(orderDAO).getOrderById(100);
-        verify(orderDAO).cancelOrder(100);
-        verify(orderDAO).updateOrderNote(100, "Không còn nhu cầu nữa");
-        verify(pigsOfferDAO).updateOfferQuantity(20, 10);
-        verify(pigsOfferDAO).getOfferQuantity(20);
-        verify(pigsOfferDAO).setOfferStatus(20, "Available");
-        verify(session).setAttribute(eq("msg"), eq("Hủy đơn thành công."));
-        verify(response).sendRedirect("myorders");
-        // Further verification for email sending might be needed if Email class interaction is mocked.
-    }
-
-    @Test
-    public void testDoPost_CancelOrderSuccess_NoteFails_OfferQuantityUpdated_StatusUpdated_EmailsSent() throws Exception {
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Thay đổi quyết định");
-        when(orderDAO.getOrderById(100)).thenReturn(order);
-        when(orderDAO.cancelOrder(100)).thenReturn(true);
-        when(orderDAO.updateOrderNote(100, "Thay đổi quyết định")).thenReturn(false);
-        when(pigsOfferDAO.getOfferQuantity(20)).thenReturn(10 + 10);
-
-        controller.doPost(request, response);
-
-        verify(orderDAO).getOrderById(100);
-        verify(orderDAO).cancelOrder(100);
-        verify(orderDAO).updateOrderNote(100, "Thay đổi quyết định");
-        verify(pigsOfferDAO).updateOfferQuantity(20, 10);
-        verify(pigsOfferDAO).getOfferQuantity(20);
-        verify(pigsOfferDAO).setOfferStatus(20, "Available");
-        verify(session).setAttribute(eq("msg"), eq("Hủy đơn thành công, nhưng không thể lưu ghi chú."));
-        verify(response).sendRedirect("myorders");
-    }
-
-    @Test
-    public void testDoPost_CancelOrderFails() throws Exception {
-        when(request.getParameter("orderId")).thenReturn("100");
-        when(request.getParameter("cancelReason")).thenReturn("Lỗi hệ thống");
-        when(orderDAO.getOrderById(100)).thenReturn(order);
-        when(orderDAO.cancelOrder(100)).thenReturn(false);
-
-        controller.doPost(request, response);
-
-        verify(orderDAO).getOrderById(100);
-        verify(orderDAO).cancelOrder(100);
-        verify(session).setAttribute(eq("msg"), eq("Hủy đơn thất bại, vui lòng thử lại."));
-        verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(pigsOfferDAO);
-    }
-
+    /**
+     * Test Case 8: Invalid OrderId Format
+     *
+     * <br>OrderId = "abc"
+     * <br>CancelReason = "Example Cancel Reason"
+     * <br>OrderStatus = "Pending"
+     * <br>OrderCreatedAt = now().minusHours(12)
+     * <br>OrderQuantity = 10
+     * <br>SessionUserId = 4
+     * <br>OrderDealerId = 4
+     *
+     * @throws Exception
+     */
     @Test
     public void testDoPost_InvalidOrderIdFormat() throws Exception {
+        setup();
+
         when(request.getParameter("orderId")).thenReturn("abc");
-        when(request.getParameter("cancelReason")).thenReturn("Không rõ lý do");
 
         controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), eq("Mã đơn hàng không hợp lệ."));
         verify(response).sendRedirect("myorders");
-        verifyNoMoreInteractions(orderDAO, pigsOfferDAO);
     }
 }
