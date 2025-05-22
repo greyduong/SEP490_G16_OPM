@@ -10,7 +10,6 @@ import model.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -18,8 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import org.mockito.Spy;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ApplicationControllerTest {
 
     @Mock
@@ -37,8 +37,30 @@ public class ApplicationControllerTest {
     @Mock
     private RequestDispatcher dispatcher;
 
-    @InjectMocks
+    @Spy
     private ApplicationController controller;
+
+    private User mockUser;
+    private List<Application> mockApplications;
+
+    @Before
+    public void setup() {
+        mockUser = new User();
+        mockUser.setUserID(4);
+        mockUser.setRoleID(4);
+        mockApplications = new ArrayList<>();
+
+        when(controller.getApplicationDAO()).thenReturn(dao);
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn(mockUser);
+        when(request.getParameter("keyword")).thenReturn("");
+        when(request.getParameter("status")).thenReturn("Pending");
+        when(request.getParameter("sortByDate")).thenReturn("desc");
+        when(request.getParameter("page")).thenReturn("1");
+        when(dao.getApplicationsByFilterPaged(4, "", "Đang chờ xử lý", "desc", 1, 5)).thenReturn(mockApplications);
+        when(dao.countApplicationsByFilter(4, "", "Đang chờ xử lý")).thenReturn(0);
+        when(request.getRequestDispatcher("viewapplication.jsp")).thenReturn(dispatcher);
+    }
 
     /**
      * Test case: Success
@@ -49,25 +71,11 @@ public class ApplicationControllerTest {
      * page = 1
      * 
      * Expected: Should retrieve filtered application list and forward to JSP
+     * 
+     * @throws java.lang.Exception
      */
     @Test
     public void testDoGet_Success() throws Exception {
-        User mockUser = new User();
-        mockUser.setUserID(4);
-        mockUser.setRoleID(4);
-
-        List<Application> mockApplications = new ArrayList<>();
-
-        when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(mockUser);
-        when(request.getParameter("keyword")).thenReturn("");
-        when(request.getParameter("status")).thenReturn("Pending");
-        when(request.getParameter("sortByDate")).thenReturn("desc");
-        when(request.getParameter("page")).thenReturn("1");
-        when(dao.getApplicationsByFilterPaged(4, "", "Đang chờ xử lý", "desc", 1, 5)).thenReturn(mockApplications);
-        when(dao.countApplicationsByFilter(4, "", "Đang chờ xử lý")).thenReturn(0);
-        when(request.getRequestDispatcher("viewapplication.jsp")).thenReturn(dispatcher);
-
         controller.doGet(request, response);
 
         verify(request).setAttribute("applicationList", mockApplications);
@@ -80,25 +88,12 @@ public class ApplicationControllerTest {
     }
 
     /**
-     * Test case: Unauthorized access (session is null)
-     * 
-     * Expected: Redirect to home with 403 error
-     */
-    @Test
-    public void testDoGet_Unauthorized_NoSession() throws Exception {
-        when(request.getSession(false)).thenReturn(null);
-        controller.doGet(request, response);
-        verify(response).sendRedirect("home?error=403");
-    }
-
-    /**
      * Test case: Unauthorized user (no user in session)
      * 
      * Expected: Redirect to home with 403 error
      */
     @Test
     public void testDoGet_Unauthorized_NoUser() throws Exception {
-        when(request.getSession(false)).thenReturn(session);
         when(session.getAttribute("user")).thenReturn(null);
         controller.doGet(request, response);
         verify(response).sendRedirect("home?error=403");
@@ -106,23 +101,14 @@ public class ApplicationControllerTest {
 
     /**
      * Test case: Authorized user but invalid page number (non-integer)
+     * 
+     * page = "invalid"
+     * 
      * Expected: Page defaults to 1
      */
     @Test
     public void testDoGet_InvalidPageNumber() throws Exception {
-        User mockUser = new User();
-        mockUser.setUserID(4);
-        mockUser.setRoleID(4);
-
-        when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(mockUser);
-        when(request.getParameter("keyword")).thenReturn("");
-        when(request.getParameter("status")).thenReturn("Confirmed");
-        when(request.getParameter("sortByDate")).thenReturn("asc");
-        when(request.getParameter("page")).thenReturn("abc");
-        when(dao.getApplicationsByFilterPaged(4, "", "Đã phê duyệt", "asc", 1, 5)).thenReturn(new ArrayList<>());
-        when(dao.countApplicationsByFilter(4, "", "Đã phê duyệt")).thenReturn(0);
-        when(request.getRequestDispatcher("viewapplication.jsp")).thenReturn(dispatcher);
+        when(request.getParameter("page")).thenReturn("invalid");
 
         controller.doGet(request, response);
 

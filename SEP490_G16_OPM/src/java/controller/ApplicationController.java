@@ -15,7 +15,9 @@ import model.User;
 @WebServlet(name = "ApplicationController", urlPatterns = {"/application"})
 public class ApplicationController extends HttpServlet {
 
-    private ApplicationDAO dao = new ApplicationDAO();
+    public ApplicationDAO getApplicationDAO() {
+        return new ApplicationDAO();
+    }
 
     private boolean isAuthorized(HttpSession session) {
         if (session == null) {
@@ -64,6 +66,8 @@ public class ApplicationController extends HttpServlet {
         } catch (Exception e) {
             page = 1;
         }
+
+        ApplicationDAO dao = getApplicationDAO();
 
         // Lấy danh sách đơn theo trang
         List<Application> applications = dao.getApplicationsByFilterPaged(
