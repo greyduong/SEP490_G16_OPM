@@ -63,9 +63,9 @@ public class AddToCartController extends HttpServlet {
         } catch (NumberFormatException e) {
             session.setAttribute("msg", "Dữ liệu nhập không hợp lệ.");
             response.sendRedirect("home");
-        } catch (IOException e) {
-            Logger.getLogger(AddToCartController.class.getName()).log(Level.SEVERE, null, e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Có lỗi xảy ra trong quá trình xử lý.");
+        } catch (Exception e) {
+            session.setAttribute("msg", "Có lỗi xảy ra trong quá trình xử lý.");
+            response.sendRedirect("home");
         }
     }
 

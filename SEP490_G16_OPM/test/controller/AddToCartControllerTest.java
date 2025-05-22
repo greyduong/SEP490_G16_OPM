@@ -37,98 +37,96 @@ public class AddToCartControllerTest {
     private User sessionUser;
     private PigsOffer offer;
 
+    private int sessionUserId = 5;
+    private int offerId = 10;
+    private String offerStatus = "Available";
+    private int offerQuantity = 10;
+    private int offerMinQuantity = 5;
+    private String offerName = "Offer Name";
+
     @Before
-    public void setup() throws Exception {
-        sessionUser = new User();
-        sessionUser.setUserID(4);
-
-        offer = new PigsOffer();
-        offer.setOfferID(10);
-        offer.setStatus("Available");
-        offer.setMinQuantity(5);
-        offer.setQuantity(100);
-        offer.setName("Offer Name");
-
+    public void dependencies() {
         // mock dao
         doReturn(cartDAO).when(controller).getCartDAO();
         doReturn(pigsOfferDAO).when(controller).getPigsOfferDAO();
-
-        // mock session
-        when(session.getAttribute("user")).thenReturn(sessionUser);
         when(request.getSession()).thenReturn(session);
+    }
 
-        // mock dao method
-        when(pigsOfferDAO.getOfferById(anyInt())).thenReturn(offer);
-        doNothing().when(cartDAO).addToCart(anyInt(), anyInt(), anyInt());
+    public void setup() throws Exception {
+        sessionUser = new User();
+        sessionUser.setUserID(sessionUserId);
+
+        offer = new PigsOffer();
+        offer.setOfferID(offerId);
+        offer.setStatus(offerStatus);
+        offer.setMinQuantity(offerMinQuantity);
+        offer.setQuantity(offerQuantity);
+        offer.setName(offerName);
+
+        when(session.getAttribute("user")).thenReturn(sessionUser);
+        when(pigsOfferDAO.getOfferById(offerId)).thenReturn(offer);
+        doNothing().when(cartDAO).addToCart(sessionUserId, offerId, offerQuantity);
         doNothing().when(response).sendRedirect(anyString());
+        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
+        when(request.getParameter("quantity")).thenReturn(String.valueOf(offerQuantity));
     }
 
     /**
-     * Test Case 1: Success - Success Add To Cart
+     * Test Case: Success - Success Add To Cart
      *
+     * <br><b>Parameters:</b>
      * <br>ParameterOfferID = 10
      * <br>ParameterQuantity = 10
-     * <br>SessionUserID = 5
-     * <br>OfferStatus = "Available"
-     * <br>OfferMinQuantity = 5
-     * <br>OfferQuantity = 100
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>Usser logged
+     * <br>OfferId = 10 // has offer id 10 in database
+     * <br>OfferStatus = "Available" // offer id 10 has status "Available"
+     * <br>OfferMinQuantity = 5 // offer id 10 has min quantity 5
+     * <br>OfferQuantity = 100 // offer id 10 has quantity 100
+     *
+     * <br><b>Expected:</b>
+     * <br>Add to cart successfully
      *
      * @throws Exception
      */
     @Test
     public void testDoPost_Success_AddToCart() throws Exception {
-        int quantity = 10;
-        int sessionUserId = 5;
-        int offerId = 10;
-        String offerStatus = "Available";
-        int offerMinQuantity = 5;
-        int offerQuantity = 100;
-
-        sessionUser.setUserID(sessionUserId);
-        offer.setOfferID(offerId);
-        offer.setStatus(offerStatus);
-        offer.setMinQuantity(offerMinQuantity);
-        offer.setQuantity(offerQuantity);
-
-        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
+        setup();
 
         controller.doPost(request, response);
 
         verify(pigsOfferDAO).getOfferById(offerId);
-        verify(cartDAO).addToCart(sessionUserId, offerId, quantity);
+        verify(cartDAO).addToCart(sessionUserId, offerId, offerQuantity);
         verify(response).sendRedirect(contains("cart?search=Offer+Name"));
     }
 
     /**
-     * Test Case 2: Quantity Less Than Min Quantity - Redirect Home With Message
+     * Test Case: Quantity Less Than Min Quantity - Redirect Home With Message
      *
+     * <br><b>Parameters:</b>
      * <br>ParameterOfferID = 10
-     * <br>ParameterQuantity = 10
-     * <br>SessionUserID = 5
+     * <br>ParameterQuantity = 4 // less then min quantity
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>OfferId = 10
      * <br>OfferStatus = "Available"
-     * <br>OfferMinQuantity = 11
+     * <br>OfferMinQuantity = 5
      * <br>OfferQuantity = 100
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Số lượng không phù hợp"
      *
      * @throws Exception
      */
     @Test
     public void testDoPost_QuantityLessThanMinQuantity_RedirectHomeWithMessage() throws Exception {
-        int quantity = 10;
-        int sessionUserId = 5;
-        int offerId = 10;
-        String offerStatus = "Available";
-        int offerMinQuantity = 11;
-        int offerQuantity = 100;
+        offerQuantity = 4;
 
-        sessionUser.setUserID(sessionUserId);
-        offer.setOfferID(offerId);
-        offer.setStatus(offerStatus);
-        offer.setMinQuantity(offerMinQuantity);
-        offer.setQuantity(offerQuantity);
-
-        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
+        setup();
 
         controller.doPost(request, response);
 
@@ -138,34 +136,32 @@ public class AddToCartControllerTest {
     }
 
     /**
-     * Test Case 3: Offer Unavailable - Redirect Home With Message
+     * Test Case: Offer Unavailable - Redirect Home With Message
      *
-     * <br>ParameterQuantity = 5
+     * <br><b>Parameters:</b>
      * <br>ParameterOfferID = 10
-     * <br>SessionUserID = 5
-     * <br>OfferStatus = "Banned"
+     * <br>ParameterQuantity = 5
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>OfferId = 10
+     * <br>OfferStatus = "Unavailable" // offer id 10 in database has status
+     * "Unavailable"
      * <br>OfferMinQuantity = 10
      * <br>OfferQuantity = 100
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Chào bán này hiện không thể đặt hàng do đang ngưng bán
+     * hoặc bị cấm."
      *
      * @throws Exception
      */
     @Test
     public void testDoPost_OfferUnavailable_RedirectHomeWithMessage() throws Exception {
-        int quantity = 10;
-        int sessionUserId = 5;
-        int offerId = 10;
-        String offerStatus = "Banned";
-        int offerMinQuantity = 11;
-        int offerQuantity = 100;
+        offerStatus = "Unavailable";
 
-        sessionUser.setUserID(sessionUserId);
-        offer.setOfferID(offerId);
-        offer.setStatus(offerStatus);
-        offer.setMinQuantity(offerMinQuantity);
-        offer.setQuantity(offerQuantity);
-
-        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
+        setup();
 
         controller.doPost(request, response);
 
@@ -175,29 +171,95 @@ public class AddToCartControllerTest {
     }
 
     /**
-     * Test Case 4: Offer Unavailable - Redirect Home With Message
+     * Test Case: Offer Banned - Redirect Home With Message
      *
+     * <br><b>Parameters:</b>
      * <br>ParameterQuantity = 5
-     * <br>ParameterOfferID = 11
-     * <br>SessionUserID = 5
-     * <br>OfferStatus = null
-     * <br>OfferMinQuantity = null
-     * <br>OfferQuantity = null
+     * <br>ParameterOfferID = 10
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>OfferId = 10
+     * <br>OfferStatus = "Banned" // offer id 10 in database has status "Banned"
+     * <br>OfferMinQuantity = 10
+     * <br>OfferQuantity = 100
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Chào bán này hiện không thể đặt hàng do đang ngưng bán
+     * hoặc bị cấm."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_OfferBanned_RedirectHomeWithMessage() throws Exception {
+        offerStatus = "Banned";
+
+        setup();
+
+        controller.doPost(request, response);
+
+        verify(pigsOfferDAO).getOfferById(offerId);
+        verify(session).setAttribute(eq("msg"), contains("Chào bán này hiện không thể đặt hàng"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: Offer Upcoming - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = 10
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>OfferStatus = "Upcoming" // offer id 10 in database has status
+     * "Upcoming"
+     * <br>OfferMinQuantity = 10
+     * <br>OfferQuantity = 100
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Chào bán này hiện không thể đặt hàng do đang ngưng bán
+     * hoặc bị cấm."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_OfferUpcoming_RedirectHomeWithMessage() throws Exception {
+        offerStatus = "Upcoming";
+
+        setup();
+
+        controller.doPost(request, response);
+
+        verify(pigsOfferDAO).getOfferById(offerId);
+        verify(session).setAttribute(eq("msg"), contains("Chào bán này hiện không thể đặt hàng"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: Offer Not Found - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = 10
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     * <br>Offer id 10 not exist in database
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Chào bán đã ngưng bán hoặc không tồn tại!"
      *
      * @throws Exception
      */
     @Test
     public void testDoPost_OfferNotFound_RedirectHomeWithMessage() throws Exception {
-        int quantity = 10;
-        int offerId = 11;
-        int sessionUserId = 5;
+        setup();
 
-        sessionUser.setUserID(sessionUserId);
-
-        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
-
-        when(pigsOfferDAO.getOfferById(11)).thenReturn(null);
+        when(pigsOfferDAO.getOfferById(offerId)).thenReturn(null);
 
         controller.doPost(request, response);
 
@@ -206,29 +268,198 @@ public class AddToCartControllerTest {
     }
 
     /**
-     * Test Case 5: Invalid Input - Redirect Home With Message
+     * Test Case: Null Quantity - Redirect Home With Message
      *
-     * <br>SessionUserID = 5
-     * <br>ParameterQuantity = "invalid"
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = null
      * <br>ParameterOfferID = 10
-     * <br>OfferStatus = "Available"
-     * <br>OfferMinQuantity = 5
-     * <br>OfferQuantity = 100
-     * <br>OfferName = "OfferName"
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>SessionUserID = 5
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Dữ liệu nhập không hợp lệ."
      *
      * @throws Exception
      */
     @Test
-    public void testDoPost_InvalidInput_RedirectHomeWithMessage() throws Exception {
-        int sessionUserId = 5;
+    public void testDoPost_NullQuantity_RedirectHomeWithMessage() throws Exception {
+        setup();
 
-        sessionUser.setUserID(sessionUserId);
-
-        when(request.getParameter("quantity")).thenReturn("invalid");
+        when(request.getParameter("quantity")).thenReturn(null);
 
         controller.doPost(request, response);
 
         verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: String Quantity - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = "abc"
+     * <br>ParameterOfferID = 10
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>SessionUserID = 5
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Dữ liệu nhập không hợp lệ."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_StringQuantity_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(request.getParameter("quantity")).thenReturn("abc");
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: Overflow Quantity - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity ="9999999999999999"
+     * <br>ParameterOfferID = 10
+     *
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>SessionUserID = 5
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Dữ liệu nhập không hợp lệ."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_OverflowQuantity_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(request.getParameter("quantity")).thenReturn("9999999999999999");
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: Null OfferID - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = null
+     * 
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Dữ liệu nhập không hợp lệ."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_NullOfferID_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(request.getParameter("offerId")).thenReturn(null);
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: String OfferID - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = "abc"
+     * 
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Dữ liệu nhập không hợp lệ."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_StringOfferID_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(request.getParameter("offerId")).thenReturn("abc");
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: Overflow OfferID - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = "abc"
+     * 
+     * <br><b>Precondition:</b>
+     * <br>Database connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Dữ liệu nhập không hợp lệ."
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_OverflowOfferID_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(request.getParameter("offerId")).thenReturn("abc");
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("Dữ liệu nhập không hợp lệ"));
+        verify(response).sendRedirect("home");
+    }
+
+    /**
+     * Test Case: Not Connect To Database - Redirect Home With Message
+     *
+     * <br><b>Parameters:</b>
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = 10
+     * 
+     * <br><b>Precondition:</b>
+     * <br>Database not connected
+     * <br>User logged
+     *
+     * <br><b>Expected:</b>
+     * <br>Show message "Có lỗi xảy ra trong quá trình xử lý"
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoPost_NotConnectDatabase_RedirectHomeWithMessage() throws Exception {
+        setup();
+
+        when(pigsOfferDAO.getOfferById(offerId)).thenThrow(new NullPointerException("Connection is null"));
+
+        controller.doPost(request, response);
+
+        verify(session).setAttribute(eq("msg"), contains("Có lỗi xảy ra trong quá trình xử lý"));
         verify(response).sendRedirect("home");
     }
 }

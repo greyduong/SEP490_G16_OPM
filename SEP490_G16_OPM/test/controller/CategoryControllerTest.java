@@ -84,10 +84,11 @@ public class CategoryControllerTest {
         category = new Category();
         category.setCategoryID(categoryId);
         when(categoryDAO.getCategoryById(categoryId)).thenReturn(category);
+        when(pigsOfferDAO.isCategoryUsed(categoryId)).thenReturn(false);
     }
 
     /**
-     * Test Case 1: Staff - Show List Category
+     * Test Case 1: doGet Staff Show List Category
      * 
      * <br> SessionUserId = 2
      * <br> SessionUserRole = 2
@@ -106,7 +107,7 @@ public class CategoryControllerTest {
     }
 
     /**
-     * Test Case 2: Manager - Show List Category
+     * Test Case 2: doGet Manager Show List Category
      * 
      * <br> SessionUserId = 3
      * <br> SessionUserRole = 3
@@ -127,7 +128,7 @@ public class CategoryControllerTest {
     }
 
     /**
-     * Test Case 3: Unauthorized
+     * Test Case 3: doGet Unauthorized
      * 
      * <br> SessionUserId = 4
      * <br> SessionUserRole = 4
@@ -146,10 +147,10 @@ public class CategoryControllerTest {
     }
 
     /**
-     * Test Case 4: Edit Action
+     * Test Case 4: doGet Edit Action
      * 
-     * <br> SessionUserId = 4
-     * <br> SessionUserRole = 4
+     * <br> SessionUserId = 2
+     * <br> SessionUserRole = 2
      * <br> Action = "edit"
      * <br> CategoryId = 101
      * 
@@ -171,58 +172,81 @@ public class CategoryControllerTest {
         verify(request).getRequestDispatcher("categorylist.jsp");
     }
 
+    /**
+     * Test Case 5: doPost Unauthorized
+     * 
+     * <br> SessionUserId = 4
+     * <br> SessionUserRole = 4
+     * <br> Action = "edit"
+     * <br> CategoryId = 101
+     * 
+     * @throws Exception 
+     */
     @Test
-    public void testDoPost_Unauthorized() throws ServletException, IOException {
+    public void testDoPost_Unauthorized() throws Exception {
         sessionUserRole = 4;
+
+        setup();
+
         controller.doPost(request, response);
         verify(response).sendRedirect("login?error=access-denied");
     }
 
 
+    /**
+     * Test Case 6: doPost Add Action
+     * 
+     * <br> SessionUserId = 2
+     * <br> SessionUserRole = 2
+     * <br> Action = "edit"
+     * <br> CategoryId = 101
+     * 
+     * @throws Exception 
+     */
     @Test
-    public void testDoPost_authorizedUser_addAction() throws ServletException, IOException {
+    public void testDoPost_addAction() throws Exception {
         action = "add";
         name = "Example Category";
         description = "Example Description";
+
+        setup();
         
         controller.doPost(request, response);
 
         verify(categoryDAO).addCategory(any(Category.class));
         verify(response).sendRedirect("category");
     }
-    /*
 
     @Test
-    public void testDoPost_authorizedUser_updateAction() throws ServletException, IOException {
-        setupAuthorizedSession();
-        int categoryIdToUpdate = 1;
-        when(request.getParameter("action")).thenReturn("update");
-        when(request.getParameter("categoryID")).thenReturn(String.valueOf(categoryIdToUpdate));
-        when(request.getParameter("name")).thenReturn("Updated Category");
-        when(request.getParameter("description")).thenReturn("Updated Description");
+    public void testDoPost_authorizedUser_updateAction() throws Exception {
+        action = "update";
+        categoryId = 101;
+        name = "Updated Category";
+        description = "Updated Description";
+
+        setup();
 
         controller.doPost(request, response);
 
         verify(categoryDAO).updateCategory(any(Category.class));
         verify(response).sendRedirect("category");
-        verifyNoMoreInteractions(categoryDAO, pigsOfferDAO, request, response, session);
     }
 
     @Test
     public void testDoPost_authorizedUser_deleteAction_notUsed() throws ServletException, IOException {
-        setupAuthorizedSession();
-        int categoryIdToDelete = 1;
-        when(request.getParameter("action")).thenReturn("delete");
-        when(request.getParameter("categoryID")).thenReturn(String.valueOf(categoryIdToDelete));
-        when(pigsOfferDAO.isCategoryUsed(categoryIdToDelete)).thenReturn(false);
+        action = "delete";
+
+        when(pigsOfferDAO.isCategoryUsed(categoryId)).thenReturn(false);
 
         controller.doPost(request, response);
 
-        verify(pigsOfferDAO).isCategoryUsed(categoryIdToDelete);
-        verify(categoryDAO).deleteCategory(categoryIdToDelete);
+        verify(pigsOfferDAO).isCategoryUsed(categoryId);
+        verify(categoryDAO).deleteCategory(categoryId);
         verify(response).sendRedirect("category");
         verifyNoMoreInteractions(categoryDAO, pigsOfferDAO, request, response, session);
     }
+
+    /*
 
     @Test
     public void testDoPost_authorizedUser_deleteAction_isUsed() throws ServletException, IOException {
