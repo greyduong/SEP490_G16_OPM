@@ -3,6 +3,7 @@ package controller;
 import dao.OrderDAO;
 import dao.PigsOfferDAO;
 import dao.Validation;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,9 +14,12 @@ import model.Order;
 import model.User;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "CancelOrderController", urlPatterns = {"/cancel-order"})
 public class CancelOrderController extends HttpServlet {
@@ -44,7 +48,7 @@ public class CancelOrderController extends HttpServlet {
 
         try {
             int orderId = Integer.parseInt(orderIdStr);
-            OrderDAO orderDAO = new OrderDAO();
+            OrderDAO orderDAO = getOrderDAO();
             Order order = orderDAO.getOrderById(orderId);
 
             if (order == null) {
@@ -80,7 +84,7 @@ public class CancelOrderController extends HttpServlet {
 
                 boolean noted = orderDAO.updateOrderNote(orderId, cancelReason);
                 // ✅ Khôi phục số lượng
-                PigsOfferDAO offerDAO = new PigsOfferDAO();
+                PigsOfferDAO offerDAO = getPigsOfferDAO();
                 int offerId = order.getOfferID();
                 int quantity = order.getQuantity();
 
@@ -106,8 +110,8 @@ public class CancelOrderController extends HttpServlet {
                             + "Số lượng heo đã được hoàn trả vào chào bán.\n\n"
                             + "Cảm ơn bạn đã sử dụng dịch vụ của Online Pig Market.";
                     model.Email.sendEmail(buyerEmail, subject, content);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (MessagingException | UnsupportedEncodingException e) {
+                    Logger.getLogger(CancelOrderController.class.getName()).log(Level.SEVERE, null, e);
                 }
 
                 try {
@@ -120,8 +124,8 @@ public class CancelOrderController extends HttpServlet {
                             + "Số lượng heo đã được hoàn trả vào chào bán.\n\n"
                             + "Trân trọng,\nOnline Pig Market.";
                     model.Email.sendEmail(sellerEmail, subject, content);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (MessagingException | UnsupportedEncodingException e) {
+                    Logger.getLogger(CancelOrderController.class.getName()).log(Level.SEVERE, null, e);
                 }
 
             } else {
@@ -133,10 +137,18 @@ public class CancelOrderController extends HttpServlet {
         } catch (NumberFormatException e) {
             session.setAttribute("msg", "Mã đơn hàng không hợp lệ.");
             response.sendRedirect("myorders");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            Logger.getLogger(CancelOrderController.class.getName()).log(Level.SEVERE, null, e);
             session.setAttribute("msg", "Đã xảy ra lỗi khi hủy đơn.");
             response.sendRedirect("myorders");
         }
+    }
+
+    public PigsOfferDAO getPigsOfferDAO() {
+        return new PigsOfferDAO();
+    }
+
+    public OrderDAO getOrderDAO() {
+        return new OrderDAO();
     }
 }

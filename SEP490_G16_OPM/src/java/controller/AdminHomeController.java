@@ -9,27 +9,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
 @WebServlet("/admin")
 public class AdminHomeController extends HttpServlet {
-    private LocalDate getDate(HttpServletRequest request, String param) {
-        if (request.getParameter(param) == null || request.getParameter(param).isBlank()) {
-            return null;
-        }
-        try {
-            return LocalDate.parse(request.getParameter(param));
-        } catch (DateTimeParseException e) {
-            return null;
-        }
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var db = new DBContext();
