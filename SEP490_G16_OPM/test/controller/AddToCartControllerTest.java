@@ -15,8 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AddToCartControllerTest {
-
-    @InjectMocks
+    @Spy
     private AddToCartController controller;
 
     @Mock
@@ -41,9 +40,9 @@ public class AddToCartControllerTest {
     private PigsOffer offer;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         user = new User();
-        user.setUserID(1);
+        user.setUserID(4);
 
         offer = new PigsOffer();
         offer.setOfferID(10);
@@ -51,17 +50,22 @@ public class AddToCartControllerTest {
         offer.setMinQuantity(5);
         offer.setQuantity(100);
         offer.setName("Offer Name");
+
+        when(controller.getCartDAO()).thenReturn(cartDAO);
+        when(controller.getPigsOfferDAO()).thenReturn(pigsOfferDAO);
         when(session.getAttribute("user")).thenReturn(user);
         when(request.getSession()).thenReturn(session);
         when(request.getParameter("offerId")).thenReturn("10");
         when(request.getParameter("quantity")).thenReturn("10");
         when(pigsOfferDAO.getOfferById(10)).thenReturn(offer);
+        doNothing().when(cartDAO).addToCart(anyInt(), anyInt(), anyInt());
+        doNothing().when(response).sendRedirect(anyString());
     }
 
     /**
-     * Success
+     * Success Add To Cart
      * 
-     * UserID = 1
+     * UserID = 4
      * OfferID = 10
      * OfferStatus = "Available"
      * OfferMinQuantity = 5
@@ -73,9 +77,6 @@ public class AddToCartControllerTest {
      */
     @Test
     public void testDoPost_Success_AddToCart() throws Exception {
-        doNothing().when(cartDAO).addToCart(anyInt(), anyInt(), anyInt());
-        doNothing().when(response).sendRedirect(anyString());
-
         controller.doPost(request, response);
 
         verify(cartDAO).addToCart(1, 10, 10);
@@ -85,7 +86,7 @@ public class AddToCartControllerTest {
     /**
      * Invalid Quantity
      * 
-     * UserID = 1
+     * UserID = 4
      * OfferID = 10
      * OfferStatus = "Available"
      * OfferMinQuantity = 10
@@ -98,9 +99,8 @@ public class AddToCartControllerTest {
     @Test
     public void testDoPost_InvalidQuantity() throws Exception {
         offer.setMinQuantity(10);
-        when(request.getParameter("quantity")).thenReturn("5");
 
-        doNothing().when(response).sendRedirect(anyString());
+        when(request.getParameter("quantity")).thenReturn("5");
 
         controller.doPost(request, response);
 
@@ -124,7 +124,6 @@ public class AddToCartControllerTest {
     @Test
     public void testDoPost_OfferUnavailable() throws Exception {
         offer.setStatus("Banned");
-        when(request.getRequestDispatcher("shoppingcart.jsp")).thenReturn(dispatcher);
 
         controller.doPost(request, response);
 
@@ -136,7 +135,7 @@ public class AddToCartControllerTest {
      * Offer Not Found
      * 
      * UserID = 1
-     * OfferID = 10
+     * OfferID = 11
      * OfferStatus = null
      * OfferMinQuantity = null
      * OfferQuantity = null
@@ -147,8 +146,7 @@ public class AddToCartControllerTest {
      */
     @Test
     public void testDoPost_OfferNotFound() throws Exception {
-        when(pigsOfferDAO.getOfferById(10)).thenReturn(null);
-        doNothing().when(response).sendRedirect("home");
+        when(pigsOfferDAO.getOfferById(11)).thenReturn(null);
 
         controller.doPost(request, response);
 
@@ -172,8 +170,6 @@ public class AddToCartControllerTest {
     @Test
     public void testDoPost_InvalidInput() throws Exception {
         when(request.getParameter("quantity")).thenReturn("invalid");
-
-        doNothing().when(response).sendRedirect("home");
 
         controller.doPost(request, response);
 

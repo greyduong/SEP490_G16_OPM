@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.PigsOffer;
 import model.User;
 
@@ -19,21 +21,8 @@ import model.User;
 @WebServlet(name = "AddToCartController", urlPatterns = {"/AddToCartController"})
 public class AddToCartController extends HttpServlet {
 
-    private PigsOfferDAO pigsOfferDAO = new PigsOfferDAO();
-    private CartDAO cartDAO = new CartDAO();
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
@@ -42,7 +31,7 @@ public class AddToCartController extends HttpServlet {
             int offerId = Integer.parseInt(request.getParameter("offerId"));
             int quantity = Integer.parseInt(request.getParameter("quantity"));
 
-            PigsOffer pigsOffer = pigsOfferDAO.getOfferById(offerId);
+            PigsOffer pigsOffer = getPigsOfferDAO().getOfferById(offerId);
 
             if (pigsOffer == null) {
                 session.setAttribute("msg", "Chào bán đã ngưng bán hoặc không tồn tại!");
@@ -63,7 +52,7 @@ public class AddToCartController extends HttpServlet {
                 return;
             }
 
-            cartDAO.addToCart(userId, offerId, quantity);
+            getCartDAO().addToCart(userId, offerId, quantity);
 
             // Lấy tên offer để search
             String offerName = pigsOffer.getName();
@@ -72,12 +61,19 @@ public class AddToCartController extends HttpServlet {
             String redirectUrl = "cart?search=" + java.net.URLEncoder.encode(offerName, "UTF-8");
             response.sendRedirect(redirectUrl);
         } catch (NumberFormatException e) {
-            e.printStackTrace();
             session.setAttribute("msg", "Dữ liệu nhập không hợp lệ.");
             response.sendRedirect("home");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            Logger.getLogger(AddToCartController.class.getName()).log(Level.SEVERE, null, e);
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Có lỗi xảy ra trong quá trình xử lý.");
         }
+    }
+
+    public PigsOfferDAO getPigsOfferDAO() {
+        return new PigsOfferDAO();
+    }
+
+    public CartDAO getCartDAO() {
+        return new CartDAO();
     }
 }
