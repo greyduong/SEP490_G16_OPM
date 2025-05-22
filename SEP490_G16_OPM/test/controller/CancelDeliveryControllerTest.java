@@ -21,7 +21,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class CancelDeliveryControllerTest {
-    @InjectMocks
+
+    @Spy
     private CancelDeliveryController controller;
 
     @Mock
@@ -43,7 +44,7 @@ public class CancelDeliveryControllerTest {
     private User seller;
     private User user;
     private Order order;
-    
+
     @Before
     public void setUp() throws Exception {
         user = new User();
@@ -90,8 +91,11 @@ public class CancelDeliveryControllerTest {
 
         when(deliveryDAO.getDeliveryTotalPrice(5)).thenReturn(1000000.0);
         when(deliveryDAO.getDeliveryQuantity(5)).thenReturn(10);
+        when(controller.getDeliveryDAO()).thenReturn(deliveryDAO);
+        when(controller.getOrderDAO()).thenReturn(orderDAO);
+        when(controller.getUserDAO()).thenReturn(userDAO);
     }
-    
+
     @After
     public void tearDown() {
         mockEmail.close();
@@ -99,16 +103,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Sucessfull
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = 2
-     * userRole = 5
-     * dealerId = 2
-     * deliveryStatus = "Pending"
-     * orderStatus = "Processing"
-     * @throws Exception 
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 2
+     * userRole = 5 dealerId = 2 deliveryStatus = "Pending" orderStatus =
+     * "Processing"
+     *
+     * @throws Exception
      */
     @Test
     public void testSuccessfulCancellation() throws Exception {
@@ -119,16 +119,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Unauthenticated
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = null
-     * userRole = null
-     * dealerId = 2
-     * deliveryStatus = "Pending"
-     * orderStatus = "Processing"
-     * @throws Exception 
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = null
+     * userRole = null dealerId = 2 deliveryStatus = "Pending" orderStatus =
+     * "Processing"
+     *
+     * @throws Exception
      */
     @Test
     public void testUnauthenticated_RedirectsWithError() throws Exception {
@@ -145,16 +141,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Unauthorized Role
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = 4 // invalid role
-     * userRole = 5
-     * dealerId = 2
-     * deliveryStatus = "Pending"
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
+     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Pending"
      * orderStatus = "Processing"
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testUnauthorizedRole_RedirectsWithError() throws Exception {
@@ -167,16 +159,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Unauthorized UserID
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = 99
-     * userRole = 5
-     * dealerId = 2
-     * deliveryStatus = "Pending"
-     * orderStatus = "Processing"
-     * @throws Exception 
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 99
+     * userRole = 5 dealerId = 2 deliveryStatus = "Pending" orderStatus =
+     * "Processing"
+     *
+     * @throws Exception
      */
     @Test
     public void testUnauthorizedUserID_RedirectsWithError() throws Exception {
@@ -189,16 +177,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Delivery Not Pending
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = 4 // invalid role
-     * userRole = 5
-     * dealerId = 2
-     * deliveryStatus = "Confirmed"
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
+     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Confirmed"
      * orderStatus = "Processing"
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testDeliveryNotPending_RedirectsWithError() throws Exception {
@@ -211,16 +195,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Order Not Processing
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = 4 // invalid role
-     * userRole = 5
-     * dealerId = 2
-     * deliveryStatus = "Pending"
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
+     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Pending"
      * orderStatus = "Confirmed"
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testOrderNotProcessing_RedirectsWithError() throws Exception {
@@ -233,16 +213,12 @@ public class CancelDeliveryControllerTest {
 
     /**
      * Update Delivery Fail
-     * 
-     * deliveryId = 5
-     * cancelReason = "Reason valid"
-     * orderId = 101
-     * userId = 4 // invalid role
-     * userRole = 5
-     * dealerId = 2
-     * deliveryStatus = "Pending"
+     *
+     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
+     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Pending"
      * orderStatus = "Confirmed"
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void testUpdateDeliveryFail_RedirectsWithError() throws Exception {

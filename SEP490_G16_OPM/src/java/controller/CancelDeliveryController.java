@@ -4,6 +4,7 @@ import dao.DeliveryDAO;
 import dao.OrderDAO;
 import dao.UserDAO;
 import dao.Validation;
+import jakarta.mail.MessagingException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
@@ -13,15 +14,26 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Email;
 import model.Order;
 import model.User;
 
 @WebServlet(name = "CancelDeliveryController", urlPatterns = {"/cancel-delivery"})
 public class CancelDeliveryController extends HttpServlet {
-    private DeliveryDAO deliveryDAO = new DeliveryDAO();
-    private OrderDAO orderDAO = new OrderDAO();
-    private UserDAO userDAO = new UserDAO();
+    public DeliveryDAO getDeliveryDAO() {
+        return new DeliveryDAO();
+    }
+
+    public OrderDAO getOrderDAO() {
+        return new OrderDAO();
+    }
+
+    public UserDAO getUserDAO() {
+        return new UserDAO();
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -32,6 +44,7 @@ public class CancelDeliveryController extends HttpServlet {
         try {
             int deliveryID = Integer.parseInt(request.getParameter("deliveryID"));
 
+            DeliveryDAO deliveryDAO = getDeliveryDAO();
             int orderID = deliveryDAO.getOrderIdByDeliveryId(deliveryID);
             int dealerID = deliveryDAO.getDealerIdByDeliveryId(deliveryID);
 
@@ -67,6 +80,8 @@ public class CancelDeliveryController extends HttpServlet {
 
             String msg;
             if (canceled) {
+                OrderDAO orderDAO = getOrderDAO();
+                UserDAO userDAO = getUserDAO();
                 Order order = orderDAO.getOrderById(orderID);
                 User seller = userDAO.getUserById(order.getSellerID());
                 User dealer = userDAO.getUserById(order.getDealerID());
@@ -96,8 +111,8 @@ public class CancelDeliveryController extends HttpServlet {
                 try {
                     Email.sendEmail(seller.getEmail(), subject, contentForSeller);
                     Email.sendEmail(dealer.getEmail(), subject, contentForDealer);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (MessagingException | UnsupportedEncodingException e) {
+                    Logger.getLogger(CancelDeliveryController.class.getName()).log(Level.SEVERE, null, e);
                 }
             } else {
                 msg = "Hủy giao hàng thất bại.";
@@ -106,8 +121,8 @@ public class CancelDeliveryController extends HttpServlet {
             response.sendRedirect("view-order-detail?id=" + orderID + "&msg="
                     + URLEncoder.encode(msg, "UTF-8"));
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | NumberFormatException e) {
+            Logger.getLogger(CancelDeliveryController.class.getName()).log(Level.SEVERE, null, e);
             response.sendRedirect("myorders?msg=" + URLEncoder.encode("Lỗi khi hủy giao hàng.", "UTF-8"));
         }
     }
