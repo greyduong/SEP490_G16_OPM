@@ -51,8 +51,8 @@ public class DepositOrderControllerTest {
         dealerUser.setUserID(2);
 
         // mock dao
-        when(controller.getOrderDAO()).thenReturn(orderDAO);
-        when(controller.getWalletUseHistoryDAO()).thenReturn(walletUseHistoryDAO);
+        doReturn(orderDAO).when(controller).getOrderDAO();
+        doReturn(walletUseHistoryDAO).when(controller).getWalletUseHistoryDAO();
 
         order = new Order();
         order.setOrderID(100);

@@ -40,75 +40,107 @@ public class ApplicationControllerTest {
     @Spy
     private ApplicationController controller;
 
-    private User mockUser;
-    private List<Application> mockApplications;
+    private User sessionUser;
+    private List<Application> applications;
 
     @Before
     public void setup() {
-        mockUser = new User();
-        mockUser.setUserID(4);
-        mockUser.setRoleID(4);
-        mockApplications = new ArrayList<>();
+        sessionUser = new User();
+        sessionUser.setUserID(4);
+        sessionUser.setRoleID(4);
+        applications = new ArrayList<>();
 
-        when(controller.getApplicationDAO()).thenReturn(dao);
+        // mock dao
+        doReturn(dao).when(controller).getApplicationDAO();
+
         when(request.getSession(false)).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(mockUser);
-        when(request.getParameter("keyword")).thenReturn("");
-        when(request.getParameter("status")).thenReturn("Pending");
-        when(request.getParameter("sortByDate")).thenReturn("desc");
-        when(request.getParameter("page")).thenReturn("1");
-        when(dao.getApplicationsByFilterPaged(4, "", "Đang chờ xử lý", "desc", 1, 5)).thenReturn(mockApplications);
-        when(dao.countApplicationsByFilter(4, "", "Đang chờ xử lý")).thenReturn(0);
-        when(request.getRequestDispatcher("viewapplication.jsp")).thenReturn(dispatcher);
+        when(session.getAttribute("user")).thenReturn(sessionUser);
+        when(dao.getApplicationsByFilterPaged(anyInt(), anyString(), anyString(), anyString(), anyInt(), anyInt())).thenReturn(applications);
+        when(dao.countApplicationsByFilter(anyInt(), anyString(), anyString())).thenReturn(applications.size());
+        when(request.getRequestDispatcher(anyString())).thenReturn(dispatcher);
     }
 
     /**
-     * Test case: Success
+     * Test case 1: Success - Show List Applications
      * 
-     * roleID = 4
-     * keyword = ""
-     * status = "Pending"
-     * page = 1
-     * 
-     * Expected: Should retrieve filtered application list and forward to JSP
+     * <br>SessionUserRole = 4
+     * <br>ParameterKeyword = "keyword"
+     * <br>ParameterStatus = "Pending"
+     * <br>ParameterPage = 1
+     * <br>ParameterSortByDate = "newest"
      * 
      * @throws java.lang.Exception
      */
     @Test
-    public void testDoGet_Success() throws Exception {
+    public void testDoGet_Success_ShowListApplications() throws Exception {
+        int sessionUserRole = 4;
+
+        sessionUser.setRoleID(sessionUserRole);
+        String keyword = "keyword";
+        String status = "Pending";
+        String sortByDate = "newest";
+        int page = 1;
+
+        when(request.getParameter("keyword")).thenReturn(keyword);
+        when(request.getParameter("status")).thenReturn(status);
+        when(request.getParameter("sortByDate")).thenReturn(sortByDate);
+        when(request.getParameter("page")).thenReturn(String.valueOf(page));
+
         controller.doGet(request, response);
 
-        verify(request).setAttribute("applicationList", mockApplications);
-        verify(request).setAttribute("currentPage", 1);
-        verify(request).setAttribute("totalPages", 0);
-        verify(request).setAttribute("keyword", "");
-        verify(request).setAttribute("status", "Pending");
-        verify(request).setAttribute("sortByDate", "desc");
+        verify(request).setAttribute("applicationList", applications);
+        verify(request).setAttribute("currentPage", page);
+        verify(request).setAttribute("totalPages", applications.size());
+        verify(request).setAttribute("keyword", keyword);
+        verify(request).setAttribute("status", status);
+        verify(request).setAttribute("sortByDate", sortByDate);
+
         verify(dispatcher).forward(request, response);
     }
 
     /**
-     * Test case: Unauthorized user (no user in session)
+     * Test case 2: Unauthorized - Redirect Home With Error
      * 
-     * Expected: Redirect to home with 403 error
+     * <br>SessionUserRole = 2
+     * <br>ParameterKeyword = "keyword"
+     * <br>ParameterStatus = "Pending"
+     * <br>ParameterPage = "invalid"
+     * <br>ParameterSortByDate = "newest"
+     * 
+     * @throws java.lang.Exception
      */
     @Test
     public void testDoGet_Unauthorized_NoUser() throws Exception {
-        when(session.getAttribute("user")).thenReturn(null);
+        sessionUser.setRoleID(2);
         controller.doGet(request, response);
         verify(response).sendRedirect("home?error=403");
     }
 
     /**
-     * Test case: Authorized user but invalid page number (non-integer)
+     * Test case 3: Invalid Page Number - Use Default Page Number
      * 
-     * page = "invalid"
+     * <br>SessionUserRole = 4
+     * <br>ParameterKeyword = "keyword"
+     * <br>ParameterStatus = "Pending"
+     * <br>ParameterPage = "invalid"
+     * <br>ParameterSortByDate = "newest"
      * 
-     * Expected: Page defaults to 1
+     * @throws java.lang.Exception
      */
     @Test
     public void testDoGet_InvalidPageNumber() throws Exception {
-        when(request.getParameter("page")).thenReturn("invalid");
+        int sessionUserRole = 4;
+
+        sessionUser.setRoleID(sessionUserRole);
+        String keyword = "keyword";
+        String status = "Pending";
+        String sortByDate = "newest";
+        String page = "invalid";
+
+        when(request.getParameter("keyword")).thenReturn(keyword);
+        when(request.getParameter("status")).thenReturn(status);
+        when(request.getParameter("sortByDate")).thenReturn(sortByDate);
+        when(request.getParameter("page")).thenReturn(page);
 
         controller.doGet(request, response);
 

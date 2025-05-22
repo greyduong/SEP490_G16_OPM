@@ -22,17 +22,14 @@ import model.User;
 @WebServlet(name = "OrdersRequestController", urlPatterns = {"/orders-request"})
 public class OrdersRequestController extends HttpServlet {
 
-    private OrderDAO orderDAO = new OrderDAO();
-    private FarmDAO farmDAO = new FarmDAO();
+    public OrderDAO getOrderDAO() {
+        return new OrderDAO();
+    }
 
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    public FarmDAO getFarmDAO() {
+        return new FarmDAO();
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -66,7 +63,7 @@ public class OrdersRequestController extends HttpServlet {
 
         int pageSize = 10;
 
-        // Gọi DAO
+        OrderDAO orderDAO = getOrderDAO();
         int totalData = orderDAO.countPendingOrdersBySellerWithFilter(sellerId, farmId, search);
         List<Order> orderList = orderDAO.getPendingOrdersBySellerWithFilter(
                 sellerId, farmId, search, sort, pageIndex, pageSize
@@ -84,6 +81,7 @@ public class OrdersRequestController extends HttpServlet {
         request.setAttribute("page", page);
 
         // Lấy danh sách trang trại để lọc
+        FarmDAO farmDAO = getFarmDAO();
         List<Farm> farmList = farmDAO.getActiveFarmsBySellerId(sellerId);
         request.setAttribute("farmList", farmList);
 

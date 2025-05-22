@@ -1,7 +1,7 @@
 package controller;
+
 import dao.CartDAO;
 import dao.PigsOfferDAO;
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AddToCartControllerTest {
+
     @Spy
     private AddToCartController controller;
 
@@ -28,21 +29,18 @@ public class AddToCartControllerTest {
     private HttpSession session;
 
     @Mock
-    private RequestDispatcher dispatcher;
-
-    @Mock
     private CartDAO cartDAO;
 
     @Mock
     private PigsOfferDAO pigsOfferDAO;
 
-    private User user;
+    private User sessionUser;
     private PigsOffer offer;
 
     @Before
     public void setup() throws Exception {
-        user = new User();
-        user.setUserID(4);
+        sessionUser = new User();
+        sessionUser.setUserID(4);
 
         offer = new PigsOffer();
         offer.setOfferID(10);
@@ -51,101 +49,154 @@ public class AddToCartControllerTest {
         offer.setQuantity(100);
         offer.setName("Offer Name");
 
-        when(controller.getCartDAO()).thenReturn(cartDAO);
-        when(controller.getPigsOfferDAO()).thenReturn(pigsOfferDAO);
-        when(session.getAttribute("user")).thenReturn(user);
+        // mock dao
+        doReturn(cartDAO).when(controller).getCartDAO();
+        doReturn(pigsOfferDAO).when(controller).getPigsOfferDAO();
+
+        // mock session
+        when(session.getAttribute("user")).thenReturn(sessionUser);
         when(request.getSession()).thenReturn(session);
-        when(request.getParameter("offerId")).thenReturn("10");
-        when(request.getParameter("quantity")).thenReturn("10");
-        when(pigsOfferDAO.getOfferById(10)).thenReturn(offer);
+
+        // mock dao method
+        when(pigsOfferDAO.getOfferById(anyInt())).thenReturn(offer);
         doNothing().when(cartDAO).addToCart(anyInt(), anyInt(), anyInt());
         doNothing().when(response).sendRedirect(anyString());
     }
 
     /**
-     * Success Add To Cart
-     * 
-     * UserID = 4
-     * OfferID = 10
-     * OfferStatus = "Available"
-     * OfferMinQuantity = 5
-     * OfferQuantity = 100
-     * OfferName = "OfferName"
-     * Quantity = 10
-     * 
-     * @throws Exception 
+     * Test Case 1: Success - Success Add To Cart
+     *
+     * <br>ParameterOfferID = 10
+     * <br>ParameterQuantity = 10
+     * <br>SessionUserID = 5
+     * <br>OfferStatus = "Available"
+     * <br>OfferMinQuantity = 5
+     * <br>OfferQuantity = 100
+     *
+     * @throws Exception
      */
     @Test
     public void testDoPost_Success_AddToCart() throws Exception {
+        int quantity = 10;
+        int sessionUserId = 5;
+        int offerId = 10;
+        String offerStatus = "Available";
+        int offerMinQuantity = 5;
+        int offerQuantity = 100;
+
+        sessionUser.setUserID(sessionUserId);
+        offer.setOfferID(offerId);
+        offer.setStatus(offerStatus);
+        offer.setMinQuantity(offerMinQuantity);
+        offer.setQuantity(offerQuantity);
+
+        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
+        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
+
         controller.doPost(request, response);
 
-        verify(cartDAO).addToCart(1, 10, 10);
+        verify(pigsOfferDAO).getOfferById(offerId);
+        verify(cartDAO).addToCart(sessionUserId, offerId, quantity);
         verify(response).sendRedirect(contains("cart?search=Offer+Name"));
     }
 
     /**
-     * Invalid Quantity
-     * 
-     * UserID = 4
-     * OfferID = 10
-     * OfferStatus = "Available"
-     * OfferMinQuantity = 10
-     * OfferQuantity = 20
-     * OfferName = "OfferName"
-     * Quantity = 5
-     * 
-     * @throws Exception 
+     * Test Case 2: Quantity Less Than Min Quantity - Redirect Home With Message
+     *
+     * <br>ParameterOfferID = 10
+     * <br>ParameterQuantity = 10
+     * <br>SessionUserID = 5
+     * <br>OfferStatus = "Available"
+     * <br>OfferMinQuantity = 11
+     * <br>OfferQuantity = 100
+     *
+     * @throws Exception
      */
     @Test
-    public void testDoPost_InvalidQuantity() throws Exception {
-        offer.setMinQuantity(10);
+    public void testDoPost_QuantityLessThanMinQuantity_RedirectHomeWithMessage() throws Exception {
+        int quantity = 10;
+        int sessionUserId = 5;
+        int offerId = 10;
+        String offerStatus = "Available";
+        int offerMinQuantity = 11;
+        int offerQuantity = 100;
 
-        when(request.getParameter("quantity")).thenReturn("5");
+        sessionUser.setUserID(sessionUserId);
+        offer.setOfferID(offerId);
+        offer.setStatus(offerStatus);
+        offer.setMinQuantity(offerMinQuantity);
+        offer.setQuantity(offerQuantity);
+
+        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
+        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
 
         controller.doPost(request, response);
 
+        verify(pigsOfferDAO).getOfferById(offerId);
         verify(session).setAttribute(eq("msg"), contains("Số lượng không phù hợp"));
         verify(response).sendRedirect("home");
     }
 
     /**
-     * Offer Unavailable
-     * 
-     * UserID = 1
-     * OfferID = 10
-     * OfferStatus = "Banned"
-     * OfferMinQuantity = 10
-     * OfferQuantity = 20
-     * OfferName = "OfferName"
-     * Quantity = 5
-     * 
-     * @throws Exception 
+     * Test Case 3: Offer Unavailable - Redirect Home With Message
+     *
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = 10
+     * <br>SessionUserID = 5
+     * <br>OfferStatus = "Banned"
+     * <br>OfferMinQuantity = 10
+     * <br>OfferQuantity = 100
+     *
+     * @throws Exception
      */
     @Test
-    public void testDoPost_OfferUnavailable() throws Exception {
-        offer.setStatus("Banned");
+    public void testDoPost_OfferUnavailable_RedirectHomeWithMessage() throws Exception {
+        int quantity = 10;
+        int sessionUserId = 5;
+        int offerId = 10;
+        String offerStatus = "Banned";
+        int offerMinQuantity = 11;
+        int offerQuantity = 100;
+
+        sessionUser.setUserID(sessionUserId);
+        offer.setOfferID(offerId);
+        offer.setStatus(offerStatus);
+        offer.setMinQuantity(offerMinQuantity);
+        offer.setQuantity(offerQuantity);
+
+        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
+        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
 
         controller.doPost(request, response);
 
+        verify(pigsOfferDAO).getOfferById(offerId);
         verify(session).setAttribute(eq("msg"), contains("Chào bán này hiện không thể đặt hàng"));
         verify(response).sendRedirect("home");
     }
 
     /**
-     * Offer Not Found
-     * 
-     * UserID = 1
-     * OfferID = 11
-     * OfferStatus = null
-     * OfferMinQuantity = null
-     * OfferQuantity = null
-     * OfferName = null
-     * Quantity = 5
-     * 
-     * @throws Exception 
+     * Test Case 4: Offer Unavailable - Redirect Home With Message
+     *
+     * <br>ParameterQuantity = 5
+     * <br>ParameterOfferID = 11
+     * <br>SessionUserID = 5
+     * <br>OfferStatus = null
+     * <br>OfferMinQuantity = null
+     * <br>OfferQuantity = null
+     *
+     * @throws Exception
      */
     @Test
-    public void testDoPost_OfferNotFound() throws Exception {
+    public void testDoPost_OfferNotFound_RedirectHomeWithMessage() throws Exception {
+        int quantity = 10;
+        int offerId = 11;
+        int sessionUserId = 5;
+
+        sessionUser.setUserID(sessionUserId);
+
+        when(request.getParameter("offerId")).thenReturn(String.valueOf(offerId));
+        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
+
         when(pigsOfferDAO.getOfferById(11)).thenReturn(null);
 
         controller.doPost(request, response);
@@ -155,20 +206,24 @@ public class AddToCartControllerTest {
     }
 
     /**
-     * Invalid Input
-     * 
-     * UserID = 1
-     * OfferID = 10
-     * OfferStatus = "Available"
-     * OfferMinQuantity = 5
-     * OfferQuantity = 100
-     * OfferName = "OfferName"
-     * Quantity = "invalid"
-     * 
-     * @throws Exception 
+     * Test Case 5: Invalid Input - Redirect Home With Message
+     *
+     * <br>SessionUserID = 5
+     * <br>ParameterQuantity = "invalid"
+     * <br>ParameterOfferID = 10
+     * <br>OfferStatus = "Available"
+     * <br>OfferMinQuantity = 5
+     * <br>OfferQuantity = 100
+     * <br>OfferName = "OfferName"
+     *
+     * @throws Exception
      */
     @Test
-    public void testDoPost_InvalidInput() throws Exception {
+    public void testDoPost_InvalidInput_RedirectHomeWithMessage() throws Exception {
+        int sessionUserId = 5;
+
+        sessionUser.setUserID(sessionUserId);
+
         when(request.getParameter("quantity")).thenReturn("invalid");
 
         controller.doPost(request, response);
@@ -177,4 +232,3 @@ public class AddToCartControllerTest {
         verify(response).sendRedirect("home");
     }
 }
-

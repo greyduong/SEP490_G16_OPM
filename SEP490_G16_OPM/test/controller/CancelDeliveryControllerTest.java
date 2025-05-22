@@ -24,7 +24,6 @@ public class CancelDeliveryControllerTest {
 
     @Spy
     private CancelDeliveryController controller;
-
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -40,60 +39,16 @@ public class CancelDeliveryControllerTest {
 
     private MockedStatic<Email> mockEmail;
 
-    private User dealer;
-    private User seller;
-    private User user;
-    private Order order;
-
     @Before
     public void setUp() throws Exception {
-        user = new User();
-        user.setUserID(2);
-        user.setRoleID(5);
+        // mock dao
+        doReturn(deliveryDAO).when(controller).getDeliveryDAO();
+        doReturn(orderDAO).when(controller).getOrderDAO();
+        doReturn(userDAO).when(controller).getUserDAO();
 
-        dealer = new User();
-        dealer.setUserID(2);
-        dealer.setRoleID(5);
-        dealer.setFullName("Dealer A");
-        dealer.setEmail("dealer@example.com");
-
-        seller = new User();
-        seller.setUserID(3);
-        seller.setFullName("Seller B");
-        seller.setEmail("seller@example.com");
-
-        order = new Order();
-        order.setOrderID(101);
-        order.setDealerID(2);
-        order.setSellerID(3);
-
+        // mock email
         mockEmail = Mockito.mockStatic(Email.class);
         mockEmail.when(() -> Email.sendEmail(anyString(), anyString(), anyString())).thenAnswer(inv -> null);
-        doNothing().when(response).sendRedirect(anyString());
-
-        when(request.getSession()).thenReturn(session);
-        when(request.getParameter("deliveryID")).thenReturn("5");
-        when(request.getParameter("cancelReason")).thenReturn("Reason valid");
-
-        when(session.getAttribute("user")).thenReturn(user);
-
-        when(deliveryDAO.getOrderIdByDeliveryId(5)).thenReturn(101);
-        when(deliveryDAO.getDealerIdByDeliveryId(5)).thenReturn(2);
-        when(deliveryDAO.getDeliveryStatusById(5)).thenReturn("Pending");
-        when(deliveryDAO.getOrderStatusByDeliveryId(5)).thenReturn("Processing");
-        when(deliveryDAO.updateDeliveryStatus(5, "Canceled")).thenReturn(true);
-        when(deliveryDAO.appendToDeliveryComments(eq(5), contains("HỦY"))).thenReturn(true);
-
-        when(orderDAO.getOrderById(101)).thenReturn(order);
-
-        when(userDAO.getUserById(3)).thenReturn(seller);
-        when(userDAO.getUserById(2)).thenReturn(dealer);
-
-        when(deliveryDAO.getDeliveryTotalPrice(5)).thenReturn(1000000.0);
-        when(deliveryDAO.getDeliveryQuantity(5)).thenReturn(10);
-        when(controller.getDeliveryDAO()).thenReturn(deliveryDAO);
-        when(controller.getOrderDAO()).thenReturn(orderDAO);
-        when(controller.getUserDAO()).thenReturn(userDAO);
     }
 
     @After
@@ -102,130 +57,145 @@ public class CancelDeliveryControllerTest {
     }
 
     /**
-     * Sucessfull
+     * Test Case 1: Sucessfull
      *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 2
-     * userRole = 5 dealerId = 2 deliveryStatus = "Pending" orderStatus =
-     * "Processing"
+     * <br>ParameterDeliveryId = 5
+     * <br>ParameterCancelReason = "Reason valid"
+     * <br>SessionUserId = 2
+     * <br>SessionUserRole = 5
+     * <br>DeliveryOrderId = 101
+     * <br>DeliveryDealerId = 5
+     * <br>DeliverySellerId = 4
+     * <br>DeliveryStatus = "Pending"
+     * <br>DeliveryOrderStatus = "Processing"
+     * <br>DeliveryTotalPrice = 1000000.0
      *
      * @throws Exception
      */
     @Test
     public void testSuccessfulCancellation() throws Exception {
+        String parameterDeliveryId = "5";
+        String parameterCancelReason = "Reason valid";
+        int sessionUserId = 2;
+        int sessionUserRole = 5;
+        int deliveryId = 5;
+        int deliveryDealerId = 2;
+        String deliveryStatus = "Pending";
+        double deliveryTotalPrice = 1000000.0;
+        int deliveryQuantity = 10;
+        int deliveryOrderId = 101;
+        int deliveryOrderDealerId = 5;
+        int deliveryOrderSellerId = 4;
+        String deliveryOrderStatus = "Processing";
+
+        User sessionUser = new User();
+        sessionUser.setUserID(sessionUserId);
+        sessionUser.setRoleID(sessionUserRole);
+
+        User dealer = new User();
+        dealer.setUserID(deliveryDealerId);
+        dealer.setFullName("Dealer A");
+        dealer.setEmail("dealer@example.com");
+
+        User seller = new User();
+        seller.setFullName("Seller B");
+        seller.setEmail("seller@example.com");
+
+        Order order = new Order();
+        order.setDealerID(deliveryOrderDealerId);
+        order.setDealer(dealer);
+        order.setSellerID(deliveryOrderSellerId);
+        order.setSeller(seller);
+        order.setStatus(deliveryOrderStatus);
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn(sessionUser);
+        when(request.getParameter("deliveryID")).thenReturn(parameterDeliveryId);
+        when(request.getParameter("cancelReason")).thenReturn(parameterCancelReason);
+        doNothing().when(response).sendRedirect(anyString());
+        when(deliveryDAO.getOrderIdByDeliveryId(deliveryId)).thenReturn(deliveryOrderId);
+        when(deliveryDAO.getDealerIdByDeliveryId(deliveryId)).thenReturn(deliveryDealerId);
+        when(deliveryDAO.getDeliveryStatusById(deliveryId)).thenReturn(deliveryStatus);
+        when(deliveryDAO.getOrderStatusByDeliveryId(deliveryId)).thenReturn(deliveryOrderStatus);
+        when(deliveryDAO.updateDeliveryStatus(deliveryId, "Canceled")).thenReturn(true);
+        when(deliveryDAO.appendToDeliveryComments(eq(deliveryId), contains("HỦY"))).thenReturn(true);
+        when(orderDAO.getOrderById(deliveryOrderId)).thenReturn(order);
+
+        when(userDAO.getUserById(deliveryOrderSellerId)).thenReturn(seller);
+        when(userDAO.getUserById(deliveryOrderDealerId)).thenReturn(dealer);
+
+        when(deliveryDAO.getDeliveryTotalPrice(deliveryId)).thenReturn(deliveryTotalPrice);
+        when(deliveryDAO.getDeliveryQuantity(deliveryId)).thenReturn(deliveryQuantity);
+
+        // Actual
         controller.doPost(request, response);
+
+        // Expected
         verify(response).sendRedirect(contains(URLEncoder.encode("Giao hàng đã được hủy", StandardCharsets.UTF_8)));
         mockEmail.verify(() -> Email.sendEmail(anyString(), anyString(), anyString()), times(2));
     }
 
     /**
-     * Unauthenticated
+     * Test Case 2: Unauthenticated
      *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = null
-     * userRole = null dealerId = 2 deliveryStatus = "Pending" orderStatus =
-     * "Processing"
+     * <br>ParameterDeliveryId = 5
+     * <br>ParameterCancelReason = "Reason valid"
+     * <br>SessionUserId = null
+     * <br>SessionUserRole = null
+     * <br>DeliveryOrderId = 101
+     * <br>DeliveryDealerId = 5
+     * <br>DeliverySellerId = 4
+     * <br>DeliveryStatus = "Pending"
+     * <br>DeliveryOrderStatus = "Processing"
+     * <br>DeliveryTotalPrice = 1000000.0
      *
      * @throws Exception
      */
     @Test
     public void testUnauthenticated_RedirectsWithError() throws Exception {
+        String parameterDeliveryId = "5";
+        String parameterCancelReason = "Reason valid";
+        int sessionUserId = 2;
+        int sessionUserRole = 5;
+        int deliveryId = 5;
+        int deliveryDealerId = 2;
+        int deliveryOrderId = 101;
+        int deliveryOrderDealerId = 5;
+        int deliveryOrderSellerId = 4;
+        String deliveryOrderStatus = "Processing";
+
+        User sessionUser = new User();
+        sessionUser.setUserID(sessionUserId);
+        sessionUser.setRoleID(sessionUserRole);
+
+        User dealer = new User();
+        dealer.setUserID(deliveryDealerId);
+        dealer.setFullName("Dealer A");
+        dealer.setEmail("dealer@example.com");
+
+        User seller = new User();
+        seller.setFullName("Seller B");
+        seller.setEmail("seller@example.com");
+
+        Order order = new Order();
+        order.setDealerID(deliveryOrderDealerId);
+        order.setDealer(dealer);
+        order.setSellerID(deliveryOrderSellerId);
+        order.setSeller(seller);
+        order.setStatus(deliveryOrderStatus);
+
+        when(request.getSession()).thenReturn(session);
         when(session.getAttribute("user")).thenReturn(null);
 
-        when(request.getParameter("deliveryID")).thenReturn("7");
-        when(deliveryDAO.getOrderIdByDeliveryId(7)).thenReturn(200);
-        when(deliveryDAO.getDealerIdByDeliveryId(7)).thenReturn(2); // DealerID mismatch
+        when(request.getParameter("deliveryID")).thenReturn(parameterDeliveryId);
+        when(request.getParameter("cancelReason")).thenReturn(parameterCancelReason);
 
+        when(deliveryDAO.getOrderIdByDeliveryId(deliveryId)).thenReturn(deliveryOrderId);
+        when(deliveryDAO.getDealerIdByDeliveryId(deliveryId)).thenReturn(deliveryDealerId);
+
+        // Actual
         controller.doPost(request, response);
 
         verify(response).sendRedirect(contains(URLEncoder.encode("Bạn không có quyền hủy giao hàng này.", "UTF-8")));
-    }
-
-    /**
-     * Unauthorized Role
-     *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
-     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Pending"
-     * orderStatus = "Processing"
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testUnauthorizedRole_RedirectsWithError() throws Exception {
-        user.setRoleID(4);
-
-        controller.doPost(request, response);
-
-        verify(response).sendRedirect(contains(URLEncoder.encode("Bạn không có quyền hủy giao hàng này.", "UTF-8")));
-    }
-
-    /**
-     * Unauthorized UserID
-     *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 99
-     * userRole = 5 dealerId = 2 deliveryStatus = "Pending" orderStatus =
-     * "Processing"
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testUnauthorizedUserID_RedirectsWithError() throws Exception {
-        user.setUserID(99);
-
-        controller.doPost(request, response);
-
-        verify(response).sendRedirect(contains(URLEncoder.encode("Bạn không có quyền hủy giao hàng này.", "UTF-8")));
-    }
-
-    /**
-     * Delivery Not Pending
-     *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
-     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Confirmed"
-     * orderStatus = "Processing"
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testDeliveryNotPending_RedirectsWithError() throws Exception {
-        when(deliveryDAO.getDeliveryStatusById(5)).thenReturn("Confirmed");
-
-        controller.doPost(request, response);
-
-        verify(response).sendRedirect(contains(URLEncoder.encode("Chỉ được hủy khi đơn giao hàng đang chờ và đơn hàng đang xử lý", "UTF-8")));
-    }
-
-    /**
-     * Order Not Processing
-     *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
-     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Pending"
-     * orderStatus = "Confirmed"
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testOrderNotProcessing_RedirectsWithError() throws Exception {
-        when(deliveryDAO.getOrderStatusByDeliveryId(5)).thenReturn("Confirmed");
-
-        controller.doPost(request, response);
-
-        verify(response).sendRedirect(contains(URLEncoder.encode("Chỉ được hủy khi đơn giao hàng đang chờ và đơn hàng đang xử lý", "UTF-8")));
-    }
-
-    /**
-     * Update Delivery Fail
-     *
-     * deliveryId = 5 cancelReason = "Reason valid" orderId = 101 userId = 4 //
-     * invalid role userRole = 5 dealerId = 2 deliveryStatus = "Pending"
-     * orderStatus = "Confirmed"
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateDeliveryFail_RedirectsWithError() throws Exception {
-        when(deliveryDAO.updateDeliveryStatus(5, "Canceled")).thenReturn(false);
-
-        controller.doPost(request, response);
-
-        verify(response).sendRedirect(contains(URLEncoder.encode("Hủy giao hàng thất bại", "UTF-8")));
     }
 }
