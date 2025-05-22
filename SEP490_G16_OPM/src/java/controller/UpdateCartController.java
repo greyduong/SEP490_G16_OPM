@@ -16,7 +16,9 @@ import model.PigsOffer;
 @WebServlet(name = "UpdateCartController", urlPatterns = {"/update-cart"})
 public class UpdateCartController extends HttpServlet {
 
-    private CartDAO cartDAO = new CartDAO();
+    public CartDAO getCartDAO() {
+        return new CartDAO();
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -25,6 +27,7 @@ public class UpdateCartController extends HttpServlet {
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         int page = Integer.parseInt(request.getParameter("page"));
 
+        CartDAO cartDAO = getCartDAO();
         PigsOffer offer = cartDAO.getPigsOfferByCartId(cartId);
 
         if (quantity < offer.getMinQuantity() || quantity > offer.getQuantity()) {

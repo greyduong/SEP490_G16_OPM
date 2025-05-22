@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class ShoppingCartControllerTest {
 
-    @InjectMocks
+    @Spy
     private ShoppingCartController controller;
 
     @Mock
@@ -42,6 +42,7 @@ public class ShoppingCartControllerTest {
 
     @Before
     public void setUp() {
+        doReturn(cartDAO).when(controller).getCartDAO();
         mockUser = new User();
         mockUser.setUserID(10); // any sample user ID
 

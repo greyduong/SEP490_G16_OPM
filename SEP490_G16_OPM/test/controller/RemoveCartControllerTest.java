@@ -3,19 +3,17 @@ package controller;
 import dao.CartDAO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.mockito.*;
+import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class RemoveCartControllerTest {
 
-    @InjectMocks
+    @Spy
     private RemoveCartController controller;
 
     @Mock
@@ -27,11 +25,17 @@ public class RemoveCartControllerTest {
     @Mock
     private CartDAO cartDAO;
 
+    @Before
+    public void setup() {
+        doReturn(cartDAO).when(controller).getCartDAO();
+    }
+
     /**
-     * Delete success
-     * 
-     * id = "1"
-     * @throws Exception 
+     * Test Case 1: Delete success
+     *
+     * <br>id = "1"
+     *
+     * @throws Exception
      */
     @Test
     public void testValidID() throws Exception {
@@ -46,10 +50,11 @@ public class RemoveCartControllerTest {
     }
 
     /**
-     * Invalid ID
-     * 
-     * id = "invalid"
-     * @throws Exception 
+     * Test Case 2: Invalid ID
+     *
+     * <br>id = "invalid"
+     *
+     * @throws Exception
      */
     @Test
     public void testInvalidID() throws Exception {

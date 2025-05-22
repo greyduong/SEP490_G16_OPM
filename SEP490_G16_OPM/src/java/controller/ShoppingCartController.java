@@ -18,7 +18,9 @@ import model.User;
 @WebServlet(name = "ShoppingCartController", urlPatterns = {"/cart"})
 public class ShoppingCartController extends HttpServlet {
 
-    private CartDAO cartDAO = new CartDAO();
+    public CartDAO getCartDAO() {
+        return new CartDAO();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -34,6 +36,7 @@ public class ShoppingCartController extends HttpServlet {
         String search = request.getParameter("search");
         String sort = request.getParameter("sort");
 
+        CartDAO cartDAO = getCartDAO();
         // Lấy danh sách giỏ hàng có phân trang, search, sort
         List<Cart> cartList = cartDAO.getCartByUserIdWithFilter(userId, pageIndex, pageSize, search, sort);
 

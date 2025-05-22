@@ -15,14 +15,16 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "RemoveCartController", urlPatterns = {"/remove-cart"})
 public class RemoveCartController extends HttpServlet {
 
-    private CartDAO cartDAO = new CartDAO();
+    public CartDAO getCartDAO() {
+        return new CartDAO();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             int cartId = Integer.parseInt(request.getParameter("id"));
-            cartDAO.removeCartById(cartId);
+            getCartDAO().removeCartById(cartId);
         } catch (NumberFormatException | NullPointerException e) {
         }
         response.sendRedirect("cart");

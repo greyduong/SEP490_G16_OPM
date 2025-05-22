@@ -10,14 +10,12 @@ import model.Farm;
 import model.Order;
 import model.Page;
 import model.User;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import model.Email;
 import org.junit.runner.RunWith;
 
 import static org.mockito.Mockito.*;
@@ -26,7 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class OrdersRequestControllerTest {
 
-    @InjectMocks
+    @Spy
     private OrdersRequestController controller;
 
     @Mock
@@ -47,41 +45,54 @@ public class OrdersRequestControllerTest {
     @Mock
     private RequestDispatcher dispatcher;
 
+    private int userId = 4;
+    private int farmId = 101;
+    private String search = "keyword";
+    private String sort = "orderid_asc";
+    private int page = 2;
+
     private User user;
+    private List<Order> orders;
+    private List<Farm> farms;
+    private int ordersCount = 13;
+    private int pageSize = 10;
+
+    public void setup() {
+        doReturn(orderDAO).when(controller).getOrderDAO();
+        doReturn(farmDAO).when(controller).getFarmDAO();
+        user = new User();
+        user.setUserID(userId);
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn(user);
+        when(request.getParameter("farmId")).thenReturn(String.valueOf(farmId));
+        when(request.getParameter("search")).thenReturn(search);
+        when(request.getParameter("sort")).thenReturn(sort);
+        when(request.getParameter("page")).thenReturn(String.valueOf(page));
+
+        orders = Collections.singletonList(new Order());
+        when(orderDAO.countPendingOrdersBySellerWithFilter(eq(userId), eq(farmId), eq(search))).thenReturn(ordersCount);
+        when(orderDAO.getPendingOrdersBySellerWithFilter(eq(userId), eq(farmId), eq(search), eq(sort), eq(page), eq(pageSize))).thenReturn(orders);
+        farms = Arrays.asList(new Farm(), new Farm());
+        when(farmDAO.getActiveFarmsBySellerId(userId)).thenReturn(farms);
+        when(request.getRequestDispatcher(anyString())).thenReturn(dispatcher);
+    }
 
     /**
      * With Valid Parameters
-     * 
-     * userID = 10
-     * farmID = 1
-     * search = "keyword"
-     * sort = "orderid_asc"
-     * page = "2"
-     * @throws Exception 
+     *
+     * <br>userID = 10
+     * <br>farmID = 1
+     * <br>search = "keyword"
+     * <br>sort = "orderid_asc"
+     * <br>page = "2"
+     *
+     * @throws Exception
      */
     @Test
     public void testDoGet_WithValidParameters() throws Exception {
-        // current logged user
-        user = new User();
-        user.setUserID(10);
-        when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(user);
-
-        // parameters
-        when(request.getParameter("farmId")).thenReturn("1");
-        when(request.getParameter("search")).thenReturn("keyword");
-        when(request.getParameter("sort")).thenReturn("orderid_asc");
-        when(request.getParameter("page")).thenReturn("2");
-
-        List<Order> orders = Collections.singletonList(new Order());
-        when(orderDAO.countPendingOrdersBySellerWithFilter(eq(10), eq(1), eq("keyword"))).thenReturn(11);
-        when(orderDAO.getPendingOrdersBySellerWithFilter(eq(10), eq(1), eq("keyword"), eq("orderid_asc"), eq(2), eq(10))).thenReturn(orders);
-        List<Farm> farms = Arrays.asList(new Farm(), new Farm());
-        when(farmDAO.getActiveFarmsBySellerId(10)).thenReturn(farms);
-
-        when(request.getRequestDispatcher("orderrequestpage.jsp")).thenReturn(dispatcher);
-
+        setup();
         controller.doGet(request, response);
+
         verify(request).setAttribute(eq("page"), any(Page.class));
         verify(request).setAttribute(eq("farmList"), eq(farms));
         verify(dispatcher).forward(request, response);
@@ -89,39 +100,23 @@ public class OrdersRequestControllerTest {
 
     /**
      * Without Parameters
-     * 
-     * userID = 10
-     * farmID = null
-     * search = null
-     * sort = null
-     * page = null
-     * @throws Exception 
+     *
+     * userID = 10 farmID = null search = null sort = null page = null
+     *
+     * @throws Exception
      */
     @Test
     public void testDoGet_WithoutOptionalParams_UsesDefaults() throws Exception {
-        // current logged user
-        user = new User();
-        user.setUserID(10);
-        when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("user")).thenReturn(user);
-
+        setup();
         when(request.getParameter("farmId")).thenReturn(null);
         when(request.getParameter("search")).thenReturn(null);
         when(request.getParameter("sort")).thenReturn(null);
         when(request.getParameter("page")).thenReturn(null);
 
-        when(orderDAO.countPendingOrdersBySellerWithFilter(eq(10), isNull(), isNull())).thenReturn(5);
-        when(orderDAO.getPendingOrdersBySellerWithFilter(eq(10), isNull(), isNull(), isNull(), eq(1), eq(10)))
-                .thenReturn(Collections.emptyList());
-
-        when(farmDAO.getActiveFarmsBySellerId(10)).thenReturn(Collections.emptyList());
-
-        when(request.getRequestDispatcher("orderrequestpage.jsp")).thenReturn(dispatcher);
-
         controller.doGet(request, response);
 
         verify(request).setAttribute(eq("page"), any(Page.class));
-        verify(request).setAttribute(eq("farmList"), eq(Collections.emptyList()));
+        verify(request).setAttribute(eq("farmList"), eq(farms));
         verify(dispatcher).forward(request, response);
     }
 }

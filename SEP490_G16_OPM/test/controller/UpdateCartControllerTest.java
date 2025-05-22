@@ -4,7 +4,6 @@ import dao.CartDAO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.PigsOffer;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -15,7 +14,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class UpdateCartControllerTest {
 
-    @InjectMocks
+    @Spy
     private UpdateCartController controller;
 
     @Mock
@@ -27,69 +26,59 @@ public class UpdateCartControllerTest {
     @Mock
     private HttpServletResponse response;
 
-    private final int cartId = 1;
-    private final int page = 2;
+    private int cartId = 101;
+    private int page = 1;
+    private int quantity = 11;
+    private int cartOfferId = 202;
+    private int cartOfferMinQuantity = 10;
+    private int cartOfferQuantity = 100;
 
-    @Before
-    public void setUp() {
+    private PigsOffer offer;
+
+    public void setup() {
+        doReturn(cartDAO).when(controller).getCartDAO();
+        offer = new PigsOffer();
+        offer.setMinQuantity(cartOfferMinQuantity);
+        offer.setQuantity(cartOfferQuantity);
+        when(cartDAO.getPigsOfferByCartId(cartId)).thenReturn(offer);
         when(request.getParameter("cartId")).thenReturn(String.valueOf(cartId));
         when(request.getParameter("page")).thenReturn(String.valueOf(page));
+        when(request.getParameter("quantity")).thenReturn(String.valueOf(quantity));
     }
 
     @Test
     public void testDoPost_InvalidQuantity_LessThanMin() throws Exception {
-        // Given
-        int invalidQuantity = 1;
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(invalidQuantity));
+        quantity = 9;
+        setup();
 
-        PigsOffer offer = new PigsOffer();
-        offer.setMinQuantity(5);
-        offer.setQuantity(20);
-        when(cartDAO.getPigsOfferByCartId(cartId)).thenReturn(offer);
-
-        // When
         controller.doPost(request, response);
 
-        // Then
-        verify(response).sendRedirect("cart?page=2&error=Số lượng không hợp lệ");
+        verify(response).sendRedirect("cart?page=%s&error=Số lượng không hợp lệ".formatted(page));
         verify(cartDAO, never()).updateCartQuantity(anyInt(), anyInt());
     }
 
     @Test
     public void testDoPost_InvalidQuantity_GreaterThanMax() throws Exception {
-        // Given
-        int invalidQuantity = 25;
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(invalidQuantity));
+        quantity = 999;
 
-        PigsOffer offer = new PigsOffer();
-        offer.setMinQuantity(5);
-        offer.setQuantity(20);
-        when(cartDAO.getPigsOfferByCartId(cartId)).thenReturn(offer);
+        setup();
 
-        // When
         controller.doPost(request, response);
 
         // Then
-        verify(response).sendRedirect("cart?page=2&error=Số lượng không hợp lệ");
+        verify(response).sendRedirect("cart?page=%s&error=Số lượng không hợp lệ".formatted(page));
         verify(cartDAO, never()).updateCartQuantity(anyInt(), anyInt());
     }
 
     @Test
     public void testDoPost_ValidQuantity() throws Exception {
-        // Given
-        int validQuantity = 10;
-        when(request.getParameter("quantity")).thenReturn(String.valueOf(validQuantity));
+        quantity = 10;
 
-        PigsOffer offer = new PigsOffer();
-        offer.setMinQuantity(5);
-        offer.setQuantity(20);
-        when(cartDAO.getPigsOfferByCartId(cartId)).thenReturn(offer);
+        setup();
 
-        // When
         controller.doPost(request, response);
 
-        // Then
-        verify(cartDAO).updateCartQuantity(cartId, validQuantity);
-        verify(response).sendRedirect("cart?page=2");
+        verify(cartDAO).updateCartQuantity(cartId, quantity);
+        verify(response).sendRedirect("cart?page=%s".formatted(page));
     }
 }
