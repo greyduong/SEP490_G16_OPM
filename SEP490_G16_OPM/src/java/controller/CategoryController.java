@@ -14,6 +14,14 @@ import java.util.List;
 @WebServlet(name = "CategoryController", urlPatterns = {"/category"})
 public class CategoryController extends HttpServlet {
 
+    public CategoryDAO getCategoryDAO() {
+        return new CategoryDAO();
+    }
+
+    public PigsOfferDAO getPigsOfferDAO() {
+        return new PigsOfferDAO();
+    }
+
     // Check if the user is logged in and has Manager (3) or Staff (2) role
     private boolean isAuthorized(HttpSession session) {
         if (session == null) {
@@ -35,7 +43,7 @@ public class CategoryController extends HttpServlet {
         }
 
         String action = request.getParameter("action");
-        CategoryDAO dao = new CategoryDAO();
+        CategoryDAO dao = getCategoryDAO();
 
         if ("edit".equals(action)) {
             int categoryID = Integer.parseInt(request.getParameter("categoryID"));
@@ -60,8 +68,8 @@ public class CategoryController extends HttpServlet {
         }
 
         String action = request.getParameter("action");
-        CategoryDAO categoryDAO = new CategoryDAO();
-        PigsOfferDAO offerDAO = new PigsOfferDAO();  // <-- Đã thêm
+        CategoryDAO categoryDAO = getCategoryDAO();
+        PigsOfferDAO offerDAO = getPigsOfferDAO();  // <-- Đã thêm
 
         try {
             if ("add".equals(action)) {

@@ -14,9 +14,12 @@ import java.util.Map;
 
 @WebServlet("/admin")
 public class AdminHomeController extends HttpServlet {
+    public DBContext getDBContext() {
+        return new DBContext();
+    }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        var db = new DBContext();
+        var db = getDBContext();
         req.setAttribute("totalUser", getTotalUser(db));
         req.getRequestDispatcher("admin.jsp").forward(req, resp);
     }
@@ -26,7 +29,7 @@ public class AdminHomeController extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         var out = resp.getWriter();
-        var db = new DBContext();
+        var db = getDBContext();
         var charts = List.of(getUserChart(db));
         out.print(new Gson().toJson(charts));
         out.flush();
