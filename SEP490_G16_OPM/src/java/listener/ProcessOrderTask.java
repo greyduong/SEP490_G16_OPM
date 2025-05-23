@@ -11,19 +11,23 @@ public class ProcessOrderTask implements Runnable {
 
     @Override
     public void run() {
-        var db = new OrderDAO();
-        var expired = db.getExpiredOrders();
-        db.cancelOrders(expired, "Hủy đơn do quá hạn xác nhận");
-        Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá hạn xác nhận".formatted(expired.size()));
-        expired.forEach(order -> {
-            // sendCancelOrderEmail(order, "Hết hạn");
-        });
-        var overProcess = db.getOverProcessedDateOrders();
-        db.cancelOrders(overProcess, "Hủy đơn do quá thời gian xử lý");
-        overProcess.forEach(order -> {
-            // sendCancelOrderEmail(order, "Quá hạn xử lý");
-        });
-        Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá thời gian xử lý".formatted(overProcess.size()));
+        try {
+            var db = new OrderDAO();
+            var expired = db.getExpiredOrders();
+            db.cancelOrders(expired, "Hủy đơn do quá hạn xác nhận");
+            Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá hạn xác nhận".formatted(expired.size()));
+            expired.forEach(order -> {
+                // sendCancelOrderEmail(order, "Hết hạn");
+            });
+            var overProcess = db.getOverProcessedDateOrders();
+            db.cancelOrders(overProcess, "Hủy đơn do quá thời gian xử lý");
+            overProcess.forEach(order -> {
+                // sendCancelOrderEmail(order, "Quá hạn xử lý");
+            });
+            Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá thời gian xử lý".formatted(overProcess.size()));
+        } catch(Exception e) {
+
+        }
     }
 
     public void sendCancelOrderEmail(Order order, String reason) {
