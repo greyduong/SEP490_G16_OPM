@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebListener;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 @WebListener
 public class TaskScheduler implements ServletContextListener {
@@ -13,8 +14,9 @@ public class TaskScheduler implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        scheduler.scheduleAtFixedRate(new ProcessOrderTask(), 0, 5, TimeUnit.MINUTES);
-        scheduler.scheduleAtFixedRate(new ProcessOfferTask(), 0, 5, TimeUnit.MINUTES);
-        scheduler.scheduleAtFixedRate(new ProcessDeliveryTask(), 0, 5, TimeUnit.MINUTES);
+        Logger.getLogger(TaskScheduler.class.getName()).info("Bắt đầu chạy task");
+        scheduler.scheduleAtFixedRate(new ProcessOrderTask(), 0, 2, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(new ProcessOfferTask(), 0, 2, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(new ProcessDeliveryTask(), 0, 2, TimeUnit.MINUTES);
     }
 }

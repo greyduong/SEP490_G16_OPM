@@ -3,6 +3,7 @@ package listener;
 import dao.OrderDAO;
 import jakarta.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
+import java.util.logging.Logger;
 import model.Email;
 import model.Order;
 
@@ -13,14 +14,16 @@ public class ProcessOrderTask implements Runnable {
         var db = new OrderDAO();
         var expired = db.getExpiredOrders();
         db.cancelOrders(expired, "Hủy đơn do quá hạn xác nhận");
+        Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá hạn xác nhận".formatted(expired.size()));
         expired.forEach(order -> {
             // sendCancelOrderEmail(order, "Hết hạn");
         });
         var overProcess = db.getOverProcessedDateOrders();
         db.cancelOrders(overProcess, "Hủy đơn do quá thời gian xử lý");
-        expired.forEach(order -> {
+        overProcess.forEach(order -> {
             // sendCancelOrderEmail(order, "Quá hạn xử lý");
         });
+        Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá thời gian xử lý".formatted(overProcess.size()));
     }
 
     public void sendCancelOrderEmail(Order order, String reason) {
