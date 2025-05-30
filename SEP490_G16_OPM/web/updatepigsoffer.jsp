@@ -87,12 +87,18 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Số lượng</label>
-                                <input type="number" class="form-control" name="quantity" value="${offer.quantity}" required min="1">
+                                <div class="flex gap-2 items-center">
+                                    <input type="number" class="form-control" name="quantity" value="${offer.quantity}" required min="1">
+                                    <span>con</span>
+                                </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Số lượng tối thiểu</label>
-                                <input type="number" class="form-control" name="minQuantity" value="${offer.minQuantity}" required min="1">
+                                <div class="flex gap-2 items-center">
+                                    <input type="number" class="form-control" name="minQuantity" value="${offer.minQuantity}" required min="1">
+                                    <span>con</span>
+                                </div>
                                 <c:if test="${not empty error_quantity}">
                                     <small class="text-danger">${error_quantity}</small>
                                 </c:if>

@@ -133,7 +133,7 @@
                                             <td class="text-left" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">                                        
                                                 ${offer.farm.farmName}
                                             </td>
-                                            <td>${offer.quantity}</td>
+                                            <td>${offer.quantity} con</td>
                                             <td>
                                                 <fmt:formatNumber value="${offer.totalOfferPrice / 1000}" type="number" pattern="#,##0"/>
                                             </td>
@@ -248,8 +248,8 @@
                                             <!-- Cột bên phải -->
                                             <div class="col-md-6">
                                                 <h6 class="mb-3"><strong>💰 Giá & Số lượng</strong></h6>
-                                                <p><strong>Số lượng:</strong> ${offer.quantity}</p>
-                                                <p><strong>Tối thiểu:</strong> ${offer.minQuantity}</p>
+                                                <p><strong>Số lượng:</strong> ${offer.quantity} con</p>
+                                                <p><strong>Tối thiểu:</strong> ${offer.minQuantity} con</p>
                                                 <p><strong>Tiền cọc:</strong>
                                                     <fmt:formatNumber value="${offer.minDeposit}" type="currency" currencySymbol="₫" groupingUsed="true" maxFractionDigits="0"/>
                                                 </p>
