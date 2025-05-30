@@ -42,7 +42,7 @@
                     <table class="table table-bordered">
                         <tr><th>Mã</th><td>${order.orderID}</td></tr>
                         <tr><th>Tên chào bán</th><td>${order.pigsOffer.name}</td></tr>
-                        <tr><th>Số lượng</th><td>${order.quantity}</td></tr>
+                        <tr><th>Số lượng</th><td>${order.quantity} con</td></tr>
                         <tr><th>Tổng giá (VND)</th>
                             <td><fmt:formatNumber value="${order.totalPrice}" type="number" groupingUsed="true" /></td></tr>
                     </table>
@@ -139,7 +139,7 @@
                                         </c:choose>
                                     </td>
                                     <td>${d.recipientName} - ${d.phone}</td>
-                                    <td>${d.quantity}</td>
+                                    <td>${d.quantity} con</td>
                                     <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true"/></td>
                                     <td><fmt:formatDate value="${d.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
                                     <td class="wrap-text">${d.comments}</td>
@@ -183,13 +183,13 @@
 
                         <tr class="table-info font-weight-bold">
                             <td colspan="4">✅ Tổng đã giao</td>
-                            <td>${totalDeliveredQuantity}</td>
+                            <td>${totalDeliveredQuantity} con</td>
                             <td><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/></td>
                             <td colspan="3"></td>
                         </tr>
                         <tr class="table-warning font-weight-bold">
                             <td colspan="4">⏳ Đang chờ xác nhận</td>
-                            <td>${totalPendingQuantity}</td>
+                            <td>${totalPendingQuantity} con</td>
                             <td><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/></td>
                             <td colspan="3"></td>
                         </tr>
@@ -201,7 +201,7 @@
                         </tr>
                         <tr class="table-danger font-weight-bold">
                             <td colspan="4">🧮 Còn lại</td>
-                            <td>${realRemainingQuantity}</td>
+                            <td>${realRemainingQuantity} con</td>
                             <td><fmt:formatNumber value="${realRemainingPrice}" type="number" groupingUsed="true"/></td>
                             <td colspan="3"></td>
                         </tr>

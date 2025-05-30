@@ -151,7 +151,10 @@
                             <option value="all" selected>Mua toàn bộ</option>
                             <option value="custom">Chọn số lượng</option>
                         </select>
-                        <input type="number" name="quantity" id="modalQuantity" class="form-control" style="display: none;" />
+                        <div class="flex gap-2 items-center">
+                            <input type="number" name="quantity" id="modalQuantity" class="form-control" style="display: none;" />
+                            <span>con</span>
+                        </div>
                         <button type="submit" class="btn btn-success w-100 mt-3">Thêm vào giỏ</button>
                     </form>
                 </div>
