@@ -77,7 +77,7 @@
                             <tr><th>Người mua</th><td>${order.dealer.fullName}</td></tr>
                             <tr><th>Tên chào bán</th><td>${order.pigsOffer.name}</td></tr>
                             <tr><th>Tổng giá (VND)</th><td><fmt:formatNumber value="${order.totalPrice}" type="number" groupingUsed="true" /></td></tr>
-                            <tr><th>Số lượng</th><td>${order.quantity}</td></tr>
+                            <tr><th>Số lượng</th><td>${order.quantity} con</td></tr>
                             <tr><th>Ngày tạo</th><td><fmt:formatDate value="${order.createdAt}" pattern="dd/MM/yyyy HH:mm" /></td></tr>
                             <tr>
                                 <th>Ngày xử lý</th>
@@ -148,7 +148,7 @@
                                             <td>
                                                 ${d.recipientName} - ${d.phone}
                                             </td>
-                                            <td>${d.quantity}</td>
+                                            <td>${d.quantity} con</td>
                                             <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true" /></td>
                                             <td><fmt:formatDate value="${d.createdAt}" pattern="dd/MM/yyyy HH:mm" /></td>
                                             <td>${d.comments}</td>
@@ -157,22 +157,22 @@
 
                                     <tr class="table-info font-weight-bold">
                                         <td colspan="4">✅ Tổng đã giao</td>
-                                        <td>${totalDeliveredQuantity}</td>
+                                        <td>${totalDeliveredQuantity} con</td>
                                         <td colspan="3"><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                     <tr class="table-warning font-weight-bold">
                                         <td colspan="4">⏳ Đang chờ xác nhận</td>
-                                        <td>${totalPendingQuantity}</td>
+                                        <td>${totalPendingQuantity} con</td>
                                         <td colspan="3"><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                     <tr class="table-primary font-weight-bold">
                                         <td colspan="4">📦 Tổng đã tạo</td>
-                                        <td>${totalCreatedQuantity}</td>
+                                        <td>${totalCreatedQuantity} con</td>
                                         <td colspan="3"><fmt:formatNumber value="${totalCreatedPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                     <tr class="table-danger font-weight-bold">
                                         <td colspan="4">🧮 Còn lại</td>
-                                        <td>${realRemainingQuantity}</td>
+                                        <td>${realRemainingQuantity} con</td>
                                         <td colspan="3"><fmt:formatNumber value="${realRemainingPrice}" type="number" groupingUsed="true"/></td>
                                     </tr>
                                 </tbody>

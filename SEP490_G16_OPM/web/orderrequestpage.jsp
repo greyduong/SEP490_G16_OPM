@@ -144,7 +144,7 @@
                                 </td>
                                 <td>${o.dealer.fullName}</td>
                                 <td>${o.pigsOffer.name}</td>
-                                <td>${o.quantity}</td>
+                                <td>${o.quantity} con</td>
                                 <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
                                 <td class="status-${o.status}">
                                     <c:choose>
@@ -232,7 +232,7 @@
                                             <p><strong>Tên chào bán:</strong> ${o.pigsOffer.name}</p>
                                             <p><strong>Trang trại:</strong> ${o.farm.farmName} - ${o.farm.location}</p>
                                             <p><strong>Mô tả:</strong><br/>${o.pigsOffer.description}</p>
-                                            <p><strong>Số lượng tối thiểu:</strong> ${o.pigsOffer.minQuantity}</p>
+                                            <p><strong>Số lượng tối thiểu:</strong> ${o.pigsOffer.minQuantity} con</p>
                                             <p><strong>Giá lẻ:</strong> 
                                                 <fmt:formatNumber value="${o.pigsOffer.retailPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
                                             </p>
@@ -254,7 +254,7 @@
                                                 </tr>
                                                 <tr>
                                                     <th>Số lượng đặt</th>
-                                                    <td>${o.quantity}</td>
+                                                    <td>${o.quantity} con</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Tổng giá đơn</th>
