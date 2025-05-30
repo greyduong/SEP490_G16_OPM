@@ -64,6 +64,7 @@
 
             </div>
         </section>
+        <jsp:include page="component/spinner.jsp" />
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>

@@ -62,7 +62,6 @@
 
                 <select name="status" class="form-control mr-2">
                     <option value="">Tất cả trạng thái</option>
-                    <option value="Pending" ${param.status == 'Pending' ? 'selected' : ''}>Chờ xác nhận</option>
                     <option value="Confirmed" ${param.status == 'Confirmed' ? 'selected' : ''}>Đã xác nhận</option>
                     <option value="Rejected" ${param.status == 'Rejected' ? 'selected' : ''}>Đã từ chối</option>
                     <option value="Canceled" ${param.status == 'Canceled' ? 'selected' : ''}>Đã hủy</option>

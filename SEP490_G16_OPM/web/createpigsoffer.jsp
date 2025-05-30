@@ -138,7 +138,7 @@
                 </form>
             </div>
         </section>
-
+        <jsp:include page="component/spinner.jsp" />
         <jsp:include page="component/footer.jsp" />
         <script>
             document.getElementById("image").addEventListener("change", function (event) {

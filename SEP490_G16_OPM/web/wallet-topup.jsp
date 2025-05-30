@@ -58,6 +58,7 @@
                 toggle();
             });
         </script>
-        <jsp:include page="component/footer.jsp" />     
+        <jsp:include page="component/spinner.jsp" />
+        <jsp:include page="component/footer.jsp" />
     </body>
 </html>
