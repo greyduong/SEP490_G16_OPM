@@ -148,7 +148,7 @@
                                         </form>
                                     </td>
                                     <td>${o.pigsOffer.name}</td>
-                                    <td>${o.quantity}</td>
+                                    <td>${o.quantity} con</td>
                                     <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
                                     <td class="status-${o.status}">
                                         <c:choose>

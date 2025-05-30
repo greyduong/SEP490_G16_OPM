@@ -81,12 +81,12 @@
                         <!-- Cột phải -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="quantity">Số lượng <span style="color: red">*</span></label>
+                                <label for="quantity">Số lượng (con)<span style="color: red">*</span></label>
                                 <input type="number" class="form-control" id="quantity" name="quantity" value="${quantity}" required min="1">
                             </div>
 
                             <div class="form-group">
-                                <label for="minQuantity">Số lượng tối thiểu <span style="color: red">*</span></label>
+                                <label for="minQuantity">Số lượng tối thiểu (con)<span style="color: red">*</span></label>
                                 <input type="number" class="form-control" id="minQuantity" name="minQuantity" value="${minQuantity}" required min="1">
                                 <c:if test="${not empty error_quantity}">
                                     <small class="text-danger">${error_quantity}</small>

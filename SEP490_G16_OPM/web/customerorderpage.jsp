@@ -150,7 +150,7 @@
                                     <td>${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</td>
                                     <td><a href="customer-order-details?id=${o.orderID}">${o.orderID}</a></td>
                                     <td>${o.pigsOffer.name}</td>
-                                    <td>${o.quantity}</td>
+                                    <td>${o.quantity} con</td>
                                     <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /></td>
                                     <td class="status-${o.status}">
                                         <c:choose>

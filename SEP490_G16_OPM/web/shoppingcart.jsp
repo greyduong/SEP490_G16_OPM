@@ -94,7 +94,7 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>${cart.quantity}</td>
+                                                <td>${cart.quantity} con</td>
                                                 <td>
                                                     <c:choose>
                                                         <c:when test="${cart.quantity == cart.pigsOffer.quantity}">
@@ -157,8 +157,8 @@
                 <div class="modal-content p-4">
                     <h5 id="updateOfferName" class="mb-2 font-weight-bold text-center text-primary"></h5>
                     <p class="text-center mb-3">
-                        <span>Số lượng mua tối thiểu: <strong id="updateMin"></strong></span><br>
-                        <span>Số lượng tối đa còn lại: <strong id="updateMax"></strong></span>
+                        <span>Số lượng mua tối thiểu: <strong id="updateMin"></strong> con</span><br>
+                        <span>Số lượng tối đa còn lại: <strong id="updateMax"></strong> con</span>
                     </p>
 
                     <form action="update-cart" method="post" id="updateCartForm">
@@ -168,7 +168,10 @@
                             <option value="all">Mua toàn bộ</option>
                             <option value="custom">Chọn số lượng</option>
                         </select>
-                        <input type="number" name="quantity" id="updateModalQuantity" class="form-control" />
+                        <div class="flex gap-2 items-center">
+                            <input type="number" name="quantity" id="updateModalQuantity" class="form-control" />
+                            <span>con</span>
+                        </div>
                         <button type="submit" class="btn btn-success w-100 mt-3">Cập nhật</button>
                     </form>
                 </div>
