@@ -135,7 +135,7 @@
                     <tbody>
                     <tbody>
                         <c:forEach var="o" items="${page.data}" varStatus="loop">
-                            <tr>
+                            <tr data-key="${o.orderID}">
                                 <td>${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</td>
                                 <td>
                                     <a href="#" data-toggle="modal" data-target="#orderModal${o.orderID}">
@@ -163,7 +163,7 @@
                                     <c:if test="${o.status == 'Pending'}">
                                         <form action="confirm-order" method="post" class="d-inline">
                                             <input type="hidden" name="orderID" value="${o.orderID}" />
-											<button data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
+											<button data-orderid="${o.orderID}" data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
                                         </form>
                                         <!-- Nút mở modal -->
                                         <button type="button" class="btn btn-outline-danger btn-sm ml-1"
@@ -288,7 +288,7 @@
                                                 <c:if test="${o.status == 'Pending'}">
                                                     <form action="confirm-order" method="post" class="d-inline">
                                                         <input type="hidden" name="orderID" value="${o.orderID}" />
-                                                        <button data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
+                                                        <button data-orderid="${o.orderID}" data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
                                                     </form>
                                                     <!-- Nút mở modal từ chối -->
                                                     <button type="button" class="btn btn-outline-danger btn-sm ml-1" data-toggle="modal" data-target="#rejectModal${o.orderID}">
@@ -388,6 +388,28 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>Mã</td>
+                                <td class="orderid"></td>
+                            </tr>
+                            <tr>
+                                <td>Dealer</td>
+                                <td class="dealer"></td>
+                            </tr>
+                            <tr>
+                                <td>Chào bán</td>
+                                <td class="offer"></td>
+                            </tr>
+                            <tr>
+                                <td>Số lượng</td>
+                                <td class="quantity"></td>
+                            </tr>
+                            <tr>
+                                <td>Tổng giá</td>
+                                <td class="totalprice"></td>
+                            </tr>
+                        </table>
                         Bạn cần đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> để xác nhận đơn hàng này.
                     </div>
                     <div class="modal-footer">
@@ -403,7 +425,18 @@
                 e.preventDefault();
                 const btn = $(this);
                 const amount = btn.attr("data-deposit");
+                const orderId = btn.attr("data-orderid");
+                console.log(orderId);
+                const dealer = ($("[data-key=" + orderId + "] td:nth-child(3)").text());
+                const offer =  ($("[data-key=" + orderId + "] td:nth-child(4)").text());
+                const quantity =  ($("[data-key=" + orderId + "] td:nth-child(5)").text());
+                const totalprice =  ($("[data-key=" + orderId + "] td:nth-child(6)").text());
                 $("#depositModalAmount").text(amount);
+                $("#depositModal .orderid").text(orderId);
+                $("#depositModal .dealer").text(dealer);
+                $("#depositModal .offer").text(offer);
+                $("#depositModal .quantity").text(quantity);
+                $("#depositModal .totalprice").text(totalprice);
                 $("#depositModal").modal();
                 $("#depositModalConfirm").on("click", function (e) {
                     e.preventDefault();
