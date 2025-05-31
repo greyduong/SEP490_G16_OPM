@@ -54,6 +54,7 @@ public class WalletTopupResultController extends HttpServlet {
         
         long amount = Long.parseLong((String) req.getParameter("vnp_Amount")) / 100;
         req.setAttribute("success", "Bạn đã nạp thành công %s VND vào tài khoản".formatted(amount));
+        db.updateStatusByTxnRef(txnRef, "Success");
         req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
     }
     
