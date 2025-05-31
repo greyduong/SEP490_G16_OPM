@@ -334,7 +334,7 @@ INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, S
 VALUES 
 (10, 6, 12, 21, 5, 15000000, 'Pending', '2025-04-27', NULL, N'Đơn đặt từ dealer2'),
 (11, 6, 12, 21, 6, 18000000, 'Confirmed', '2025-04-23', '2025-04-30', N'Đơn đặt từ dealer3'),
-(12, 6, 12, 21, 4, 12000000, 'Deposited', '2025-04-28', '2025-04-30', N'Đơn đặt từ dealer4'),
+(12, 6, 12, 21, 4, 12000000, 'Deposited', '2025-04-28', '2025-05-30', N'Đơn đặt từ dealer4'),
 (13, 6, 12, 21, 3, 9000000, 'Pending', '2025-04-21', NULL, N'Đơn đặt từ dealer5'),
 (10, 6, 12, 21, 7, 21000000, 'Confirmed', '2025-04-21', '2025-04-30', N'Đơn đặt từ dealer2');
 
@@ -343,7 +343,7 @@ INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, S
 VALUES 
 (10, 7, 13, 22, 5, 15000000, 'Pending', '2025-04-21', NULL, N'Đơn đặt từ dealer2'),
 (11, 7, 13, 22, 6, 18000000, 'Confirmed', '2025-04-12', '2025-04-30', N'Đơn đặt từ dealer3'),
-(12, 7, 13, 22, 4, 12000000, 'Deposited', '2025-04-12', '2025-04-30', N'Đơn đặt từ dealer4'),
+(12, 7, 13, 22, 4, 12000000, 'Deposited', '2025-04-12', '2025-05-30', N'Đơn đặt từ dealer4'),
 (13, 7, 13, 22, 3, 9000000, 'Pending', '2025-04-12', NULL, N'Đơn đặt từ dealer5'),
 (10, 7, 13, 22, 7, 21000000, 'Confirmed', '2025-04-12', '2025-04-30', N'Đơn đặt từ dealer2');
 
@@ -404,16 +404,16 @@ VALUES
 (3, 4, 5, 'Pending', 'Alice Johnson', '0911223344', 6, 24600000, 'Delivery in progress for confirmed order'),
 (4, 4, 5, 'Canceled', 'Bob Brown', '0911555666', 7, 24600000, 'Waiting for shipment approval'),
 (5, 4, 5, 'Confirmed', 'Charlie Wilson', '0909778899', 10, 24600000, 'Order has been delivered to the dealer');
--- 2 Deliveries hoàn tất cho OrderID = 12 (đã đủ số lượng)
+-- 2 Deliveries hoàn tất cho OrderID = 17 (đơn của dealer4 đặt từ seller2, đã giao đủ 4 con)
 INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
 VALUES
-(12, 6, 12, 'Confirmed', N'Dealer4', '0909988776', 2, 6000000, N'Giao lần 1 cho đơn hàng đã xác nhận'),
-(12, 6, 12, 'Confirmed', N'Dealer4', '0909988776', 2, 6000000, N'Giao lần 2 - hoàn tất, đủ số lượng');
--- Delivery chưa đủ số lượng cho OrderID = 12 (mới giao 2/4)
-INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
-VALUES
-(12, 7, 13, 'Confirmed', N'Dealer4', '0911223344', 2, 6000000, N'Giao lần 1 - chưa đủ số lượng (còn 2)');
+(17, 6, 12, 'Confirmed', N'Dealer4', '0909988776', 2, 6000000, N'Giao lần 1 cho đơn hàng đã xác nhận'),
+(17, 6, 12, 'Confirmed', N'Dealer4', '0909988776', 2, 6000000, N'Giao lần 2 - hoàn tất, đủ số lượng');
 
+-- Delivery mới giao 2/4 cho OrderID = 22 (đơn của dealer4 đặt từ seller3)
+INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
+VALUES
+(22, 7, 13, 'Confirmed', N'Dealer4', '0911223344', 2, 6000000, N'Giao lần 1 - chưa đủ số lượng (còn 2)');
 
  
 
