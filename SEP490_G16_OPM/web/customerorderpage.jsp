@@ -181,7 +181,7 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <c:if test="${o.status == 'Deposited' || o.status == 'In Delivery'}">
+                                        <c:if test="${o.status == 'Deposited' || o.status == 'Processing'}">
                                             <form action="customer-order-details" method="get">
                                                 <input type="hidden" name="id" value="${o.orderID}" />
                                                 <input type="hidden" name="openCreateDelivery" value="true" />

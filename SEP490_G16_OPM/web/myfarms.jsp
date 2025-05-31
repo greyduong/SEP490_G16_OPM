@@ -144,7 +144,9 @@
                                             </td>
                                             <td><fmt:formatDate value="${farm.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                             <td>
-                                                <a href="updateFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-primary">Sửa</a>
+                                                <c:if test="${farm.status != 'Pending' && farm.status != 'Banned' && farm.status != 'Cancel'}">
+                                                    <a href="updateFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-primary">Sửa</a>
+                                                </c:if>
                                                 <c:if test="${farm.status == 'Active'}">
                                                     <a href="deactivateFarm?id=${farm.farmID}&page=${pagedFarms.pageNumber}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-sm btn-warning" onclick="return confirm('Bạn có chắc chắn muốn dừng hoạt động trang trại này?');">Dừng hoạt động</a>
                                                 </c:if>
