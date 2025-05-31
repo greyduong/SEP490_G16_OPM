@@ -10,7 +10,7 @@ public class ProcessDeliveryTask implements Runnable {
         try {
             var dao = new DeliveryDAO();
             var ready = dao.getReadyDeliveries();
-            dao.updateDeliveriesStatus(ready, "Confirmed");
+            dao.confirmDeliveries(ready);
             Logger.getLogger(ProcessDeliveryTask.class.getName()).info("Đã xác nhận %s vận chuyển".formatted(ready.size()));
         } catch(Exception e) {
 

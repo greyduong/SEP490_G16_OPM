@@ -8,7 +8,10 @@ import dal.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import model.Delivery;
 
 /**
@@ -272,6 +275,35 @@ public class DeliveryDAO extends DBContext {
             e.printStackTrace();
         }
         return 0.0;
+    }
+
+    public void updateCompletedOrders() {
+        executeUpdate("""
+                      UPDATE Orders
+                      SET Status = 'Completed', Note = N'Đơn hàng đã hoàn tất'
+                      WHERE OrderID IN (
+                      	SELECT o1.OrderID FROM (
+                      		SELECT OrderID, SUM(Quantity) AS 'SumQuantity', SUM(TotalPrice) AS 'SumTotalPrice'
+                      		FROM Delivery WHERE DeliveryStatus = 'Confirmed'
+                      		GROUP BY OrderID
+                      	) o2 JOIN Orders o1 ON o1.OrderID = o2.OrderID
+                      WHERE o2.SumQuantity >= o1.Quantity AND o2.SumTotalPrice >= o1.TotalPrice)
+                      """);
+    }
+
+    public void confirmDeliveries(List<Delivery> deliveries) {
+        var statement = batch("UPDATE Delivery SET DeliveryStatus = 'Confirmed' WHERE DeliveryID = ?");
+        List<Integer> orderIds = deliveries.stream().map(e -> e.getOrderID()).distinct().toList();
+        var statement2 = batch("UPDATE Orders SET Status = 'Processing', Note = N'Đơn đang được xử lý' WHERE OrderID = ?");
+        deliveries.forEach(delivery -> {
+            statement.params(delivery.getDeliveryID());
+        });
+        orderIds.forEach(orderId -> {
+            statement2.params("Processing", orderId);
+        });
+        statement.execute();
+        statement2.execute();
+        updateCompletedOrders();
     }
 
     public void updateDeliveriesStatus(List<Delivery> deliveries, String status) {
