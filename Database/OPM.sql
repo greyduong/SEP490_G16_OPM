@@ -252,7 +252,7 @@ VALUES
 (4, 2, 3, N'Heo Rừng Lai F1', N'Heo Rừng Lai', 20, 2, 3000000, 6000000, 120000000, 
  N'Heo rừng lai F1, chất lượng thịt thơm ngon.', 'https://i.ibb.co/Kjnt9ZVx/1cf74914fe5f.jpg', '2025-04-13', '2025-06-13', N'Đã kiểm định', '2025-4-30'),
 (4, 2, 4, N'Heo Siêu Nạc Hòa Phát', N'Heo Siêu Nạc', 60, 6, 2000000, 4000000, 240000000, 
- N'Heo siêu nạc tăng trưởng nhanh, tỉ lệ nạc cao.', 'https://i.ibb.co/gFSbq2zp/da3ea57d8c32.jpg', '2025-04-14', '2025-06-14', N'Đã kiểm định', '2025-4-30'),
+ N'Heo siêu nạc tăng trưởng nhanh, tỉ lệ nạc cao.', 'https://i.ibb.co/twg65QWj/d4c0785a6abd.jpg', '2025-04-14', '2025-06-14', N'Đã kiểm định', '2025-4-30'),
 (4, 2, 5, N'Heo Mẹ Landrace', N'Landrace', 15, 2, 3500000, 7000000, 105000000, 
  N'Heo mẹ Landrace có khả năng sinh sản cao.', 'https://i.ibb.co/wFb6p93n/3b45292e5c39.jpg', '2025-04-15', '2025-06-15', N'Đã kiểm định', '2025-4-30'),
 (4, 2, 6, N'Heo Con Siêu Nạc 2 Tuần Tuổi', N'Siêu Nạc', 50, 5, 1500000, 2000000, 100000000, 
@@ -286,21 +286,43 @@ VALUES
 (4, 6, 6, N'Heo Con CP', N'CP', 48, 4, 1700000, 2300000, 110400000, 
  N'Heo con CP, chất lượng ổn định.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-04-30', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (4, 12, 1, N'Heo Siêu Nạc F1', N'Siêu Nạc', 50, 5, 2000000, 3000000, 150000000,
-N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/gFSbq2zp/da3ea57d8c32.jpg', '2025-05-27', '2025-05-29', N'Đã kiểm định', '2025-4-30'),
+N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/FNfLCyg/48948e801d6f.jpg', '2025-05-27', '2025-05-29', N'Đã kiểm định', '2025-4-30'),
 (4, 13, 2, N'Heo Rừng F3', N'Heo Rừng Lai', 40, 4, 2500000, 4000000, 160000000,
 N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/bMt0PfjT/40bc48bbf348.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (4, 14, 3, N'Heo Mẹ', N'Yorkshire', 30, 3, 3000000, 5000000, 150000000,
 N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/NqrmxcL/3c6a3cf77e8b.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (4, 15, 4, N'Heo Con F2', N'Heo Trắng', 60, 6, 1800000, 2800000, 168000000,
-N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
+N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/0yhLBn5F/38dffc751dd3.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (6, 12, 1, N'Heo Siêu Nạc F6', N'Siêu Nạc', 50, 5, 2000000, 3000000, 150000000,
-N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/gFSbq2zp/da3ea57d8c32.jpg', '2025-05-31', '2025-05-30', N'Đã kiểm định', '2025-4-30'),
+N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/k6XtxBTN/7e1e2a1442da.jpg', '2025-05-27', '2025-05-30', N'Đã kiểm định', '2025-4-30'),
 (7, 13, 2, N'Heo Rừng Lai', N'Heo Rừng Lai', 40, 4, 2500000, 4000000, 160000000,
-N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/bMt0PfjT/40bc48bbf348.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
+N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/jvSM4Pwn/aa504e8335b2.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (8, 14, 3, N'Heo Rừng Mẹ ', N'Yorkshire', 30, 3, 3000000, 5000000, 150000000,
 N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/NqrmxcL/3c6a3cf77e8b.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (9, 15, 4, N'Heo Rừng con', N'Heo Trắng', 60, 6, 1800000, 2800000, 168000000,
-N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30');
+N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/PZpKPJYT/b5e707df9ba9.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30');
+
+
+INSERT INTO PigsOffer (
+    SellerID, FarmID, CategoryID, Name, PigBreed, Quantity, MinQuantity, MinDeposit,
+    RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Note, CreatedAt
+)
+VALUES
+(4, 1, 1, N'Heo Thịt Miền Tây B', N'Heo Lai', 40, 4, 1500000, 3000000, 120000000,
+ N'Heo thịt từ Trại Heo Miền Tây, chất lượng ổn định.', 'https://i.ibb.co/Vpgs0Xj8/644a49bcfe38.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+
+(4, 2, 2, N'Heo Móng Cái B', N'Móng Cái', 35, 3, 2500000, 5000000, 140000000,
+ N'Heo giống Móng Cái thuần chủng.', 'https://i.ibb.co/s7PVdQr/1f8258012aef.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+
+(4, 3, 3, N'Heo Rừng Lai B', N'Heo Rừng Lai', 22, 2, 2800000, 5500000, 121000000,
+ N'Heo lai rừng, thịt thơm ngon.', 'https://i.ibb.co/Kjnt9ZVx/1cf74914fe5f.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+
+(4, 4, 4, N'Heo Siêu Nạc B', N'Siêu Nạc', 55, 5, 2100000, 4000000, 220000000,
+ N'Heo siêu nạc từ giống Hòa Phát.', 'https://i.ibb.co/F4nSBzcJ/be3ca70ed86e.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+
+(4, 5, 5, N'Heo Mẹ Miền Tây Bắc B', N'Landrace', 20, 2, 3000000, 6000000, 120000000,
+ N'Heo mẹ khỏe mạnh, sinh sản tốt.', 'https://i.ibb.co/wFb6p93n/3b45292e5c39.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30');
+
 
 
 INSERT INTO Cart (UserID, OfferID, Quantity)
@@ -395,6 +417,34 @@ VALUES
 (12, 4, 5, 28, 4, 12000000, 'Deposited', '2025-04-30', '2025-05-16', N'Đơn đặt từ dealer4'),
 (13, 4, 5, 28, 3, 9000000, 'Pending', '2025-04-30', NULL, N'Đơn đặt từ dealer5'),
 (10, 4, 5, 28, 7, 21000000, 'Confirmed', '2025-04-30', '2025-05-11', N'Đơn đặt từ dealer2');
+
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
+VALUES
+(10, 4, 1, 29, 4, 12000000, 'Pending', '2025-05-31', NULL, N'Đơn hàng đang chờ xử lý'),
+
+(11, 4, 2, 30, 3, 15000000, 'Pending', '2025-05-31', NULL, N'Đơn hàng đang chờ xử lý'),
+
+(12, 4, 3, 31, 5, 27500000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn hàng đã được xác nhận bởi người bán'),
+
+(13, 4, 4, 32, 4, 16000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn hàng đã được xác nhận bởi người bán'),
+
+(5,  4, 5, 33, 3, 18000000, 'Processing', '2025-05-31', '2025-06-01', N'Đơn hàng đang trong quá trình xử lý giao hàng'),
+
+(10, 4, 1, 29, 5, 15000000, 'Processing', '2025-05-31', '2025-06-01', N'Đơn hàng đang được giao đến người mua'),
+
+(11, 4, 2, 30, 3, 15000000, 'Canceled', '2025-05-31', '2025-06-01', N'Đơn hàng đã bị huỷ bởi người bán'),
+
+(12, 4, 3, 31, 2, 11000000, 'Canceled', '2025-05-31', '2025-06-01', N'Đơn hàng đã bị huỷ do người mua yêu cầu'),
+
+(13, 4, 4, 32, 4, 16000000, 'Pending', '2025-05-31', NULL, N'Đơn hàng đang chờ xử lý'),
+
+(5,  4, 5, 33, 3, 18000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn hàng đã được xác nhận thành công'),
+
+(10, 4, 1, 29, 4, 12000000, 'Processing', '2025-05-31', '2025-06-01', N'Đơn hàng đang trong quá trình xử lý giao hàng');
+
+
+
+
 
 
 INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
