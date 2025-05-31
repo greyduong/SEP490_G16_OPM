@@ -19,27 +19,26 @@
                 <span class="mdi mdi-home"></span>
                 Trang chủ
             </a>
-            <a href="${pageContext.request.contextPath}/farms" class="header_link">
-                <span class="mdi mdi-barn"></span>
-                Trang trại
-            </a>
+            <c:if test="${sessionScope.user == null || sessionScope.user.roleID == 5}">
+                <a href="${pageContext.request.contextPath}/farms" class="header_link">
+                    <span class="mdi mdi-barn"></span>
+                    Trang trại
+                </a>
+            </c:if>
         </div>
     </c:if>
     <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
         <a href="${pageContext.request.contextPath}/seller"><img class="w-10 h-10" src="img/logo.svg"></a>
         <div class="flex items-center gap-6">
-
-            <c:if test="${sessionScope.user != null && sessionScope.user.roleID == 4}">
-                <!-- Seller -->
-                <a href="${pageContext.request.contextPath}/seller" class="header_link">
-                    <span class="mdi mdi-home"></span>
-                    Trang chủ
-                </a>
-                <a href="${pageContext.request.contextPath}/my-farms" class="header_link">
-                    <span class="mdi mdi-barn"></span>
-                    Trang trại của tôi
-                </a>
-            </c:if>
+            <!-- Seller -->
+            <a href="${pageContext.request.contextPath}/seller" class="header_link">
+                <span class="mdi mdi-home"></span>
+                Trang chủ
+            </a>
+            <a href="${pageContext.request.contextPath}/my-farms" class="header_link">
+                <span class="mdi mdi-barn"></span>
+                Trang trại của tôi
+            </a>
         </div>
     </c:if>
     <div class="ml-auto flex items-center gap-2">
@@ -159,7 +158,11 @@
                 <a href="${pageContext.request.contextPath}/category">
                     <span class="mdi mdi-invoice-list-outline"></span>
                     Quản lý loại lợn
-                </a> 
+                </a>
+                <a href="${pageContext.request.contextPath}/server-log">
+                    <span class="mdi mdi-math-log"></span>
+                    Nhật ký hệ thống
+                </a>
             </c:if>
             <!-- Staff -->
             <c:if test="${sessionScope.user.roleID == 3}">                
@@ -230,7 +233,7 @@
     });
 </script>
 <c:if test="${param.error == '403'}">
-<script>
-	alert("Bạn không có quyền làm điều này!");
-</script>
+    <script>
+        alert("Bạn không có quyền làm điều này!");
+    </script>
 </c:if>
