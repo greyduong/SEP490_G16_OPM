@@ -33,7 +33,7 @@
                         <!-- Left column -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Tên chào bán</label>
+                                <label>Tên chào bán<span style="color: red">*</span></label>
                                 <input type="text" class="form-control" name="name" value="${offer.name}" required>
                                 <c:if test="${not empty error_name}">
                                     <small class="text-danger">${error_name}</small>
@@ -41,7 +41,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Danh mục</label>
+                                <label>Danh mục<span style="color: red">*</span></label>
                                 <select class="form-control" name="categoryId" required>
                                     <c:forEach var="cat" items="${categories}">
                                         <option value="${cat.categoryID}" ${cat.categoryID == offer.categoryID ? "selected" : ""}>${cat.name}</option>
@@ -50,7 +50,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Trang trại</label>
+                                <label>Trang trại<span style="color: red">*</span></label>
                                 <select class="form-control" name="farmId" required>
                                     <c:forEach var="farm" items="${myFarms}">
                                         <option value="${farm.farmID}" ${farm.farmID == offer.farmID ? "selected" : ""}>${farm.farmName}</option>
@@ -59,7 +59,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Giống heo</label>
+                                <label>Giống heo<span style="color: red">*</span></label>
                                 <input type="text" class="form-control" name="pigBreed" value="${offer.pigBreed}" required>
                                 <c:if test="${not empty error_breed}">
                                     <small class="text-danger">${error_breed}</small>
@@ -67,7 +67,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Mô tả</label>
+                                <label>Mô tả<span style="color: red">*</span></label>
                                 <textarea class="form-control" name="description" rows="4">${offer.description}</textarea>
                                 <c:if test="${not empty error_description}">
                                     <small class="text-danger">${error_description}</small>
@@ -78,7 +78,7 @@
                                 <label class="text-slate-600 !inline-flex items-center gap-2 border !border-dashed rounded-sm cursor-pointer p-2">
                                     <span class="mdi mdi-upload text-2xl"></span>
                                     <div>
-                                        <div class="font-bold text-sm">Tải ảnh lên</div>
+                                        <div class="font-bold text-sm">Tải ảnh lên<span style="color: red">*</span></div>
                                         <div class="font-normal text-sm">Tối đa 32MB</div>
                                     </div>
                                     <input id="imageInput" type="file" class="hidden" name="image" accept="image/*">
@@ -96,7 +96,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Số lượng</label>
+                                <label>Số lượng<span style="color: red">*</span></label>
                                 <div class="flex gap-2 items-center">
                                     <input type="number" class="form-control" name="quantity" value="${offer.quantity}" required min="1">
                                     <span>con</span>
@@ -104,7 +104,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Số lượng tối thiểu</label>
+                                <label>Số lượng tối thiểu<span style="color: red">*</span></label>
                                 <div class="flex gap-2 items-center">
                                     <input type="number" class="form-control" name="minQuantity" value="${offer.minQuantity}" required min="1">
                                     <span>con</span>
@@ -115,17 +115,17 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Tiền cọc (VNĐ)</label>
+                                <label>Tiền cọc (VNĐ)<span style="color: red">*</span></label>
                                 <input type="number" class="form-control" name="minDeposit" value="${formattedMinDeposit}" required min="0" step="0.01">
                             </div>
 
                             <div class="form-group">
-                                <label>Giá lẻ (VNĐ)</label>
+                                <label>Giá lẻ (VNĐ)<span style="color: red">*</span></label>
                                 <input type="number" class="form-control" name="retailPrice" value="${formattedRetailPrice}" required min="0" step="0.01">
                             </div>
 
                             <div class="form-group">
-                                <label>Tổng giá (VNĐ)</label>
+                                <label>Tổng giá (VNĐ)<span style="color: red">*</span></label>
                                 <input type="number" class="form-control" name="totalOfferPrice" value="${formattedTotalPrice}" required min="0" step="0.01">
                                 <c:if test="${not empty error_price}">
                                     <small class="text-danger">${error_price}</small>
@@ -134,11 +134,11 @@
 
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label>Ngày bắt đầu</label>
+                                    <label>Ngày bắt đầu<span style="color: red">*</span></label>
                                     <input type="date" class="form-control" name="startDate" value="${offer.startDate}" required>
                                 </div>
                                 <div class="form-group col-md-6">
-                                    <label>Ngày kết thúc</label>
+                                    <label>Ngày kết thúc<span style="color: red">*</span></label>
                                     <input type="date" class="form-control" name="endDate" value="${offer.endDate}" required>
                                 </div>
                                 <c:if test="${not empty error_date}">
@@ -148,7 +148,7 @@
                                 </c:if>
                             </div>
                             <div class="form-group">
-                                <label for="status">Trạng thái</label>
+                                <label for="status">Trạng thái<span style="color: red">*</span></label>
                                 <c:choose>
                                     <c:when test="${offer.status == 'Banned'}">
                                         <input type="text" class="form-control" value="Bị cấm" disabled />

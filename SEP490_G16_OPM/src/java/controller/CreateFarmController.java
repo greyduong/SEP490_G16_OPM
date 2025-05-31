@@ -121,6 +121,10 @@ public class CreateFarmController extends HttpServlet {
             imageUrl = imageService.upload(imagePart);
         }
 
+        if (imageUrl == null) {
+            imageUrl = "https://i.ibb.co/27gqbwCY/farm-default.jpg";
+        }
+
         Farm farm = new Farm();
         farm.setFarmName(farmName);
         farm.setLocation(location);
