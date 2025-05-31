@@ -88,11 +88,11 @@
                 </a>
                 <a href="${pageContext.request.contextPath}/customer-orders">
                     <span class="mdi mdi-invoice-list"></span>
-                    Hóa đơn của khách
+                    Đơn hàng của khách
                 </a>
                 <a href="${pageContext.request.contextPath}/orders-request">
                     <span class="mdi mdi-invoice-list"></span>
-                    Hóa đơn chờ duyệt
+                    Đơn hàng chờ duyệt
                 </a>
                 <a href="${pageContext.request.contextPath}/application">
                     <span class="mdi mdi-invoice-list-outline"></span>
@@ -109,7 +109,7 @@
                 <a href="${pageContext.request.contextPath}/myorders"
                    >
                     <span class="mdi mdi-invoice-list"></span>
-                    Hóa đơn của tôi
+                    Đơn hàng của tôi
                 </a>
                 <a href="${pageContext.request.contextPath}/application">
                     <span class="mdi mdi-invoice-list-outline"></span>
