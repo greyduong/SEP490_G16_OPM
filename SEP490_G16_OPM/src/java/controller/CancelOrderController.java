@@ -88,7 +88,7 @@ public class CancelOrderController extends HttpServlet {
                 int offerId = order.getOfferID();
                 int quantity = order.getQuantity();
 
-                offerDAO.updateOfferQuantity(offerId, quantity);
+                offerDAO.updateOfferAfterReject(offerId, quantity);
                 int currentQuantity = offerDAO.getOfferQuantity(offerId);
 
                 if (currentQuantity > 0) {
