@@ -1071,7 +1071,7 @@ public class OrderDAO extends DBContext {
            FROM Orders o
            JOIN UserAccount s ON o.SellerID = s.UserID
            JOIN UserAccount d ON o.DealerID = d.UserID
-           WHERE o.Status = 'Confirmed' AND DATEDIFF(HOUR, GETDATE(), ProcessedDate) >= 24
+           WHERE o.Status = 'Confirmed' AND DATEDIFF(HOUR, ProcessedDate, GETDATE()) >= 24
            """);
     }
 
