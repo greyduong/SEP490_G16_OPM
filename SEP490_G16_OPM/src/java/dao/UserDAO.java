@@ -152,10 +152,13 @@ public class UserDAO extends DBContext {
             if (rs.next()) {
                 user = new User();
                 user.setUserID(rs.getInt("UserID"));
+                user.setRoleID(rs.getInt("RoleID"));
                 user.setFullName(rs.getString("FullName"));
                 user.setEmail(rs.getString("Email"));
                 user.setPhone(rs.getString("Phone"));
+                user.setWallet(rs.getDouble("Wallet"));
                 user.setAddress(rs.getString("Address"));
+                user.setStatus(rs.getString("Status"));
             }
         } catch (Exception e) {
             e.printStackTrace();
