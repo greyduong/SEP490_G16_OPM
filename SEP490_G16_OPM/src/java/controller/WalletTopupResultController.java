@@ -1,5 +1,7 @@
 package controller;
 
+import dao.ServerLogDAO;
+import dao.UserDAO;
 import dao.WalletTopupHistoryDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
+import model.User;
 import model.WalletTopupHistory;
 import vnpay.VNPay;
 
@@ -55,6 +58,9 @@ public class WalletTopupResultController extends HttpServlet {
         long amount = Long.parseLong((String) req.getParameter("vnp_Amount")) / 100;
         req.setAttribute("success", "Bạn đã nạp thành công %s VND vào tài khoản".formatted(amount));
         db.updateStatusByTxnRef(txnRef, "Success");
+        int userId = ((User) req.getSession().getAttribute("user")).getUserID();
+        new ServerLogDAO().createLog("Người dùng %s đã nạp %s VND vào tài khoản".formatted(userId, amount));
+        db.executeUpdate("UPDATE UserAccount SET Wallet = Wallet + ? WHERE UserID = ?", amount, userId);
         req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
     }
     
