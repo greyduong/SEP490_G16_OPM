@@ -213,13 +213,22 @@ VALUES
 
 INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note, ImageURL)
 VALUES
-(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
-(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
-(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
-(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
-(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
-(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/27gqbwCY/farm-default.jpg'),
-(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/27gqbwCY/farm-default.jpg');
+(4, N'Trại Heo Miền Tây', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/PZXLPtZz/1396fb2d3ae7.jpg'),
+(4, N'Trại Heo Miền Bắc', N'Hà Nội', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/84BjLRxg/2b3eb198c412.jpg'),
+(4, N'Trại Heo Miền Trung', N'Đà Nẵng', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/wF46ccHV/7185be821951.jpg'),
+(4, N'Trại Heo Miền Nam', N'Đồng Nai', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active',N'Đã xác nhận', 'https://i.ibb.co/8LGgr00L/d21bcf6dbb49.jpg'),
+(4, N'Trại Heo Miền Tây Bắc', N'Sa Pa', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/JjN2Ttkb/192dcc834423.jpg'),
+(4, N'Trại Heo Giống', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/d4MMdvdr/70d4f6f213e3.jpg'),
+(4, N'Trại Heo Thịt', N'Bến Tre', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Pending',N'Đang chờ', 'https://i.ibb.co/Rk6DPvMw/1305fed508e2.jpg'),
+(4, N'Trại Heo Củ Chi', N'Củ Chi', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/Rp3tS0LB/f521fe0fe469.jpg'),
+(4, N'Trại Heo Bình Dương', N'Bình Dương', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/39y6mM65/1297c9e0e624.jpg'),
+(4, N'Trại Heo Tây Ninh', N'Tây Ninh', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/CsNX6sXN/aee924d3491f.jpg'),
+(4, N'Trại Heo Long An', N'Long An', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/rGpDggyT/81b0ff8309b9.jpg'),
+--
+(6, N'Trại Heo Củ Chi', N'Củ Chi', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/Rp3tS0LB/f521fe0fe469.jpg'),
+(7, N'Trại Heo Bình Dương', N'Bình Dương', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/39y6mM65/1297c9e0e624.jpg'),
+(8, N'Trại Heo Tây Ninh', N'Tây Ninh', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/CsNX6sXN/aee924d3491f.jpg'),
+(9, N'Trại Heo Long An', N'Long An', N'Trại chuyên cung cấp heo giống chất lượng cao.', 'Active', N'Đã xác nhận', 'https://i.ibb.co/rGpDggyT/81b0ff8309b9.jpg');
 
 INSERT INTO Category (Name, Description) 
 VALUES
@@ -275,7 +284,24 @@ VALUES
 (4, 6, 5, N'Heo Mẹ F1', N'Lai F1', 20, 2, 3400000, 6900000, 138000000, 
  N'Heo mẹ lai F1, sinh sản tốt.', 'https://i.ibb.co/fYtCv9Qd/f1804a8259e2.jpg', '2025-04-29', '2025-06-29', N'Đã kiểm định'),
 (4, 6, 6, N'Heo Con CP', N'CP', 48, 4, 1700000, 2300000, 110400000, 
- N'Heo con CP, chất lượng ổn định.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-04-30', '2025-06-30', N'Đã kiểm định');
+ N'Heo con CP, chất lượng ổn định.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-04-30', '2025-06-30', N'Đã kiểm định'),
+(4, 12, 1, N'Heo Siêu Nạc Seller2', N'Siêu Nạc', 50, 5, 2000000, 3000000, 150000000,
+N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/gFSbq2zp/da3ea57d8c32.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(4, 13, 2, N'Heo Rừng Seller3', N'Heo Rừng Lai', 40, 4, 2500000, 4000000, 160000000,
+N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/bMt0PfjT/40bc48bbf348.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(4, 14, 3, N'Heo Mẹ Seller4', N'Yorkshire', 30, 3, 3000000, 5000000, 150000000,
+N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/NqrmxcL/3c6a3cf77e8b.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(4, 15, 4, N'Heo Con Seller5', N'Heo Trắng', 60, 6, 1800000, 2800000, 168000000,
+N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(6, 12, 1, N'Heo Siêu Nạc Seller2', N'Siêu Nạc', 50, 5, 2000000, 3000000, 150000000,
+N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/gFSbq2zp/da3ea57d8c32.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(7, 13, 2, N'Heo Rừng Seller3', N'Heo Rừng Lai', 40, 4, 2500000, 4000000, 160000000,
+N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/bMt0PfjT/40bc48bbf348.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(8, 14, 3, N'Heo Mẹ Seller4', N'Yorkshire', 30, 3, 3000000, 5000000, 150000000,
+N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/NqrmxcL/3c6a3cf77e8b.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định'),
+(9, 15, 4, N'Heo Con Seller5', N'Heo Trắng', 60, 6, 1800000, 2800000, 168000000,
+N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/B2rfQTGT/6fdaa8668449.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định');
+
 
 INSERT INTO Cart (UserID, OfferID, Quantity)
 VALUES
@@ -303,6 +329,50 @@ VALUES
 (5, 4, 2, 10, 7, 26500000, 'Confirmed','2025-05-07', '2025-05-21', N'Đơn đã được xác nhận'),
 (5, 4, 2, 11, 4, 25500000, 'Pending',  '2025-05-15', NULL, N'Đơn chờ xác nhận');
 
+-- Orders for OfferID = 21 (SellerID = 6, FarmID = 12)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
+VALUES 
+(10, 6, 12, 21, 5, 15000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer2'),
+(11, 6, 12, 21, 6, 18000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer3'),
+(12, 6, 12, 21, 4, 12000000, 'Deposited', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer4'),
+(13, 6, 12, 21, 3, 9000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer5'),
+(10, 6, 12, 21, 7, 21000000, 'Confirmed', '2025-05-31', '2025-06-02', N'Đơn đặt từ dealer2');
+
+-- Orders for OfferID = 22 (SellerID = 7, FarmID = 13)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
+VALUES 
+(10, 7, 13, 22, 5, 15000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer2'),
+(11, 7, 13, 22, 6, 18000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer3'),
+(12, 7, 13, 22, 4, 12000000, 'Deposited', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer4'),
+(13, 7, 13, 22, 3, 9000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer5'),
+(10, 7, 13, 22, 7, 21000000, 'Confirmed', '2025-05-31', '2025-06-02', N'Đơn đặt từ dealer2');
+
+-- Orders for OfferID = 23 (SellerID = 8, FarmID = 14)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
+VALUES 
+(10, 8, 14, 23, 5, 15000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer2'),
+(11, 8, 14, 23, 6, 18000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer3'),
+(12, 8, 14, 23, 4, 12000000, 'Deposited', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer4'),
+(13, 8, 14, 23, 3, 9000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer5'),
+(10, 8, 14, 23, 7, 21000000, 'Confirmed', '2025-05-31', '2025-06-02', N'Đơn đặt từ dealer2');
+
+-- Orders for OfferID = 24 (SellerID = 9, FarmID = 15)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
+VALUES 
+(10, 9, 15, 24, 5, 15000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer2'),
+(11, 9, 15, 24, 6, 18000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer3'),
+(12, 9, 15, 24, 4, 12000000, 'Deposited', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer4'),
+(13, 9, 15, 24, 3, 9000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer5'),
+(10, 9, 15, 24, 7, 21000000, 'Confirmed', '2025-05-31', '2025-06-02', N'Đơn đặt từ dealer2');
+
+-- Orders for OfferID = 25 (SellerID = 4, FarmID = 2)
+INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
+VALUES 
+(10, 4, 2, 25, 5, 15000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer2'),
+(11, 4, 2, 25, 6, 18000000, 'Confirmed', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer3'),
+(12, 4, 2, 25, 4, 12000000, 'Deposited', '2025-05-31', '2025-06-01', N'Đơn đặt từ dealer4'),
+(13, 4, 2, 25, 3, 9000000, 'Pending', '2025-05-31', NULL, N'Đơn đặt từ dealer5'),
+(10, 4, 2, 25, 7, 21000000, 'Confirmed', '2025-05-31', '2025-06-02', N'Đơn đặt từ dealer2');
 
 INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
 VALUES
