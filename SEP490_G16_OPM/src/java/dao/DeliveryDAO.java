@@ -329,6 +329,6 @@ public class DeliveryDAO extends DBContext {
             delivery.setCreatedAt(rs.getTimestamp("CreatedAt"));
             delivery.setComments(rs.getString("Comments"));
             return delivery;
-        }, "SELECT * FROM Delivery WHERE DeliveryStatus = 'Pending' AND DATEDIFF(HOUR, GETDATE(), CreatedAt) >= 24");
+        }, "SELECT * FROM Delivery WHERE DeliveryStatus = 'Pending' AND DATEDIFF(HOUR, CreatedAt, GETDATE()) >= 24");
     }
 }
