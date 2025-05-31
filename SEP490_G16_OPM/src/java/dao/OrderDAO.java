@@ -1032,10 +1032,10 @@ public class OrderDAO extends DBContext {
             order.setQuantity(rs.getInt("Quantity"));
             User seller = new User();
             seller.setUserID(rs.getInt("SellerID"));
-            seller.setEmail("SellerEmail");
+            seller.setEmail(rs.getString("SellerEmail"));
             User dealer = new User();
             dealer.setUserID(rs.getInt("DealerID"));
-            dealer.setEmail("DealerEmail");
+            dealer.setEmail(rs.getString("DealerEmail"));
             order.setSeller(seller);
             order.setDealer(dealer);
             return order;

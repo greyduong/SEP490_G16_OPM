@@ -20,8 +20,8 @@ public class ServletLogController extends HttpServlet {
         LocalDate to = null;
         int page = 0;
         try {
-            LocalDate.parse(req.getParameter("from"));
-            LocalDate.parse(req.getParameter("to"));
+            from = LocalDate.parse(req.getParameter("from"));
+            to = LocalDate.parse(req.getParameter("to"));
         } catch (DateTimeParseException | NullPointerException e) {
         }
         try {
@@ -32,7 +32,6 @@ public class ServletLogController extends HttpServlet {
             to = ZonedDateTime.now(ZoneId.of("UTC+7")).toLocalDate();
             from = to.minusDays(7);
         }
-        System.out.println("page param = " + page);
         if (page <= 0) {
             page = 1;
         }

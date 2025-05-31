@@ -10,17 +10,11 @@ import java.io.IOException;
 import model.User;
 
 @WebFilter(urlPatterns = {
-    "/manager-home",
-    "/manage-farms",
-    "/manage-offers",
-    "/process-offer",
-    "/manage-orders",
-    "/process-order",
-    "/server-log"
+    "/wallet",
+    "/wallet-topup",
+    "/wallet-topup-result"
 })
-
-public class OnlyManagerFilter extends HttpFilter {
-
+public class OnlySellerAndDealerFilter extends HttpFilter {
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (request.getSession().getAttribute("user") == null) {
@@ -29,7 +23,7 @@ public class OnlyManagerFilter extends HttpFilter {
         }
         User user = (User) request.getSession().getAttribute("user");
         System.out.println(user.getRoleID());
-        if (user.getRoleID() != 2) {
+        if (user.getRoleID() != 4 && user.getRoleID() != 5) {
             response.sendRedirect(request.getContextPath() + "/home?error=403");
             return;
         }
