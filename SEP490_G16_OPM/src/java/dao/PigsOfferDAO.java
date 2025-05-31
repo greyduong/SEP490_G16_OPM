@@ -816,6 +816,11 @@ public class PigsOfferDAO extends DBContext {
         String sql = "UPDATE PigsOffer SET Quantity = Quantity - ?, TotalOfferPrice = ? WHERE OfferID = ?";
         executeUpdate(sql, purchasedQuantity, totalPrice, offerId);
     }
+    
+    public void updateOfferAfterReject(int offerId, int quantity) {
+        String sql = "UPDATE PigsOffer SET Quantity = Quantity + ?, TotalOfferPrice = (Quantity + ?) * RetailPrice WHERE OfferID = ?";
+        executeUpdate(sql, quantity, quantity, offerId);
+    }
 
     public void setOfferStatus(int offerId, String status) {
         String sql = "UPDATE PigsOffer SET Status = ? WHERE OfferID = ?";
