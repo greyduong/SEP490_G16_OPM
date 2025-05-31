@@ -365,6 +365,7 @@ VALUES
 (13, 9, 15, 24, 3, 9000000, 'Pending', '2025-04-23', NULL, N'Đơn đặt từ dealer5'),
 (10, 9, 15, 24, 7, 21000000, 'Confirmed', '2025-04-22', '2025-04-30', N'Đơn đặt từ dealer2');
 
+
 -- Orders for OfferID = 25 (SellerID = 4, FarmID = 2)
 INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
 VALUES 
