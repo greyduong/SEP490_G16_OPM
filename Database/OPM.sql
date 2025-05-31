@@ -288,9 +288,9 @@ VALUES
 (4, 12, 1, N'Heo Siêu Nạc F1', N'Siêu Nạc', 50, 5, 2000000, 3000000, 150000000,
 N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/FNfLCyg/48948e801d6f.jpg', '2025-05-27', '2025-05-29', N'Đã kiểm định', '2025-4-30'),
 (4, 13, 2, N'Heo Rừng F3', N'Heo Rừng Lai', 40, 4, 2500000, 4000000, 160000000,
-N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/bMt0PfjT/40bc48bbf348.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
+N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/TxpH553H/2e39284458bc.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (4, 14, 3, N'Heo Mẹ', N'Yorkshire', 30, 3, 3000000, 5000000, 150000000,
-N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/NqrmxcL/3c6a3cf77e8b.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
+N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/h17vt2MK/fcb05e618dfb.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (4, 15, 4, N'Heo Con F2', N'Heo Trắng', 60, 6, 1800000, 2800000, 168000000,
 N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/0yhLBn5F/38dffc751dd3.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (6, 12, 1, N'Heo Siêu Nạc F6', N'Siêu Nạc', 50, 5, 2000000, 3000000, 150000000,
@@ -298,7 +298,7 @@ N'Heo siêu nạc chất lượng từ Củ Chi.', 'https://i.ibb.co/k6XtxBTN/7e
 (7, 13, 2, N'Heo Rừng Lai', N'Heo Rừng Lai', 40, 4, 2500000, 4000000, 160000000,
 N'Heo rừng lai khỏe mạnh từ Bình Dương.', 'https://i.ibb.co/jvSM4Pwn/aa504e8335b2.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (8, 14, 3, N'Heo Rừng Mẹ ', N'Yorkshire', 30, 3, 3000000, 5000000, 150000000,
-N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/NqrmxcL/3c6a3cf77e8b.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
+N'Heo mẹ giống Yorkshire từ Tây Ninh.', 'https://i.ibb.co/Cs1ZrsYZ/46adf3bf790a.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30'),
 (9, 15, 4, N'Heo Rừng con', N'Heo Trắng', 60, 6, 1800000, 2800000, 168000000,
 N'Heo con 3 tuần tuổi từ Long An.', 'https://i.ibb.co/PZpKPJYT/b5e707df9ba9.jpg', '2025-05-31', '2025-06-30', N'Đã kiểm định', '2025-4-30');
 
@@ -308,20 +308,20 @@ INSERT INTO PigsOffer (
     RetailPrice, TotalOfferPrice, Description, ImageURL, StartDate, EndDate, Note, CreatedAt
 )
 VALUES
-(4, 1, 1, N'Heo Thịt Miền Tây B', N'Heo Lai', 40, 4, 1500000, 3000000, 120000000,
- N'Heo thịt từ Trại Heo Miền Tây, chất lượng ổn định.', 'https://i.ibb.co/Vpgs0Xj8/644a49bcfe38.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+(4, 1, 1, N'Heo Thịt Lai Miền Tây', N'Heo Lai', 40, 4, 1500000, 3000000, 120000000,
+ N'Heo thịt từ Trại Heo Miền Tây, chất lượng ổn định.', 'https://i.ibb.co/N20bGWWM/3f503cc5a672.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
 
-(4, 2, 2, N'Heo Móng Cái B', N'Móng Cái', 35, 3, 2500000, 5000000, 140000000,
- N'Heo giống Móng Cái thuần chủng.', 'https://i.ibb.co/s7PVdQr/1f8258012aef.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+(4, 2, 2, N'Heo Giống Móng Cái Thuần Chủng', N'Móng Cái', 35, 3, 2500000, 5000000, 140000000,
+ N'Heo giống Móng Cái thuần chủng, dễ nuôi và sinh sản tốt.', 'https://i.ibb.co/hFry1fNg/5ce2b858a698.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
 
-(4, 3, 3, N'Heo Rừng Lai B', N'Heo Rừng Lai', 22, 2, 2800000, 5500000, 121000000,
- N'Heo lai rừng, thịt thơm ngon.', 'https://i.ibb.co/Kjnt9ZVx/1cf74914fe5f.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+(4, 3, 3, N'Heo Rừng Lai Thịt Ngon', N'Heo Rừng Lai', 22, 2, 2800000, 5500000, 121000000,
+ N'Heo rừng lai được nuôi thả tự nhiên, thịt thơm chắc.', 'https://i.ibb.co/JFvQWHf5/bcaa48e2eec8.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
 
-(4, 4, 4, N'Heo Siêu Nạc B', N'Siêu Nạc', 55, 5, 2100000, 4000000, 220000000,
- N'Heo siêu nạc từ giống Hòa Phát.', 'https://i.ibb.co/F4nSBzcJ/be3ca70ed86e.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
+(4, 4, 4, N'Heo Siêu Nạc Hòa Phát', N'Siêu Nạc', 55, 5, 2100000, 4000000, 220000000,
+ N'Heo siêu nạc giống Hòa Phát, tăng trưởng nhanh và tỷ lệ nạc cao.', 'https://i.ibb.co/F4nSBzcJ/be3ca70ed86e.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30'),
 
-(4, 5, 5, N'Heo Mẹ Miền Tây Bắc B', N'Landrace', 20, 2, 3000000, 6000000, 120000000,
- N'Heo mẹ khỏe mạnh, sinh sản tốt.', 'https://i.ibb.co/wFb6p93n/3b45292e5c39.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30');
+(4, 5, 5, N'Heo Mẹ Landrace Miền Tây Bắc', N'Landrace', 20, 2, 3000000, 6000000, 120000000,
+ N'Heo mẹ giống Landrace, khỏe mạnh và khả năng sinh sản cao.', 'https://i.ibb.co/s9TPbhrh/7fd6bc4bf80a.jpg', '2025-05-30', '2025-06-30', N'Đã kiểm định', '2025-05-30');
 
 
 
@@ -482,7 +482,7 @@ VALUES
 (5, N'Yêu cầu mở rộng khu vực phân phối', NULL, N'Đang chờ xử lý', '2025-04-27', NULL, NULL),
 (5, N'Đăng ký hợp tác dài hạn', NULL, N'Đang chờ xử lý', '2025-05-30', NULL, NULL),
 (5, N'Yêu cầu thông tin chương trình đào tạo', NULL, N'Đang chờ xử lý', '2025-05-04', NULL, NULL),
-(5, N'Đề nghị hỗ trợ vận chuyển đơn hàng lớn', NULL, N'Đang chờ xử lý', '2025-05-26', NULL, NULL),
+(5, N'Đề nghị hỗ trợ vận chuyển đơn hàng lớn', NULL, N'Đang chờ xử lý', '2025-05-25', NULL, NULL),
 (5, N'Yêu cầu tư vấn kỹ thuật nuôi heo', NULL, N'Đang chờ xử lý', '2025-05-24', NULL, NULL),
 (5, N'Đăng ký chương trình thử nghiệm giống mới', NULL, N'Đang chờ xử lý', '2025-04-24', NULL, NULL);
 
