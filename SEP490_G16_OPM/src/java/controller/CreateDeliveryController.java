@@ -91,6 +91,11 @@ public class CreateDeliveryController extends HttpServlet {
                 session.setAttribute("priceError", "Tổng giá không hợp lệ.");
                 hasError = true;
             }
+            
+            if (quantity == 0 && totalPrice == 0) {
+                session.setAttribute("msg", "Số lượng và tổng giá không được đồng thời bằng 0!");
+                hasError = true;
+            }
 
             DeliveryDAO deliveryDAO = new DeliveryDAO();
 
