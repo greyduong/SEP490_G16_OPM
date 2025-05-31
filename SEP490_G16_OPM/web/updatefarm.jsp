@@ -78,19 +78,40 @@
                         </c:otherwise>
                     </c:choose>
 
-                    <div class="form-group">
-                        <label for="image">Ảnh trang trại</label><br>
-                        <c:if test="${not empty farm.imageURL}">
-                            <img src="${farm.imageURL}" alt="Ảnh hiện tại" style="width: 150px; height: auto; margin-bottom: 10px;" /><br>
-                        </c:if>
-                        <input type="file" class="form-control-file" name="image" accept="image/*">
+                    <div class="mb-3">
+                        <div>
+                            <label class="text-slate-600 !inline-flex items-center gap-2 border !border-dashed rounded-sm cursor-pointer p-2">
+                                <span class="mdi mdi-upload text-2xl"></span>
+                                <div>
+                                    <div class="font-bold text-sm">Tải ảnh lên</div>
+                                    <div class="font-normal text-sm">Tối đa 32MB</div>
+                                </div>
+                                <input id="imageInput" type="file" class="hidden" name="image" accept="image/*">
+                            </label>
+                        </div>
+                        <div class="w-55 h-55">
+                            <img class="border border-slate-300 rounded-sm w-full h-full object-contain" id="previewImage" src="${farm.imageURL}" alt="Ảnh hiện tại" />
+                        </div>
                     </div>
-
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
                     <a href="my-farms?page=${param.page}&sort=${param.sort}&search=${param.search}&status=${param.status}" class="btn btn-secondary">Hủy</a>
                 </form>
             </div>
         </section>
+        <script>
+            document.querySelector("input[type=file]").addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById("previewImage");
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+        <jsp:include page="component/spinner.jsp" />
         <jsp:include page="component/footer.jsp" />
     </body>
 </html>

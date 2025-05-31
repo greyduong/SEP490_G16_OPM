@@ -10,7 +10,11 @@
     </head>
     <body>
         <jsp:include page="component/header.jsp"/>
-
+        <style type="text/tailwindcss">
+            label {
+                @apply !text-sm font-bold;
+            }
+        </style>
         <section class="product spad">
             <div class="container">
                 <h4 class="mb-4">🛠 Cập nhật chào bán</h4>
@@ -70,12 +74,18 @@
                                 </c:if>
                             </div>
 
-                            <div class="form-group">
-                                <label>Hình ảnh (tùy chọn)</label>
-                                <input type="file" class="form-control-file" name="image" accept="image/*">
-                                <c:if test="${not empty offer.imageURL}">
-                                    <p class="mt-2"><img src="${offer.imageURL}" alt="Ảnh hiện tại" style="max-width: 200px;" /></p>
-                                    </c:if>
+                            <div>
+                                <label class="text-slate-600 !inline-flex items-center gap-2 border !border-dashed rounded-sm cursor-pointer p-2">
+                                    <span class="mdi mdi-upload text-2xl"></span>
+                                    <div>
+                                        <div class="font-bold text-sm">Tải ảnh lên</div>
+                                        <div class="font-normal text-sm">Tối đa 32MB</div>
+                                    </div>
+                                    <input id="imageInput" type="file" class="hidden" name="image" accept="image/*">
+                                </label>
+                            </div>
+                            <div class="w-55 h-55">
+                                <img class="border border-slate-300 rounded-sm w-full h-full object-contain" id="previewImage" src="${offer.imageURL}" alt="Ảnh hiện tại" />
                             </div>
                         </div>
 
@@ -166,7 +176,20 @@
                 </form>
             </div>
         </section>
-
+        <jsp:include page="component/spinner.jsp" />
+        <script>
+            document.querySelector("input[type=file]").addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById("previewImage");
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
         <jsp:include page="component/footer.jsp"/>
     </body>
 </html>
