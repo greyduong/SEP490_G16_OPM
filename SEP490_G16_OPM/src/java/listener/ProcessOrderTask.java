@@ -17,14 +17,14 @@ public class ProcessOrderTask implements Runnable {
             db.cancelOrders(expired, "Hủy đơn do quá hạn xác nhận");
             Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá hạn xác nhận".formatted(expired.size()));
             expired.forEach(order -> {
-                // sendCancelOrderEmail(order, "Hết hạn");
+                sendCancelOrderEmail(order, "Quá thời gian xác nhận");
             });
             var overProcess = db.getOverProcessedDateOrders();
-            db.cancelOrders(overProcess, "Hủy đơn do quá thời gian xử lý");
+            db.cancelOrders(overProcess, "Hủy đơn do quá thời gian đặt cọc");
             overProcess.forEach(order -> {
-                // sendCancelOrderEmail(order, "Quá hạn xử lý");
+                sendCancelOrderEmail(order, "Quá hạn đặt cọc");
             });
-            Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá thời gian xử lý".formatted(overProcess.size()));
+            Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá thời gian đặt cọc".formatted(overProcess.size()));
         } catch(Exception e) {
 
         }
