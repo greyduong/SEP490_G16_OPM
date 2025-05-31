@@ -369,10 +369,10 @@ VALUES
 INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
 VALUES 
 (10, 4, 2, 25, 5, 15000000, 'Pending', '2025-04-3', NULL, N'Đơn đặt từ dealer2'),
-(11, 4, 2, 25, 6, 18000000, 'Confirmed', '2025-04-30', '2025-04-31', N'Đơn đặt từ dealer3'),
-(12, 4, 2, 25, 4, 12000000, 'Deposited', '2025-04-30', '2025-04-31', N'Đơn đặt từ dealer4'),
+(11, 4, 2, 25, 6, 18000000, 'Confirmed', '2025-04-30', '2025-05-30', N'Đơn đặt từ dealer3'),
+(12, 4, 2, 25, 4, 12000000, 'Deposited', '2025-04-30', '2025-05-30', N'Đơn đặt từ dealer4'),
 (13, 4, 2, 25, 3, 9000000, 'Pending', '2025-04-30', NULL, N'Đơn đặt từ dealer5'),
-(10, 4, 2, 25, 7, 21000000, 'Confirmed', '2025-04-30', '2025-04-31', N'Đơn đặt từ dealer2');
+(10, 4, 2, 25, 7, 21000000, 'Confirmed', '2025-04-30', '2025-04-30', N'Đơn đặt từ dealer2');
 INSERT INTO Orders (DealerID, SellerID, FarmID, OfferID, Quantity, TotalPrice, Status, CreatedAt, ProcessedDate, Note)
 VALUES 
 (10, 4, 3, 26, 5, 15000000, 'Pending', '2025-04-27', NULL, N'Đơn đặt từ dealer2'),
@@ -399,10 +399,20 @@ VALUES
 INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
 VALUES
 (1, 4, 5, 'Pending', 'John Doe', '0909123456', 5, 25000000, 'Delivery in progress for confirmed order'),
-(2, 4, 5, 'Delivered', 'Jane Smith', '0909988776', 8, 46400000, 'Order delivered to the dealer'),
+(2, 4, 5, 'Confirmed', 'Jane Smith', '0909988776', 8, 46400000, 'Order delivered to the dealer'),
 (3, 4, 5, 'Pending', 'Alice Johnson', '0911223344', 6, 24600000, 'Delivery in progress for confirmed order'),
-(4, 4, 5, 'Pending', 'Bob Brown', '0911555666', 7, 24600000, 'Waiting for shipment approval'),
-(5, 4, 5, 'Delivered', 'Charlie Wilson', '0909778899', 10, 24600000, 'Order has been delivered to the dealer');
+(4, 4, 5, 'Canceled', 'Bob Brown', '0911555666', 7, 24600000, 'Waiting for shipment approval'),
+(5, 4, 5, 'Confirmed', 'Charlie Wilson', '0909778899', 10, 24600000, 'Order has been delivered to the dealer');
+-- 2 Deliveries hoàn tất cho OrderID = 12 (đã đủ số lượng)
+INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
+VALUES
+(12, 6, 12, 'Confirmed', N'Dealer4', '0909988776', 2, 6000000, N'Giao lần 1 cho đơn hàng đã xác nhận'),
+(12, 6, 12, 'Confirmed', N'Dealer4', '0909988776', 2, 6000000, N'Giao lần 2 - hoàn tất, đủ số lượng');
+-- Delivery chưa đủ số lượng cho OrderID = 12 (mới giao 2/4)
+INSERT INTO Delivery (OrderID, SellerID, DealerID, DeliveryStatus, RecipientName, Phone, Quantity, TotalPrice, Comments)
+VALUES
+(12, 7, 13, 'Confirmed', N'Dealer4', '0911223344', 2, 6000000, N'Giao lần 1 - chưa đủ số lượng (còn 2)');
+
 
  
 
@@ -426,5 +436,7 @@ VALUES
 (5, N'Đăng ký chương trình thử nghiệm giống mới', NULL, N'Đang chờ xử lý', '2025-04-24', NULL, NULL);
 
 INSERT INTO ServerLog (Content, CreatedAt)
-VALUES (N'Hủy đơn do quá thời gian xử lý','2025-05-29' );
+VALUES (N'Hủy đơn do quá thời gian xử lý','2025-05-29' ),
+(N'Hủy đơn do quá thời gian xử lý','2025-05-29' );
+
 
