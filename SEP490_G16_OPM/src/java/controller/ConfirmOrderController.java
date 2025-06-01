@@ -103,11 +103,11 @@ public class ConfirmOrderController extends HttpServlet {
                         request.getRequestDispatcher("orders-request").forward(request, response);
                         return;
                     }
-                    double totalPrice;
+                    long totalPrice;
                     if(request.getParameter("totalPrice") == null || request.getParameter("totalPrice").isEmpty()) {
-                        totalPrice = order.getTotalPrice();
+                        totalPrice = (long) order.getTotalPrice();
                     } else {
-                        totalPrice = Double.parseDouble(request.getParameter("totalPrice"));
+                        totalPrice = Long.parseLong(request.getParameter("totalPrice"));
                     }
                     
                     if (totalPrice > order.getTotalPrice()) {
@@ -118,6 +118,12 @@ public class ConfirmOrderController extends HttpServlet {
                     
                     if (totalPrice <= order.getTotalPrice() * 0.5) {
                         request.setAttribute("msg", "Giá mới không được bé hơn 50% giá gốc");
+                        request.getRequestDispatcher("orders-request").forward(request, response);
+                        return;
+                    }
+
+                    if (totalPrice % 1000 > 0) {
+                        request.setAttribute("msg", "Giá mới phải là bội của 1000");
                         request.getRequestDispatcher("orders-request").forward(request, response);
                         return;
                     }
