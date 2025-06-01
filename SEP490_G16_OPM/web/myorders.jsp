@@ -139,7 +139,7 @@
                         <tbody>
                             <c:set var="startIndex" value="${(page.pageNumber - 1) * page.pageSize}" />
                             <c:forEach var="o" items="${page.data}" varStatus="status">
-                                <tr>
+                                <tr data-key="${o.orderID}">
                                     <td>${startIndex + status.index + 1}</td>
                                     <td>
                                         <form action="view-order-detail" method="get" class="d-inline">
@@ -243,6 +243,24 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>Mã</td>
+                                <td class="orderid"></td>
+                            </tr>
+                            <tr>
+                                <td>Chào bán</td>
+                                <td class="offer"></td>
+                            </tr>
+                            <tr>
+                                <td>Số lượng</td>
+                                <td class="quantity"></td>
+                            </tr>
+                            <tr>
+                                <td>Tổng giá</td>
+                                <td><span class="totalprice"></span> VND</td>
+                            </tr>
+                        </table>
                         Bạn có muốn đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> cho đơn này?
                     </div>
                     <div class="modal-footer">
@@ -287,7 +305,13 @@
             $(".depositForm").on("submit", function (e) {
                 e.preventDefault();
                 const form = $(this);
+                const orderId = form.find("[name=orderId]").val();
                 $("#depositModalAmount").text(form.find(".amount").text());
+                const row = $("[data-key=" + orderId + "] ");
+                $("#depositModal .orderid").text(orderId);
+                $("#depositModal .offer").text($("[data-key=" + orderId + "] td:nth-child(3)").text());
+                $("#depositModal .quantity").text($("[data-key=" + orderId + "] td:nth-child(4)").text());
+                $("#depositModal .totalprice").text($("[data-key=" + orderId + "] td:nth-child(5)").text());
                 $("#depositModal").modal();
                 $("#depositModalConfirm").on("click", function (e) {
                     e.preventDefault();
