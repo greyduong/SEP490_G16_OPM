@@ -447,9 +447,9 @@
                 
                 $("#depositModal [type=checkbox]").on("change", function() {
                     if ($(this).prop("checked")) {
-                        $("#depositModal .totalprice input").attr("disabled", null);
+                        $("#depositModal [name=totalPrice]").attr("disabled", null);
                     } else {
-                        $("#depositModal .totalprice input").attr("disabled", true);
+                        $("#depositModal [name=totalPrice]").attr("disabled", true);
                     }
                 });
                 $("#depositModal .totalprice input").on("input", function() {
