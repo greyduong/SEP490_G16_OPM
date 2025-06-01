@@ -168,6 +168,9 @@ public class Validation {
         if (retailPrice < 0 || totalPrice < 0 || deposit < 0) {
             return "Giá trị không được âm.";
         }
+        if (retailPrice % 1000 != 0 || totalPrice % 1000 != 0 || deposit % 1000 != 0) {
+            return "Giá trị phải chia hết cho 1000.";
+        }
         if (deposit > totalPrice) {
             return "Tiền đặt cọc không được vượt quá tổng giá chào bán.";
         }
@@ -232,6 +235,9 @@ public class Validation {
     public static String validateDeliveryPrice(double price, double remainingPrice) {
         if (price <= 0) {
             return "Tổng giá phải lớn hơn 0.";
+        }
+        if (price % 1000 != 0) {
+            return "Tổng giá phải chia hết cho 1000.";
         }
         if (price > remainingPrice) {
             return "Tổng giá vượt quá phần còn lại của đơn hàng.";
