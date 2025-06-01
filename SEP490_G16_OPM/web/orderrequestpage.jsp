@@ -409,6 +409,9 @@
                                             <input name="totalPrice" disabled class="disabled:bg-slate-100 border !rounded-sm p-1" type="number">
                                             <span>VND</span>
                                         </div>
+                                        <div>
+                                            <label><input type="checkbox">Thay đổi giá</label>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
@@ -441,6 +444,21 @@
                 $("#depositModal .offer").text(offer);
                 $("#depositModal .quantity").text(quantity);
                 $("#depositModal .totalprice input").val(totalprice);
+                
+                $("#depositModal [type=checkbox]").on("change", function() {
+                    if ($(this).prop("checked")) {
+                        $("#depositModal .totalprice input").attr("disabled", null);
+                    } else {
+                        $("#depositModal .totalprice input").attr("disabled", true);
+                    }
+                });
+                $("#depositModal .totalprice input").on("input", function() {
+                    const totalprice = parseInt($("#depositModal .totalprice input").val());
+                    const deposit = totalprice * 0.01;
+                    $("#depositModalAmount").text(new Intl.NumberFormat({type: "currency"}).format(deposit));
+                    if (!deposit) $("#depositModalAmount").text("0");
+                });
+                
                 $("#depositModal").modal();
                 $("#depositModalConfirm").on("click", function (e) {
                     e.preventDefault();

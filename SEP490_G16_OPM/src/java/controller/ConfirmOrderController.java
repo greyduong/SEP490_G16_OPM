@@ -103,18 +103,36 @@ public class ConfirmOrderController extends HttpServlet {
                         request.getRequestDispatcher("orders-request").forward(request, response);
                         return;
                     }
+                    double totalPrice;
+                    if(request.getParameter("totalPrice") == null || request.getParameter("totalPrice").isEmpty()) {
+                        totalPrice = order.getTotalPrice();
+                    } else {
+                        totalPrice = Double.parseDouble(request.getParameter("totalPrice"));
+                    }
+                    
+                    if (totalPrice > order.getTotalPrice()) {
+                        request.setAttribute("msg", "Giá mới không được vượt quá giá gốc.");
+                        request.getRequestDispatcher("orders-request").forward(request, response);
+                        return;
+                    }
+                    
+                    if (totalPrice <= order.getTotalPrice() * 0.5) {
+                        request.setAttribute("msg", "Giá mới không được bé hơn 50% giá gốc");
+                        request.getRequestDispatcher("orders-request").forward(request, response);
+                        return;
+                    }
 
-					long amount = (long) (order.getTotalPrice() * 0.01);
-					var wallet = new WalletUseHistoryDAO();
-					if (!wallet.hasEnoughMoney(user.getUserID(), amount)) {
+                    long amount = (long) (totalPrice * 0.01);
+                    var wallet = new WalletUseHistoryDAO();
+                    if (!wallet.hasEnoughMoney(user.getUserID(), amount)) {
                         request.setAttribute("msg", "Không đủ tiền trong ví!");
                         request.getRequestDispatcher("orders-request").forward(request, response);
-						return;
-					}
+                        return;
+                    }
                     boolean isUpdated = orderDAO.confirmOrder(orderID);
 
                     if (isUpdated) {
-						wallet.use(user.getUserID(), amount, "Xác nhận đơn hàng #%s".formatted(order.getOrderID()));
+                        wallet.use(user.getUserID(), amount, "Xác nhận đơn hàng #%s".formatted(order.getOrderID()));
                         orderDAO.updateOrderNote(orderID, "Đơn hàng đã được xác nhận.");
                         String toEmail = order.getDealer().getEmail();
                         String buyerName = order.getDealer().getFullName();
