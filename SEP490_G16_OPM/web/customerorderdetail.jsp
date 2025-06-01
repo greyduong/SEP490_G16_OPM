@@ -74,7 +74,7 @@
                                 </td>
                             </tr>
                             <tr><th>Tên trang trại</th><td>${order.farm.farmName}</td></tr>
-                            <tr><th>Người mua</th><td>${order.dealer.fullName}</td></tr>
+                            <tr><th>Người mua</th><td>${order.dealer.fullName} - ${order.dealer.phone}</td></tr>
                             <tr><th>Tên chào bán</th><td>${order.pigsOffer.name}</td></tr>
                             <tr><th>Tổng giá (VND)</th><td><fmt:formatNumber value="${order.totalPrice}" type="number" groupingUsed="true" /></td></tr>
                             <tr><th>Số lượng</th><td>${order.quantity} con</td></tr>

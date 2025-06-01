@@ -50,7 +50,7 @@
                 <div class="col-md-6">
                     <table class="table table-bordered">
                         <tr><th>Tên trang trại</th><td>${order.farm.farmName}</td></tr>
-                        <tr><th>Người bán</th><td>${seller.fullName}</td></tr>
+                        <tr><th>Người bán</th><td>${seller.fullName} - ${seller.phone}</td></tr>
                         <tr><th>Trạng thái</th>
                             <td>
                                 <c:choose>
