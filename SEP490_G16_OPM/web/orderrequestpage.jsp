@@ -135,7 +135,7 @@
                     <tbody>
                     <tbody>
                         <c:forEach var="o" items="${page.data}" varStatus="loop">
-                            <tr>
+                            <tr data-key="${o.orderID}">
                                 <td>${(page.pageNumber - 1) * page.pageSize + loop.index + 1}</td>
                                 <td>
                                     <a href="#" data-toggle="modal" data-target="#orderModal${o.orderID}">
@@ -161,10 +161,7 @@
                                 <td><fmt:formatDate value="${o.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                 <td>
                                     <c:if test="${o.status == 'Pending'}">
-                                        <form action="confirm-order" method="post" class="d-inline">
-                                            <input type="hidden" name="orderID" value="${o.orderID}" />
-											<button data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
-                                        </form>
+                                        <button data-orderid="${o.orderID}" data-totalprice="<fmt:formatNumber value="${o.totalPrice}" groupingUsed="false" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
                                         <!-- Nút mở modal -->
                                         <button type="button" class="btn btn-outline-danger btn-sm ml-1"
                                                 data-toggle="modal" data-target="#rejectModal${o.orderID}">
@@ -286,10 +283,7 @@
                                             </table>
                                             <div class="modal-footer">
                                                 <c:if test="${o.status == 'Pending'}">
-                                                    <form action="confirm-order" method="post" class="d-inline">
-                                                        <input type="hidden" name="orderID" value="${o.orderID}" />
-                                                        <button data-deposit="<fmt:formatNumber value="${o.totalPrice * 0.01}" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
-                                                    </form>
+                                                    <button data-orderid="${o.orderID}" data-totalprice="<fmt:formatNumber value="${o.totalPrice}" groupingUsed="false" />" type="submit" class="confirmButton btn btn-success">Xác nhận</button>
                                                     <!-- Nút mở modal từ chối -->
                                                     <button type="button" class="btn btn-outline-danger btn-sm ml-1" data-toggle="modal" data-target="#rejectModal${o.orderID}">
                                                         Từ chối
@@ -346,7 +340,8 @@
             // Khi back lại, xóa overlay nếu còn tồn tại
             window.addEventListener("pageshow", function () {
                 const overlay = document.getElementById("loading-overlay");
-                if (overlay) overlay.remove();
+                if (overlay)
+                    overlay.remove();
             });
         </script>
 
@@ -388,6 +383,36 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <form action="confirm-order" method="post" class="d-inline">
+                            <input type="hidden" name="orderID" />
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td>Mã</td>
+                                    <td class="orderid"></td>
+                                </tr>
+                                <tr>
+                                    <td>Người mua</td>
+                                    <td class="dealer"></td>
+                                </tr>
+                                <tr>
+                                    <td>Chào bán</td>
+                                    <td class="offer"></td>
+                                </tr>
+                                <tr>
+                                    <td>Số lượng</td>
+                                    <td class="quantity"></td>
+                                </tr>
+                                <tr>
+                                    <td>Tổng giá</td>
+                                    <td class="totalprice">
+                                        <div class="flex gap-2 items-center">
+                                            <input name="totalPrice" disabled class="disabled:bg-slate-100 border !rounded-sm p-1" type="number">
+                                            <span>VND</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
                         Bạn cần đặt cọc <i>1% tổng đơn</i> tương đương với <b id="depositModalAmount"></b><b>đ</b> để xác nhận đơn hàng này.
                     </div>
                     <div class="modal-footer">
@@ -402,12 +427,24 @@
             $(".confirmButton").on("click", function (e) {
                 e.preventDefault();
                 const btn = $(this);
-                const amount = btn.attr("data-deposit");
-                $("#depositModalAmount").text(amount);
+                const totalprice = btn.attr("data-totalprice");
+                const orderId = btn.attr("data-orderid");
+                console.log(orderId);
+                const dealer = ($("[data-key=" + orderId + "] td:nth-child(3)").text());
+                const offer = ($("[data-key=" + orderId + "] td:nth-child(4)").text());
+                const quantity = ($("[data-key=" + orderId + "] td:nth-child(5)").text());
+                const deposit = parseInt(totalprice) * 0.01;
+                $("#depositModal [name=orderID]").val(orderId);
+                $("#depositModalAmount").text(new Intl.NumberFormat({type: "currency"}).format(deposit));
+                $("#depositModal .orderid").text(orderId);
+                $("#depositModal .dealer").text(dealer);
+                $("#depositModal .offer").text(offer);
+                $("#depositModal .quantity").text(quantity);
+                $("#depositModal .totalprice input").val(totalprice);
                 $("#depositModal").modal();
                 $("#depositModalConfirm").on("click", function (e) {
                     e.preventDefault();
-                    btn.parent().submit();
+                    $("#depositModal form").submit();
                 });
             });
         </script>

@@ -92,7 +92,7 @@ public class CheckOutController extends HttpServlet {
                 request.setAttribute("error", "Số lượng không hợp lệ.");
                 request.getRequestDispatcher("shoppingcart.jsp").forward(request, response);
                 return;
-            }
+            } 
 
             User seller = userDAO.getUserById(offer.getSellerID());
 
@@ -106,9 +106,14 @@ public class CheckOutController extends HttpServlet {
 
             // Thêm đơn hàng
             orderDAO.insertOrder(user.getUserID(), offer.getSellerID(), offerId, quantity, totalPrice);
-            // Cập nhật số lượng sau checkout
-            offerDAO.updateOfferQuantityAfterCheckout(offerId, quantity);
-
+            if (quantity < offer.getQuantity()) {
+                // Cập nhật số lượng, tổng giá sau checkout
+                double totalOfferPrice = offer.getRetailPrice() * (offer.getQuantity() - quantity);
+                offerDAO.updateOfferAfterCheckout(offerId, quantity, totalOfferPrice);
+            } else {
+                // Chỉ cập nhật số lượng sau checkout
+                offerDAO.updateOfferQuantityAfterCheckout(offerId, quantity);
+            }
             // Kiểm tra lại số lượng sau khi trừ
             PigsOffer updatedOffer = offerDAO.getOfferById(offerId);
             if (updatedOffer.getQuantity() == 0) {

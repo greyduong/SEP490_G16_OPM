@@ -1,6 +1,7 @@
 package listener;
 
 import dao.OrderDAO;
+import dao.ServerLogDAO;
 import jakarta.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
@@ -13,16 +14,23 @@ public class ProcessOrderTask implements Runnable {
     public void run() {
         try {
             var db = new OrderDAO();
-            var expired = db.getExpiredOrders();
+            var log = new ServerLogDAO();
+            final var expired = db.getExpiredOrders();
             db.cancelOrders(expired, "Hủy đơn do quá hạn xác nhận");
             Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá hạn xác nhận".formatted(expired.size()));
+            log.createLogs(expired.stream().map(order -> {
+                return "Đã hủy đơn [order=%s] do quá hạn xác nhận".formatted(order.getOrderID());
+            }).toList());
             expired.forEach(order -> {
-                sendCancelOrderEmail(order, "Quá thời gian xác nhận");
+                // sendCancelOrderEmail(order, "Quá thời gian xác nhận");
             });
-            var overProcess = db.getOverProcessedDateOrders();
+            final var overProcess = db.getOverProcessedDateOrders();
             db.cancelOrders(overProcess, "Hủy đơn do quá thời gian đặt cọc");
+            log.createLogs(overProcess.stream().map(order -> {
+                return "Đã hủy đơn [order=%s] do quá thời gian đặt cọc".formatted(order.getOrderID());
+            }).toList());
             overProcess.forEach(order -> {
-                sendCancelOrderEmail(order, "Quá hạn đặt cọc");
+                // sendCancelOrderEmail(order, "Quá hạn đặt cọc");
             });
             Logger.getLogger(ProcessOfferTask.class.getName()).info("Đã hủy %s đơn do quá thời gian đặt cọc".formatted(overProcess.size()));
         } catch(Exception e) {

@@ -1032,10 +1032,10 @@ public class OrderDAO extends DBContext {
             order.setQuantity(rs.getInt("Quantity"));
             User seller = new User();
             seller.setUserID(rs.getInt("SellerID"));
-            seller.setEmail("SellerEmail");
+            seller.setEmail(rs.getString("SellerEmail"));
             User dealer = new User();
             dealer.setUserID(rs.getInt("DealerID"));
-            dealer.setEmail("DealerEmail");
+            dealer.setEmail(rs.getString("DealerEmail"));
             order.setSeller(seller);
             order.setDealer(dealer);
             return order;
@@ -1087,10 +1087,10 @@ public class OrderDAO extends DBContext {
 
     public boolean cancelOrders(List<Order> orders, String note) {
         var statement = batch("UPDATE Orders SET Status = 'Canceled', Note = ? WHERE OrderID = ?");
-        var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ? WHERE OfferID = ?");
+        var statement2 = batch("UPDATE PigsOffer SET Quantity = Quantity + ?, TotalOfferPrice = (Quantity + ?) * RetailPrice WHERE OfferID = ?");
         orders.forEach(order -> {
             statement.params(note, order.getOrderID());
-            statement2.params(order.getQuantity(), order.getOfferID());
+            statement2.params(order.getQuantity(), order.getQuantity(), order.getOfferID());
         });
         return statement.execute() != null && statement2.execute() != null;
     }

@@ -54,11 +54,13 @@
                 Đăng ký
             </a>
         </c:if>
-        <c:if test="${not empty sessionScope.user}">
+        <c:if test="${not empty sessionScope.user and (sessionScope.user.roleID == 4 or sessionScope.user.roleID == 5)}">
             <a href="${pageContext.request.contextPath}/wallet" class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-cash"></span>
                 <fmt:formatNumber currencyCode="VND" value="${sessionScope.user.wallet}" />đ
             </a>
+        </c:if>
+        <c:if test="${not empty sessionScope.user}">
             <a href="${pageContext.request.contextPath}/profile"
                class="!no-underline border border-slate-300 !text-slate-600 hover:border-slate-400 hover:!bg-slate-50 px-2 py-1 rounded-lg">
                 <span class="mdi mdi-account"></span>
@@ -127,10 +129,6 @@
                 <a href="${pageContext.request.contextPath}/manage-user">
                     <span class="mdi mdi-account"></span>
                     Quản lý người dùng
-                </a>
-                <a href="${pageContext.request.contextPath}/server-log">
-                    <span class="mdi mdi-math-log"></span>
-                    Nhật ký hệ thống
                 </a>
             </c:if>
             <!-- MANAGER -->

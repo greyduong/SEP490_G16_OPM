@@ -14,6 +14,11 @@
     <body>
         <jsp:include page="component/header.jsp"/>
         <div class="px-5 flex flex-col gap-3">
+            <form id="datePicker" class="flex items-center gap-2">
+                <input name="from" class="border border-slate-300 rounded-sm px-1" type="date" value="${from}">
+                <span class="mdi mdi-chevron-right"></span>
+                <input name="to" class="border border-slate-300 rounded-sm px-1" type="date" value="${to}">
+            </form>
             <table class="text-slate-600 rounded-sm">
                 <thead class="bg-slate-50 text-sm font-semibold">
                     <tr class="*:border *:border-slate-300 *:py-1 *:px-2">
@@ -36,13 +41,22 @@
                 </tbody>
             </table>
             <div class="flex items-center gap-2">
-                <div>Hiển thị trang <b>${logs.pageNumber}</b> trên tổng <b>${logs.totalPage}</b> trang</div>
-                <form class="flex *:hover:bg-lime-700 *:bg-lime-600 text-white *:py-1 *:px-2 *:rounded-sm gap-2 *:hover:cursor-pointer">
+                <form class="flex items-center gap-2">Hiển thị trang <input name="page" class="px-1 w-9 border border-slate-300 !border-dashed" value="${logs.pageNumber}"> trên tổng <b>${logs.totalPage}</b> trang</form>
+                <form class="flex *:hover:bg-lime-700 *:bg-lime-600 text-white *:py-1 *:px-2 *:!rounded-sm gap-2 *:hover:cursor-pointer">
                     <button name="page" value="${logs.pageNumber - 1}"><span class="mdi mdi-chevron-left"></span></button>
                     <button name="page" value="${logs.pageNumber + 1}"><span class="mdi mdi-chevron-right"></span></button>
                 </form>
             </div>
         </div>
+        <script>
+            $("td").html(function () {
+                return $(this).html()
+                        .replace(/\[order=(\d+)\]/, "<a href='manage-orders?search=$1'>$1</a>");
+            });
+            $("input[type=date]").on("change", function () {
+                $("#datePicker").submit();
+            });
+        </script>
         <jsp:include page="component/footer.jsp"/>
     </body>
 </html>

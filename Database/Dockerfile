@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/mssql/server:2022-latest
+ENV TZ="Asia/Ho_Chi_Minh"
 ENV ACCEPT_EULA=Y
 ENV MSSQL_SA_PASSWORD=OnlinePigMarket@1
 USER root
