@@ -200,16 +200,15 @@ VALUES
 (2, N'Quản lí 1', 'manager1', 'manager123', 'manager1@gmail.com', '0909765432', N'654 Đường Hai Bà Trưng, TP.HCM', 800000),
 (3, N'Nhân viên 1', 'staff1', 'staff123', 'staff1@gmail.com', '0909678456', N'321 Đường Trần Hưng Đạo, TP.HCM', 300000),
 (4, N'Tuấn Seller', 'seller1', 'seller123', 'duongquocdagtuong@gmail.com', '0909345678', N'456 Đường Nguyễn Huệ, TP.HCM', 500000),
-(5, N'Tường Dealer', 'dealer1', 'dealer123', 'duongquocdagtuong@gmail.com', '0909567890', N'789 Đường Cách Mạng, TP.HCM', 200000),
-(4, N'Seller 2', 'seller2', 'seller123', 'onlinepigmarket@gmail.com', '0911000001', N'12 Đường Số 1, TP.HCM', 400000),
-(4, N'Seller 3', 'seller3', 'seller123', 'onlinepigmarket@gmail.com', '0911000002', N'34 Đường Số 2, TP.HCM', 450000),
-(4, N'Seller 4', 'seller4', 'seller123', 'onlinepigmarket@gmail.com', '0911000003', N'56 Đường Số 3, TP.HCM', 420000),
-(4, N'Seller 5', 'seller5', 'seller123', 'onlinepigmarket@gmail.com', '0911000004', N'78 Đường Số 4, TP.HCM', 480000),
-(5, N'Dealer 2', 'dealer2', 'dealer123', 'onlinepigmarket@gmail.com', '0922000001', N'22 Đường Số 5, TP.HCM', 250000),
-(5, N'Dealer 3', 'dealer3', 'dealer123', 'onlinepigmarket@gmail.com', '0922000002', N'44 Đường Số 6, TP.HCM', 300000),
-(5, N'Dealer 4', 'dealer4', 'dealer123', 'onlinepigmarket@gmail.com', '0922000003', N'66 Đường Số 7, TP.HCM', 270000),
-(5, N'Dealer 5', 'dealer5', 'dealer123', 'onlinepigmarket@gmail.com', '0922000004', N'88 Đường Số 8, TP.HCM', 320000);
-
+(5, N'Tường Dealer', 'dealer1', 'dealer123', 'tuanseller2@gmail.com', '0909567890', N'789 Đường Cách Mạng, TP.HCM', 200000),
+(4, N'Ngô Thị Hương', 'huong_ngo03', 'Ng0Hu0ng!', 'onlinepigmarket@gmail.com', '0911000001', N'12 Đường Số 1, TP.HCM', 400000),
+(4, N'Phạm Quốc Đạt', 'dat_pham04', 'Pqd@2025$', 'onlinepigmarket@gmail.com', '0911000002', N'34 Đường Số 2, TP.HCM', 450000),
+(4, N'Hoàng Minh Nhật', 'nhat_hoang05', 'HMN#456a', 'onlinepigmarket@gmail.com', '0911000003', N'56 Đường Số 3, TP.HCM', 420000),
+(4, N'Vũ Thanh Hằng', 'hang_vu06', 'Vth@HanG7', 'onlinepigmarket@gmail.com', '0911000004', N'78 Đường Số 4, TP.HCM', 480000),
+(5, N'Trần Đức Duy', 'duy_tran07', 'Duy2025&*', 'onlinepigmarket@gmail.com', '0922000001', N'22 Đường Số 5, TP.HCM', 250000),
+(5, N'Đỗ Ngọc Trâm', 'tram_do08', 'Tram*Ng99', 'onlinepigmarket@gmail.com', '0922000002', N'44 Đường Số 6, TP.HCM', 300000),
+(5, N'Lâm Thanh Sơn', 'son_lam09', 'S0n@Lam88', 'onlinepigmarket@gmail.com', '0922000003', N'66 Đường Số 7, TP.HCM', 270000),
+(5, N'Bùi Thị Mai', 'mai_bui10', 'Mai!Bui76', 'onlinepigmarket@gmail.com', '0922000004', N'88 Đường Số 8, TP.HCM', 320000);
 
 INSERT INTO Farm (SellerID, FarmName, Location, Description, Status, Note, ImageURL, CreatedAt)
 VALUES
