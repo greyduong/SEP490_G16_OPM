@@ -18,7 +18,7 @@
                 <div class="text-red-600 font-bold mb-3">${error}</div>
             </c:if>
             <c:if test="${not empty success}">
-                <div class="text-lime-600 font-bold mb-3">Thành công nạp ${requestScope.vnp_Amount} VND vào ví!</div>
+                <div class="text-lime-600 font-bold mb-3">Thành công nạp ${amount} VND vào ví!</div>
             </c:if>
             <c:if test="${not empty fail}">
                 <div class="text-red-600 font-bold mb-3">Bạn đã hủy nạp</div>

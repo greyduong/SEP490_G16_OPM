@@ -64,10 +64,9 @@ public class WalletTopupResultController extends HttpServlet {
         
         // update wallet
         db.executeUpdate("UPDATE UserAccount SET Wallet = Wallet + ? WHERE UserID = ?", amount, userId);
-        
-        // update session
-        User user = new UserDAO().getUserById(userId);
-        req.getSession().setAttribute("user", user);
+        double wallet = db.fetchOne(rs -> rs.getDouble("Wallet"), "SELECT Wallet FROM UserAccount WHERE UserID = ?", userId);
+        ((User) req.getSession().getAttribute("user")).setWallet(wallet);
+        req.setAttribute("amount", amount);
         req.getRequestDispatcher("wallet-result.jsp").forward(req, resp);
     }
 
