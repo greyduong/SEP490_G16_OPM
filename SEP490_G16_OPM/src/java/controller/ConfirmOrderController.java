@@ -129,6 +129,7 @@ public class ConfirmOrderController extends HttpServlet {
                         request.getRequestDispatcher("orders-request").forward(request, response);
                         return;
                     }
+                    orderDAO.executeUpdate("UPDATE Orders SET TotalPrice = ? WHERE OrderID = ?", totalPrice, order.getOrderID());
                     boolean isUpdated = orderDAO.confirmOrder(orderID);
 
                     if (isUpdated) {
