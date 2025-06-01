@@ -105,7 +105,7 @@ public class CheckOutController extends HttpServlet {
             }
 
             // Thêm đơn hàng
-            orderDAO.insertOrder(user.getUserID(), offer.getSellerID(), offerId, quantity, totalPrice);
+            orderDAO.insertOrder(user.getUserID(), offer.getSellerID(), offerId, quantity, totalPrice, offer.getFarmID());
             if (quantity < offer.getQuantity()) {
                 // Cập nhật số lượng, tổng giá sau checkout
                 double totalOfferPrice = offer.getRetailPrice() * (offer.getQuantity() - quantity);

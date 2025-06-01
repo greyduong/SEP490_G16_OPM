@@ -217,6 +217,20 @@ public class OrderDAO extends DBContext {
             e.printStackTrace();
         }
     }
+    public void insertOrder(int dealerId, int sellerId, int offerId, int quantity, double totalPrice, int farmId) {
+        String sql = "INSERT INTO Orders (DealerID, SellerID, OfferID, Quantity, TotalPrice, FarmID) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, dealerId);
+            ps.setInt(2, sellerId);
+            ps.setInt(3, offerId);
+            ps.setInt(4, quantity);
+            ps.setDouble(5, totalPrice);
+            ps.setInt(6, farmId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public List<Order> getOrdersByBuyerWithFilter(int buyerId, String search, String status, String sort, int pageIndex, int pageSize) {
         List<Order> orders = new ArrayList<>();
