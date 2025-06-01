@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.stream.Collectors;
 import model.Farm;
 import model.Page;
 import model.User;
@@ -90,7 +91,9 @@ public class ViewMyFarmsController extends HttpServlet {
 
         FarmDAO farmDAO = new FarmDAO();
         Page<Farm> pagedFarms = farmDAO.getFarmsByFilterbySellerId(userId, search, status, pageNumber, pageSize, sort);
-
+        
+        var canDeactive = pagedFarms.getData().stream().map(farm -> new Object[] { farm.getFarmID(), farmDAO.canDeactivateFarm(farm.getFarmID()) }).collect(Collectors.toMap(e -> e[0], e -> e[1]));
+        request.setAttribute("canDeactive", canDeactive);
         request.setAttribute("pagedFarms", pagedFarms);
         request.setAttribute("search", search);
         request.setAttribute("status", status);
