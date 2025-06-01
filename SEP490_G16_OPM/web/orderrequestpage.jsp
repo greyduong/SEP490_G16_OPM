@@ -145,7 +145,7 @@
                                 <td>${o.dealer.fullName}</td>
                                 <td>${o.pigsOffer.name}</td>
                                 <td>${o.quantity} con</td>
-                                <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
+                                <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/>  vnd</td>
                                 <td class="status-${o.status}">
                                     <c:choose>
                                         <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>
@@ -231,13 +231,13 @@
                                             <p><strong>Mô tả:</strong><br/>${o.pigsOffer.description}</p>
                                             <p><strong>Số lượng tối thiểu:</strong> ${o.pigsOffer.minQuantity} con</p>
                                             <p><strong>Giá lẻ:</strong> 
-                                                <fmt:formatNumber value="${o.pigsOffer.retailPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                                <fmt:formatNumber value="${o.pigsOffer.retailPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/> vnd
                                             </p>
                                             <p><strong>Tiền cọc:</strong> 
-                                                <fmt:formatNumber value="${o.pigsOffer.minDeposit}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                                <fmt:formatNumber value="${o.pigsOffer.minDeposit}" type="currency" currencySymbol="₫" groupingUsed="true"/>  vnd
                                             </p>
                                             <p><strong>Tổng giá chào bán:</strong> 
-                                                <fmt:formatNumber value="${o.pigsOffer.totalOfferPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>
+                                                <fmt:formatNumber value="${o.pigsOffer.totalOfferPrice}" type="currency" currencySymbol="₫" groupingUsed="true"/>  vnd
                                             </p>
                                         </div>
 

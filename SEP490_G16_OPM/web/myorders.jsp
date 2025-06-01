@@ -149,7 +149,7 @@
                                     </td>
                                     <td>${o.pigsOffer.name}</td>
                                     <td>${o.quantity} con</td>
-                                    <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/></td>
+                                    <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true"/>  vnd</td>
                                     <td class="status-${o.status}">
                                         <c:choose>
                                             <c:when test="${o.status == 'Pending'}">

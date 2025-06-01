@@ -110,7 +110,7 @@
                                             <c:otherwise>⇅</c:otherwise>
                                         </c:choose>
                                     </a>
-                                </th>
+                                </th>   
                                 <th>Tổng giá
                                     <a href="customer-orders?sort=${nextPriceSort}&search=${param.search}&status=${param.status}&farmId=${param.farmId}" class="btn btn-sm btn-outline-light ml-1">
                                         <c:choose>
@@ -150,7 +150,7 @@
                                     <td><a href="customer-order-details?id=${o.orderID}">${o.orderID}</a></td>
                                     <td>${o.pigsOffer.name}</td>
                                     <td>${o.quantity} con</td>
-                                    <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /></td>
+                                    <td><fmt:formatNumber value="${o.totalPrice}" type="number" groupingUsed="true" /> vnd</td>
                                     <td class="status-${o.status}">
                                         <c:choose>
                                             <c:when test="${o.status == 'Pending'}">Chờ xác nhận</c:when>

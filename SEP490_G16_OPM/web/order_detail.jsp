@@ -140,7 +140,7 @@
                                     </td>
                                     <td>${d.recipientName} - ${d.phone}</td>
                                     <td>${d.quantity} con</td>
-                                    <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true"/></td>
+                                    <td><fmt:formatNumber value="${d.totalPrice}" type="number" groupingUsed="true"/> vnd</td>
                                     <td><fmt:formatDate value="${d.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
                                     <td class="wrap-text">${d.comments}</td>
                                     <td>
@@ -184,19 +184,19 @@
                         <tr class="table-info font-weight-bold">
                             <td colspan="4">✅ Tổng đã giao</td>
                             <td>${totalDeliveredQuantity} con</td>
-                            <td><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/></td>
+                            <td><fmt:formatNumber value="${totalDeliveredPrice}" type="number" groupingUsed="true"/> vnd</td>
                             <td colspan="3"></td>
                         </tr>
                         <tr class="table-warning font-weight-bold">
                             <td colspan="4">⏳ Đang chờ xác nhận</td>
                             <td>${totalPendingQuantity} con</td>
-                            <td><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/></td>
+                            <td><fmt:formatNumber value="${totalPendingPrice}" type="number" groupingUsed="true"/> vnd</td>
                             <td colspan="3"></td>
                         </tr>
                         <tr class="table-primary font-weight-bold">
                             <td colspan="4">📦 Tổng đã tạo</td>
                             <td>${totalCreatedQuantity}</td>
-                            <td><fmt:formatNumber value="${totalCreatedPrice}" type="number" groupingUsed="true"/></td>
+                            <td><fmt:formatNumber value="${totalCreatedPrice}" type="number" groupingUsed="true"/> vnd</td>
                             <td colspan="3"></td>
                         </tr>
                         <tr class="table-danger font-weight-bold">
